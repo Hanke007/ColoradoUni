@@ -2,7 +2,7 @@ package cdb.common.lang;
 
 import org.apache.log4j.Logger;
 
-import cdb.common.log4j.LoggerDefineConstant;
+import cdb.common.lang.log4j.LoggerDefineConstant;
 
 /**
  * 捕捉到异常的时候，我们通常会使用<code>logger.error("xxxx",e)</code>方式打印日常堆栈日志<br>

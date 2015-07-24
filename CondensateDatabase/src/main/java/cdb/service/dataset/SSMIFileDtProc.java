@@ -2,15 +2,20 @@ package cdb.service.dataset;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 
 import cdb.common.lang.Byte2NumUtil;
+import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.StringUtil;
-import cdb.dal.vo.GeoEntity;
+import cdb.dal.vo.DenseIntMatrix;
 
 /**
- * Processor for SSMI data set.
+ * Dataset Processor for Special Sensor Microwave Image(r) (SSMI) data set.
+ * 
+ * See <a href="http://nsidc.org/data/docs/daac/nsidc0001_ssmi_tbs.gd.html">Daily Polar Gridded Brightness Temperatures Document</a>
  * 
  * @author chench
  * @version $Id: SSMIFileDtProc.java, v 0.1 Jul 22, 2015 4:00:12 PM chench Exp $
@@ -20,7 +25,7 @@ public class SSMIFileDtProc implements DatasetProc {
     /** 
      * @see cdb.service.dataset.DatasetProc#read(java.lang.String)
      */
-    public GeoEntity read(String fileName) {
+    public DenseIntMatrix read(String fileName) {
         // check validation
         if (StringUtil.isBlank(fileName)) {
             return null;
@@ -31,18 +36,20 @@ public class SSMIFileDtProc implements DatasetProc {
         if ((fileName.indexOf("n85") != -1) | (fileName.indexOf("n91") != -1)) {
             dimension[0] = 896;
             dimension[1] = 608;
-        } else if (fileName.indexOf('n') != -1) {
+        } else if ((fileName.indexOf("n19") != -1) | (fileName.indexOf("n22") != -1)
+                   | (fileName.indexOf("n37") != -1)) {
             dimension[0] = 448;
             dimension[1] = 304;
         } else if ((fileName.indexOf("s85") != -1) | (fileName.indexOf("s91") != -1)) {
             dimension[0] = 664;
             dimension[1] = 632;
-        } else if (fileName.indexOf('s') != -1) {
+        } else if ((fileName.indexOf("s19") != -1) | (fileName.indexOf("s22") != -1)
+                   | (fileName.indexOf("s37") != -1)) {
             dimension[0] = 332;
             dimension[1] = 316;
         }
 
-        GeoEntity result = new GeoEntity(dimension[0], dimension[1]);
+        DenseIntMatrix result = new DenseIntMatrix(dimension[0], dimension[1]);
         readInner(fileName, result);
         return result;
     }
@@ -53,24 +60,29 @@ public class SSMIFileDtProc implements DatasetProc {
      * @param fileName      the file contains data
      * @param geoEntity     the Object to store data
      */
-    protected void readInner(String fileName, GeoEntity geoEntity) {
+    protected void readInner(String fileName, DenseIntMatrix geoEntity) {
+
         DataInputStream inStream = null;
         try {
             inStream = new DataInputStream(new FileInputStream(fileName));
 
             int rowNum = geoEntity.getRowNum();
             int colNum = geoEntity.getColNum();
-            byte[] buffer = new byte[2];
+            byte[] buffer = new byte[2 * colNum];
             for (int i = 0; i < rowNum; i++) {
+                //read all bytes in i-th row
+                inStream.read(buffer);
+
                 for (int j = 0; j < colNum; j++) {
-                    inStream.read(buffer);
-                    double val = Byte2NumUtil.byte2int(buffer) / 10.0;
+                    int val = Byte2NumUtil.byte2int(buffer, j * 2, 2);
                     geoEntity.setVal(i, j, val);
                 }
             }
 
-        } catch (Exception e) {
-
+        } catch (FileNotFoundException e) {
+            ExceptionUtil.caught(e, fileName + " Not Found.");
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, fileName + " IO crash.");
         } finally {
             IOUtils.closeQuietly(inStream);
         }

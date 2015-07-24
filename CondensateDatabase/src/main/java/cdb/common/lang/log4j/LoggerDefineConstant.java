@@ -1,4 +1,4 @@
-package cdb.common.log4j;
+package cdb.common.lang.log4j;
 
 /**
  * 日志分类常量类
