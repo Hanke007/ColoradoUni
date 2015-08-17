@@ -1,4 +1,4 @@
-package cdb.exp.test;
+package cdb.exp.main;
 
 import cdb.common.lang.ImageWUtil;
 import cdb.dal.vo.DenseIntMatrix;
