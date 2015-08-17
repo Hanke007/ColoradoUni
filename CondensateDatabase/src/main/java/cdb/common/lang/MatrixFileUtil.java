@@ -29,6 +29,7 @@ public final class MatrixFileUtil {
         int rowNum = dMatrix.getRowNum();
         int colNum = dMatrix.getColNum();
 
+        FileUtil.delete(fileName);
         for (int row = 0; row < rowNum; row++) {
             StringBuilder content = new StringBuilder();
             for (int col = 0; col < colNum; col++) {

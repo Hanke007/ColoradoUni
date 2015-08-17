@@ -42,7 +42,7 @@ public class Samples {
      * @param j The column index to retrieve.
      * @return The value stored at the given index.
      */
-    public int getValue(int i, int j) {
+    public double getValue(int i, int j) {
         return rows[i].getValue(j);
     }
 
@@ -53,7 +53,7 @@ public class Samples {
      * @param j The column index to store new value.
      * @param value The value to store.
      */
-    public void setValue(int i, int j, int value) {
+    public void setValue(int i, int j, double value) {
         rows[i].setValue(j, value);
     }
 

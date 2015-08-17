@@ -9,9 +9,9 @@ package cdb.ml.clustering;
 public class Point {
 
     /** data */
-    private int[] data;
+    private double[] data;
     /** length of the data*/
-    private int   dataDimnsn;
+    private int      dataDimnsn;
 
     /**
      * Construction
@@ -21,7 +21,7 @@ public class Point {
     public Point(int dimention) {
         super();
         this.dataDimnsn = dimention;
-        data = new int[dimention];
+        data = new double[dimention];
     }
 
     /*========================================
@@ -33,7 +33,7 @@ public class Point {
      * @param i     the position index
      * @return      the value in the corresponding index
      */
-    public int getValue(int i) {
+    public double getValue(int i) {
         return data[i];
     }
 
@@ -43,7 +43,7 @@ public class Point {
      * @param i     the position index
      * @param val   the value to set
      */
-    public void setValue(int i, int val) {
+    public void setValue(int i, double val) {
         data[i] = val;
     }
 
@@ -92,7 +92,7 @@ public class Point {
 
         Point c = new Point(dataDimnsn);
         for (int i = 0; i < dataDimnsn; i++) {
-            int val = a.getValue(i) + b.getValue(i);
+            double val = a.getValue(i) + b.getValue(i);
             c.setValue(i, val);
         }
         return c;
@@ -111,7 +111,7 @@ public class Point {
 
         Point c = new Point(dataDimnsn);
         for (int i = 0; i < dataDimnsn; i++) {
-            int val = a.getValue(i) - b.getValue(i);
+            double val = a.getValue(i) - b.getValue(i);
             c.setValue(i, val);
         }
         return c;
@@ -177,7 +177,7 @@ public class Point {
     }
 
     /**
-     * Average of every element. It ignores non-existing values.
+     * Average of every element. 
      * 
      * @return The average value.
      */

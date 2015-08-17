@@ -6,14 +6,16 @@ package cdb.dal.vo;
  * @author Chao Chen
  * @version $Id: GeoEntity.java, v 0.1 Jul 22, 2015 3:46:54 PM chench Exp $
  */
-public class DenseIntMatrix {
+public class DenseIntMatrix implements java.io.Serializable {
 
+    /** serialNum */
+    private static final long serialVersionUID = 1L;
     /** data */
-    private int[][] data;
+    private int[][]           data;
     /** the number of rows */
-    private int     rowNum;
+    private int               rowNum;
     /** the number of columns */
-    private int     colNum;
+    private int               colNum;
 
     /**
      * Constructions 
@@ -50,6 +52,27 @@ public class DenseIntMatrix {
     }
 
     //================================================
+    //  Getter and Setter
+    //================================================
+    /**
+     * Getter method for property <tt>rowNum</tt>.
+     * 
+     * @return property value of rowNum
+     */
+    public int getRowNum() {
+        return rowNum;
+    }
+
+    /**
+     * Getter method for property <tt>colNum</tt>.
+     * 
+     * @return property value of colNum
+     */
+    public int getColNum() {
+        return colNum;
+    }
+
+    //================================================
     //  Operations
     //================================================
     /**
@@ -76,25 +99,34 @@ public class DenseIntMatrix {
         }
     }
 
-    //================================================
-    //  Getter and Setter
-    //================================================
+    /*========================================
+     * Properties
+     *========================================*/
     /**
-     * Getter method for property <tt>rowNum</tt>.
+     * Average of every element in given row
      * 
-     * @return property value of rowNum
+     * @param row       the index along row
+     * @return
      */
-    public int getRowNum() {
-        return rowNum;
+    public double rowAvg(int row) {
+        double sum = 0.0d;
+        for (int j = 0; j < colNum; j++) {
+            sum += data[row][j];
+        }
+        return sum / colNum;
     }
 
     /**
-     * Getter method for property <tt>colNum</tt>.
+     * Average of every element in given column
      * 
-     * @return property value of colNum
+     * @param column    the index along column
+     * @return
      */
-    public int getColNum() {
-        return colNum;
+    public double colAvg(int column) {
+        double sum = 0.0d;
+        for (int i = 0; i < rowNum; i++) {
+            sum += data[i][column];
+        }
+        return sum / rowNum;
     }
-
 }
