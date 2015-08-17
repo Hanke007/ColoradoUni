@@ -17,7 +17,7 @@ import cdb.dal.vo.DenseIntMatrix;
  * 
  * See <a href="http://nsidc.org/data/docs/daac/nsidc0001_ssmi_tbs.gd.html">Daily Polar Gridded Brightness Temperatures Document</a>
  * 
- * @author chench
+ * @author Chao Chen
  * @version $Id: SSMIFileDtProc.java, v 0.1 Jul 22, 2015 4:00:12 PM chench Exp $
  */
 public class SSMIFileDtProc implements DatasetProc {

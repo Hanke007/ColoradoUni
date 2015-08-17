@@ -10,9 +10,10 @@ import javax.imageio.ImageIO;
 import cdb.dal.vo.DenseIntMatrix;
 
 /**
+ * The Image utility convert data matrix to different kind of image,
+ * such as png, jpg, etc.
  * 
- * 
- * @author chench
+ * @author Chao Chen
  * @version $Id: ImageUtil.java, v 0.1 Jul 22, 2015 7:59:01 PM chench Exp $
  */
 public final class ImageWUtil {

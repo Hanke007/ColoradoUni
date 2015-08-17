@@ -3,13 +3,13 @@ package cdb.dal.vo;
 /**
  * General Mode to store the data.
  * 
- * @author chench
+ * @author Chao Chen
  * @version $Id: GeoEntity.java, v 0.1 Jul 22, 2015 3:46:54 PM chench Exp $
  */
 public class DenseIntMatrix {
 
-    /** Datas */
-    private int[][] datas;
+    /** data */
+    private int[][] data;
     /** the number of rows */
     private int     rowNum;
     /** the number of columns */
@@ -24,6 +24,7 @@ public class DenseIntMatrix {
     public DenseIntMatrix(int rowNum, int colNum) {
         this.rowNum = rowNum;
         this.colNum = colNum;
+        data = new int[rowNum][colNum];
     }
 
     /**
@@ -34,7 +35,7 @@ public class DenseIntMatrix {
      * @return      the value in the corresponding index
      */
     public int getVal(int i, int j) {
-        return datas[i][j];
+        return data[i][j];
     }
 
     /**
@@ -45,11 +46,7 @@ public class DenseIntMatrix {
      * @param val   the value to set
      */
     public void setVal(int i, int j, int val) {
-        if (datas == null) {
-            datas = new int[rowNum][colNum];
-        }
-
-        datas[i][j] = val;
+        data[i][j] = val;
     }
 
     //================================================
@@ -63,7 +60,7 @@ public class DenseIntMatrix {
      * @param addOne    the value to add
      */
     public void add(int i, int j, int addOne) {
-        datas[i][j] += addOne;
+        data[i][j] += addOne;
     }
 
     /**
@@ -74,7 +71,7 @@ public class DenseIntMatrix {
     public void scale(double param) {
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                datas[row][col] = (int) (datas[row][col] / param);
+                data[row][col] = (int) (data[row][col] / param);
             }
         }
     }

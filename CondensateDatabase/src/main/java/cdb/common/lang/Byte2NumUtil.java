@@ -3,7 +3,7 @@ package cdb.common.lang;
 /**
  * Convert binary stream to numbers
  * 
- * @author chench
+ * @author Chao Chen
  * @version $Id: Byte2NumUtil.java, v 0.1 Jul 22, 2015 4:26:08 PM chench Exp $
  */
 public final class Byte2NumUtil {

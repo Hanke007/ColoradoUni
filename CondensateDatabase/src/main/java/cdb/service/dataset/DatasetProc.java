@@ -5,7 +5,7 @@ import cdb.dal.vo.DenseIntMatrix;
 /**
  * Processor Interface to cope with the operations for different data sets.
  * 
- * @author chench
+ * @author Chao Chen
  * @version $Id: DatasetProc.java, v 0.1 Jul 22, 2015 3:43:35 PM chench Exp $
  */
 public interface DatasetProc {
