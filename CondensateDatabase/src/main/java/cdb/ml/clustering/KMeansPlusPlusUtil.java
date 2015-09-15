@@ -129,6 +129,15 @@ public class KMeansPlusPlusUtil {
 
         }
 
+        int cenIndex = 1;
+        StringBuilder centdInfo = new StringBuilder();
+        for (Point centroid : centroids) {
+            centdInfo.append('\n').append(cenIndex).append(": ").append(centroid)
+                .append("\tSize: ").append(resultSet[cenIndex - 1].getList().size());
+            cenIndex++;
+        }
+        LoggerUtil.info(logger, centdInfo.toString());
+
         return resultSet;
     }
 
@@ -178,15 +187,17 @@ public class KMeansPlusPlusUtil {
             //Choose next center x with probability D(x) / /Sigma D(x_i)
             double roullete = Math.random();
             int pivot = -1;
-            for (int i = 0; i < pointCount; i++) {
-                if (taken[i]) {
-                    continue;
-                }
+            while (pivot == -1) {
+                for (int i = 0; i < pointCount; i++) {
+                    if (taken[i]) {
+                        continue;
+                    }
 
-                roullete -= D[i] / sum;
-                if (roullete < 0.0d) {
-                    pivot = i;
-                    break;
+                    roullete -= D[i] / sum;
+                    if (roullete < 0.0d) {
+                        pivot = i;
+                        break;
+                    }
                 }
             }
 
@@ -207,7 +218,7 @@ public class KMeansPlusPlusUtil {
      */
     public static double distance(final Point a, final Point centroid, final int type) {
         //check vector with all zeros
-        if (a.norm() == 0 || centroid.norm() == 0) {
+        if (type != SQUARE_EUCLIDEAN_DISTANCE && (a.norm() == 0 || centroid.norm() == 0)) {
             return 0.0;
         }
 

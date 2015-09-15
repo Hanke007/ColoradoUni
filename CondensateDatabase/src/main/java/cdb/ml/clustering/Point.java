@@ -1,5 +1,7 @@
 package cdb.ml.clustering;
 
+import java.util.Arrays;
+
 /**
  * The point describe a single observation, and it will be used in clustering methods.
  * 
@@ -70,7 +72,7 @@ public class Point {
         Point c = new Point(dataDimnsn);
 
         for (int i = 0; i < dataDimnsn; i++) {
-            c.setValue(i, (int) (alpha * a.getValue(i)));
+            c.setValue(i, (alpha * a.getValue(i)));
         }
 
         return c;
@@ -128,7 +130,7 @@ public class Point {
         Point c = new Point(dataDimnsn);
 
         for (int i = 0; i < dataDimnsn; i++) {
-            c.setValue(i, (int) (a.getValue(i) - alpha));
+            c.setValue(i, (a.getValue(i) - alpha));
         }
         return c;
     }
@@ -186,4 +188,13 @@ public class Point {
 
         return a.sum() / (double) this.dataDimnsn;
     }
+
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return Arrays.toString(data);
+    }
+
 }

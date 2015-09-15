@@ -31,6 +31,8 @@ public final class SerializeUtil {
      * @param outputFile
      */
     public static void writeObject(Object obj, String outputFile) {
+        FileUtil.existDirAndMakeDir(outputFile);
+
         ObjectOutputStream out = null;
         try {
             out = new ObjectOutputStream(new FileOutputStream(outputFile));
