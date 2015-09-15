@@ -6,6 +6,7 @@ import cdb.common.lang.ImageWUtil;
 import cdb.dal.vo.DenseIntMatrix;
 import cdb.service.dataset.DMSPFileDtProc;
 import cdb.service.dataset.DatasetProc;
+import cdb.service.dataset.NetCDFDtProc;
 import cdb.service.dataset.SSMIFileDtProc;
 
 /**
@@ -20,7 +21,7 @@ public class TestMain {
      * @param args
      */
     public static void main(String[] args) {
-        DMSPFileDtProc();
+        NetCDFileDtProc();
     }
 
     public static void SSMIFileDtProc() {
@@ -43,6 +44,18 @@ public class TestMain {
         File file = new File(fileName);
         String fileN = file.getName();
         ImageWUtil.plotGrayImage(matrix,
+            "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
+            ImageWUtil.PNG_FORMMAT);
+    }
+
+    public static void NetCDFileDtProc() {
+        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\1979\\GLSMD25E2_19790901_v01r01.nc";
+        DatasetProc dProc = new NetCDFDtProc();
+        DenseIntMatrix matrix = dProc.read(fileName);
+
+        File file = new File(fileName);
+        String fileN = file.getName();
+        ImageWUtil.plotImageForMEASURE(matrix,
             "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
             ImageWUtil.PNG_FORMMAT);
     }

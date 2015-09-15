@@ -70,14 +70,24 @@ public final class ImageWUtil {
      * @param outputFile    the file to show the image
      * @param formatName    the image format, i.e., PNG, JPG, and so on
      */
-    public static void plotImage(DenseIntMatrix matrix, String outputFile, String formatName) {
+    public static void plotImageForMEASURE(DenseIntMatrix matrix, String outputFile,
+                                           String formatName) {
         //convert to GrayImage
         int height = matrix.getRowNum();
         int width = matrix.getColNum();
-        BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_BINARY);
+        BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
                 int iceCon = matrix.getVal(x, y);
+
+                if (iceCon == -99 | iceCon >= 90) {
+                    iceCon = Color.WHITE.getRGB();
+                } else if (iceCon == 50) {
+                    iceCon = Color.RED.getRGB();
+                } else if (iceCon == 51) {
+                    iceCon = Color.BLUE.getRGB();
+                }
+
                 grayImage.setRGB(x, y, iceCon);
             }
         }
