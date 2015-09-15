@@ -32,5 +32,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/chench/Documents/Workspace/ColoradoUni/CondensateDatabase/extlib/netcdfAll-4.5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

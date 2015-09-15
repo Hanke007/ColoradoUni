@@ -62,4 +62,32 @@ public final class ImageWUtil {
             ExceptionUtil.caught(e, outputFile + " failed in ImageConvert! ");
         }
     }
+
+    /**
+     * plot the gray image w.r.t the given data matrix.
+     * 
+     * @param matrix        given data matrix
+     * @param outputFile    the file to show the image
+     * @param formatName    the image format, i.e., PNG, JPG, and so on
+     */
+    public static void plotImage(DenseIntMatrix matrix, String outputFile, String formatName) {
+        //convert to GrayImage
+        int height = matrix.getRowNum();
+        int width = matrix.getColNum();
+        BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_BINARY);
+        for (int x = 0; x < height; x++) {
+            for (int y = 0; y < width; y++) {
+                int iceCon = matrix.getVal(x, y);
+                grayImage.setRGB(x, y, iceCon);
+            }
+        }
+
+        //save in the disk
+        File file = new File(outputFile);
+        try {
+            ImageIO.write(grayImage, formatName, file);
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, outputFile + " failed in ImageConvert! ");
+        }
+    }
 }
