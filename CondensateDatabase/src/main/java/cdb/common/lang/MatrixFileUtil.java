@@ -33,7 +33,7 @@ public final class MatrixFileUtil {
         for (int row = 0; row < rowNum; row++) {
             StringBuilder content = new StringBuilder();
             for (int col = 0; col < colNum; col++) {
-                content.append(row).append('\t').append(col).append('\t')
+                content.append(row).append('\t').append(colNum - 1 - col).append('\t')
                     .append(dMatrix.getVal(row, col)).append('\n');
             }
 

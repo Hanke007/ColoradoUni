@@ -21,7 +21,7 @@ public class TestMain {
      * @param args
      */
     public static void main(String[] args) {
-        NetCDFileDtProc();
+        filteringNetCDFileDtProc();
     }
 
     public static void SSMIFileDtProc() {
@@ -49,9 +49,28 @@ public class TestMain {
     }
 
     public static void NetCDFileDtProc() {
-        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\1979\\GLSMD25E2_19790901_v01r01.nc";
+        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120101_v01r01.nc";
         DatasetProc dProc = new NetCDFDtProc();
         DenseIntMatrix matrix = dProc.read(fileName);
+
+        File file = new File(fileName);
+        String fileN = file.getName();
+        ImageWUtil.plotImageForMEASURE(matrix,
+            "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
+            ImageWUtil.PNG_FORMMAT);
+    }
+
+    public static void filteringNetCDFileDtProc() {
+        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120101_v01r01.nc";
+        int[] rowIncluded = new int[100];
+        int[] colIncluded = new int[100];
+        for (int i = 0; i < rowIncluded.length; i++) {
+            rowIncluded[i] = 370 + i;
+            colIncluded[i] = 260 + i;
+        }
+
+        DatasetProc dProc = new NetCDFDtProc();
+        DenseIntMatrix matrix = dProc.read(fileName, rowIncluded, colIncluded);
 
         File file = new File(fileName);
         String fileN = file.getName();

@@ -22,7 +22,7 @@ public final class StatisticParamUtil {
      * @param seralData     the list of the overall data
      * @return              the centroid matrix with mean value
      */
-    public static DenseIntMatrix meanInOneCluster(List<DenseIntMatrix> seralData) {
+    public static DenseIntMatrix mean(List<DenseIntMatrix> seralData) {
         int rowNum = seralData.get(0).getRowNum();
         int colNum = seralData.get(0).getColNum();
         DenseIntMatrix centroid = new DenseIntMatrix(rowNum, colNum);
