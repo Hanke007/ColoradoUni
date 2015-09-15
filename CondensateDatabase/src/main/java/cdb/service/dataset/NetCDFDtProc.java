@@ -1,6 +1,7 @@
 package cdb.service.dataset;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import ucar.ma2.ArrayByte;
 import ucar.ma2.ArrayFloat;
@@ -42,8 +43,7 @@ public class NetCDFDtProc implements DatasetProc {
             ArrayByte.D3 netcdfData = (ArrayByte.D3) seaice.read();
             for (int row = 0; row < dimension[0]; row++) {
                 for (int col = 0; col < dimension[1]; col++) {
-                    // Sea ice coverage goes from 0 to %100. Convert to digital
-                    // number, 0-255
+                    // sighed 8-bit integer
                     result.setVal(row, col, netcdfData.get(0, row, col));
                 }
             }
@@ -55,4 +55,42 @@ public class NetCDFDtProc implements DatasetProc {
 
         return result;
     }
+
+    /** 
+     * @see cdb.service.dataset.DatasetProc#read(java.lang.String, int[], int[])
+     */
+    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
+        // check validation
+        if (StringUtil.isBlank(fileName)) {
+            return null;
+        }
+
+        Arrays.sort(rowIncluded);
+        Arrays.sort(colIncluded);
+        DenseIntMatrix result = new DenseIntMatrix(rowIncluded.length, colIncluded.length);
+        try {
+            // read data
+            NetcdfFile ncfile = NetcdfFile.open(fileName);
+            Variable seaice = ncfile.findVariable("greenland_surface_melt");
+            ArrayByte.D3 netcdfData = (ArrayByte.D3) seaice.read();
+
+            int rowIndex = -1;
+            for (int row : rowIncluded) {
+                rowIndex++;
+
+                int colIndex = 0;
+                for (int col : colIncluded) {
+                    // sighed 8-bit integer
+                    result.setVal(rowIndex, colIndex++, netcdfData.get(0, row, col));
+                }
+            }
+
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, "IO Exception File: " + fileName);
+        } finally {
+        }
+
+        return result;
+    }
+
 }

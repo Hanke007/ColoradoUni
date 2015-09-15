@@ -14,6 +14,7 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
+import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.DenseIntMatrix;
 import cdb.ml.clustering.Cluster;
@@ -195,8 +196,8 @@ public class EfficientQueryExp {
                                                 Map<String, DenseIntMatrix> sdInfo) {
         // constructing merged-layer
         for (Cluster cluster : result) {
-            DenseIntMatrix centroid = meanInfo(seralData, cluster);
-            DenseIntMatrix sd = sdInfo(seralData, cluster, centroid);
+            DenseIntMatrix centroid = StatisticParamUtil.meanInOneCluster(seralData, cluster);
+            DenseIntMatrix sd = StatisticParamUtil.sdInOneCluster(seralData, cluster, centroid);
             for (int seq : cluster) {
                 String fileName = fileAssigmnt.get(seq);
                 meanInfo.put(fileName, centroid);
@@ -205,78 +206,4 @@ public class EfficientQueryExp {
         }
     }
 
-    public static DenseIntMatrix meanInfo(List<DenseIntMatrix> seralData, Cluster cluster) {
-        int rowNum = seralData.get(0).getRowNum();
-        int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix centroid = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
-        for (int index : cluster) {
-            for (int row = 0; row < rowNum; row++) {
-                for (int col = 0; col < colNum; col++) {
-                    int val = seralData.get(index).getVal(row, col);
-                    if (val == 0) {
-                        // no observation
-                        continue;
-                    }
-
-                    centroid.add(row, col, val);
-                    count.add(row, col, 1);
-                }
-            }
-        }
-
-        for (int row = 0; row < rowNum; row++) {
-            for (int col = 0; col < colNum; col++) {
-                int val = centroid.getVal(row, col);
-                int cnt = count.getVal(row, col);
-                if (cnt == 0) {
-                    // no observation
-                    continue;
-                }
-
-                centroid.setVal(row, col, val / cnt);
-            }
-        }
-        return centroid;
-    }
-
-    public static DenseIntMatrix sdInfo(List<DenseIntMatrix> seralData, Cluster cluster,
-                                        DenseIntMatrix centroid) {
-        // compute the mean of the squared values EXX
-        int rowNum = seralData.get(0).getRowNum();
-        int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix sd = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
-        for (int index : cluster) {
-            for (int row = 0; row < rowNum; row++) {
-                for (int col = 0; col < colNum; col++) {
-                    int val = seralData.get(index).getVal(row, col);
-                    if (val == 0) {
-                        // no observation
-                        continue;
-                    }
-
-                    sd.add(row, col, val * val);
-                    count.add(row, col, 1);
-                }
-            }
-        }
-
-        // compute standard deviation
-        for (int row = 0; row < rowNum; row++) {
-            for (int col = 0; col < colNum; col++) {
-                int val = sd.getVal(row, col);
-                int cnt = count.getVal(row, col);
-                if (cnt == 0) {
-                    // no observation
-                    continue;
-                }
-
-                double squaredMean = Math.pow(centroid.getVal(row, col), 2.0d);
-                double dVal = val * 1.0 / cnt - squaredMean; // DX = EXX - EX*EX
-                sd.setVal(row, col, (int) Math.sqrt(dVal));
-            }
-        }
-        return sd;
-    }
 }

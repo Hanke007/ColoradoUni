@@ -45,6 +45,13 @@ public class DMSPFileDtProc implements DatasetProc {
         return result;
     }
 
+    /** 
+     * @see cdb.service.dataset.DatasetProc#read(java.lang.String, int[], int[])
+     */
+    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
+        throw new RuntimeException("Unsupported method");
+    }
+
     /**
      * read data from given file path
      * 

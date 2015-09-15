@@ -17,4 +17,14 @@ public interface DatasetProc {
      * @return          a general GeoEntity given the file name 
      */
     public DenseIntMatrix read(String fileName);
+
+    /**
+     * read the data in the given file path with specific rows and columns.
+     * 
+     * @param fileName      the file storing the data
+     * @param rowIncluded   the given row indexes included
+     * @param colIncluded   the given column indexes included
+     * @return              a general GeoEntity given the file name 
+     */
+    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded);
 }
