@@ -71,9 +71,9 @@ public final class ClusterLocHelper {
                 List<Location> oneSet = new ArrayList<Location>();
 
                 int colonIndx = line.indexOf("::");
-                String[] eleSet = line.substring(colonIndx + 1).split("\\,");
+                String[] eleSet = line.substring(colonIndx + 2).split("\\,");
                 for (String ele : eleSet) {
-                    String[] indices = ele.split("//:");
+                    String[] indices = ele.split("\\:");
                     oneSet.add(new Location(Integer.parseInt(indices[0]), Integer
                         .parseInt(indices[1])));
                 }

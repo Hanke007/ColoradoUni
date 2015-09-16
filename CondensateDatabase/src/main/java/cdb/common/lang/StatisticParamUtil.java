@@ -2,7 +2,7 @@ package cdb.common.lang;
 
 import java.util.List;
 
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
 
 /**
@@ -22,15 +22,15 @@ public final class StatisticParamUtil {
      * @param seralData     the list of the overall data
      * @return              the centroid matrix with mean value
      */
-    public static DenseIntMatrix mean(List<DenseIntMatrix> seralData) {
+    public static DenseMatrix mean(List<DenseMatrix> seralData) {
         int rowNum = seralData.get(0).getRowNum();
         int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix centroid = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
-        for (DenseIntMatrix denseMatrix : seralData) {
+        DenseMatrix centroid = new DenseMatrix(rowNum, colNum);
+        DenseMatrix count = new DenseMatrix(rowNum, colNum);
+        for (DenseMatrix denseMatrix : seralData) {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
-                    int val = denseMatrix.getVal(row, col);
+                    double val = denseMatrix.getVal(row, col);
                     if (val == 0) {
                         // no observation
                         continue;
@@ -44,8 +44,8 @@ public final class StatisticParamUtil {
 
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                int val = centroid.getVal(row, col);
-                int cnt = count.getVal(row, col);
+                double val = centroid.getVal(row, col);
+                double cnt = count.getVal(row, col);
                 if (cnt == 0) {
                     // no observation
                     continue;
@@ -64,15 +64,15 @@ public final class StatisticParamUtil {
      * @param cluster       the given cluster
      * @return              the centroid matrix with mean value
      */
-    public static DenseIntMatrix meanInOneCluster(List<DenseIntMatrix> seralData, Cluster cluster) {
+    public static DenseMatrix meanInOneCluster(List<DenseMatrix> seralData, Cluster cluster) {
         int rowNum = seralData.get(0).getRowNum();
         int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix centroid = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
+        DenseMatrix centroid = new DenseMatrix(rowNum, colNum);
+        DenseMatrix count = new DenseMatrix(rowNum, colNum);
         for (int index : cluster) {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
-                    int val = seralData.get(index).getVal(row, col);
+                    double val = seralData.get(index).getVal(row, col);
                     if (val == 0) {
                         // no observation
                         continue;
@@ -86,8 +86,8 @@ public final class StatisticParamUtil {
 
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                int val = centroid.getVal(row, col);
-                int cnt = count.getVal(row, col);
+                double val = centroid.getVal(row, col);
+                double cnt = count.getVal(row, col);
                 if (cnt == 0) {
                     // no observation
                     continue;
@@ -106,16 +106,16 @@ public final class StatisticParamUtil {
      * @param centroid      the centroid matrix with mean parameters
      * @return              the matrix with standard deviation parameter
      */
-    public static DenseIntMatrix sd(List<DenseIntMatrix> seralData, DenseIntMatrix centroid) {
+    public static DenseMatrix sd(List<DenseMatrix> seralData, DenseMatrix centroid) {
         // compute the mean of the squared values EXX
         int rowNum = seralData.get(0).getRowNum();
         int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix sd = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
-        for (DenseIntMatrix denseMatrix : seralData) {
+        DenseMatrix sd = new DenseMatrix(rowNum, colNum);
+        DenseMatrix count = new DenseMatrix(rowNum, colNum);
+        for (DenseMatrix denseMatrix : seralData) {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
-                    int val = denseMatrix.getVal(row, col);
+                    double val = denseMatrix.getVal(row, col);
                     if (val == 0) {
                         // no observation
                         continue;
@@ -130,8 +130,8 @@ public final class StatisticParamUtil {
         // compute standard deviation
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                int val = sd.getVal(row, col);
-                int cnt = count.getVal(row, col);
+                double val = sd.getVal(row, col);
+                double cnt = count.getVal(row, col);
                 if (cnt == 0) {
                     // no observation
                     continue;
@@ -153,17 +153,17 @@ public final class StatisticParamUtil {
      * @param centroid      the centroid matrix with mean parameters
      * @return              the matrix with standard deviation parameter
      */
-    public static DenseIntMatrix sdInOneCluster(List<DenseIntMatrix> seralData, Cluster cluster,
-                                                DenseIntMatrix centroid) {
+    public static DenseMatrix sdInOneCluster(List<DenseMatrix> seralData, Cluster cluster,
+                                             DenseMatrix centroid) {
         // compute the mean of the squared values EXX
         int rowNum = seralData.get(0).getRowNum();
         int colNum = seralData.get(0).getColNum();
-        DenseIntMatrix sd = new DenseIntMatrix(rowNum, colNum);
-        DenseIntMatrix count = new DenseIntMatrix(rowNum, colNum);
+        DenseMatrix sd = new DenseMatrix(rowNum, colNum);
+        DenseMatrix count = new DenseMatrix(rowNum, colNum);
         for (int index : cluster) {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
-                    int val = seralData.get(index).getVal(row, col);
+                    double val = seralData.get(index).getVal(row, col);
                     if (val == 0) {
                         // no observation
                         continue;
@@ -178,8 +178,8 @@ public final class StatisticParamUtil {
         // compute standard deviation
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                int val = sd.getVal(row, col);
-                int cnt = count.getVal(row, col);
+                double val = sd.getVal(row, col);
+                double cnt = count.getVal(row, col);
                 if (cnt == 0) {
                     // no observation
                     continue;

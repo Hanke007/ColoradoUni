@@ -10,7 +10,7 @@ import org.apache.commons.io.IOUtils;
 import cdb.common.lang.Byte2NumUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.StringUtil;
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class DMSPFileDtProc implements DatasetProc {
     /** 
      * @see cdb.service.dataset.DatasetProc#read(java.lang.String)
      */
-    public DenseIntMatrix read(String fileName) {
+    public DenseMatrix read(String fileName) {
         // check validation
         if (StringUtil.isBlank(fileName)) {
             return null;
@@ -40,7 +40,7 @@ public class DMSPFileDtProc implements DatasetProc {
             dimension[1] = 316;
         }
 
-        DenseIntMatrix result = new DenseIntMatrix(dimension[0], dimension[1]);
+        DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
         readInner(fileName, result);
         return result;
     }
@@ -48,7 +48,7 @@ public class DMSPFileDtProc implements DatasetProc {
     /** 
      * @see cdb.service.dataset.DatasetProc#read(java.lang.String, int[], int[])
      */
-    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
+    public DenseMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
         throw new RuntimeException("Unsupported method");
     }
 
@@ -58,7 +58,7 @@ public class DMSPFileDtProc implements DatasetProc {
      * @param fileName      the file contains data
      * @param geoEntity     the Object to store data
      */
-    protected void readInner(String fileName, DenseIntMatrix geoEntity) {
+    protected void readInner(String fileName, DenseMatrix geoEntity) {
 
         DataInputStream inStream = null;
         try {

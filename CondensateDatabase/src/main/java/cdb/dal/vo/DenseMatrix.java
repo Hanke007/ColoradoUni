@@ -6,12 +6,12 @@ package cdb.dal.vo;
  * @author Chao Chen
  * @version $Id: GeoEntity.java, v 0.1 Jul 22, 2015 3:46:54 PM chench Exp $
  */
-public class DenseIntMatrix implements java.io.Serializable {
+public class DenseMatrix implements java.io.Serializable {
 
     /** serialNum */
     private static final long serialVersionUID = 1L;
     /** data */
-    private int[][]           data;
+    private double[][]        data;
     /** the number of rows */
     private int               rowNum;
     /** the number of columns */
@@ -23,10 +23,10 @@ public class DenseIntMatrix implements java.io.Serializable {
      * @param rowNum    the number of rows
      * @param colNum    the number of columns
      */
-    public DenseIntMatrix(int rowNum, int colNum) {
+    public DenseMatrix(int rowNum, int colNum) {
         this.rowNum = rowNum;
         this.colNum = colNum;
-        data = new int[rowNum][colNum];
+        data = new double[rowNum][colNum];
     }
 
     /**
@@ -36,7 +36,7 @@ public class DenseIntMatrix implements java.io.Serializable {
      * @param j     the index along column
      * @return      the value in the corresponding index
      */
-    public int getVal(int i, int j) {
+    public double getVal(int i, int j) {
         return data[i][j];
     }
 
@@ -47,7 +47,7 @@ public class DenseIntMatrix implements java.io.Serializable {
      * @param j     the index along column
      * @param val   the value to set
      */
-    public void setVal(int i, int j, int val) {
+    public void setVal(int i, int j, double val) {
         data[i][j] = val;
     }
 
@@ -82,7 +82,7 @@ public class DenseIntMatrix implements java.io.Serializable {
      * @param j         the index along column
      * @param addOne    the value to add
      */
-    public void add(int i, int j, int addOne) {
+    public void add(int i, int j, double addOne) {
         data[i][j] += addOne;
     }
 

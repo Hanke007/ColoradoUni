@@ -3,7 +3,7 @@ package cdb.app.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * 
@@ -17,7 +17,7 @@ public class QueryTask {
     /** the domain contains the partial results position*/
     private List<Position2D>     completeDomain;
     /** the context need to query*/
-    private List<DenseIntMatrix> queryContext;
+    private List<DenseMatrix> queryContext;
 
     /**
      * Construction
@@ -25,7 +25,7 @@ public class QueryTask {
     public QueryTask() {
         queryDomain = new ArrayList<Position2D>();
         completeDomain = new ArrayList<Position2D>();
-        queryContext = new ArrayList<DenseIntMatrix>();
+        queryContext = new ArrayList<DenseMatrix>();
     }
 
     public void add2QueryDomain(int x, int y) {
@@ -77,7 +77,7 @@ public class QueryTask {
      * 
      * @return property value of queryContext
      */
-    public List<DenseIntMatrix> getQueryContext() {
+    public List<DenseMatrix> getQueryContext() {
         return queryContext;
     }
 
@@ -86,7 +86,7 @@ public class QueryTask {
      * 
      * @param queryContext value to be assigned to property queryContext
      */
-    public void setQueryContext(List<DenseIntMatrix> queryContext) {
+    public void setQueryContext(List<DenseMatrix> queryContext) {
         this.queryContext = queryContext;
     }
 

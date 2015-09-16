@@ -9,7 +9,7 @@ import ucar.nc2.NetcdfFile;
 import ucar.nc2.Variable;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.StringUtil;
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * 
@@ -23,20 +23,20 @@ public class NetCDFDtProc implements DatasetProc {
     /** 
      * @see cdb.service.dataset.DatasetProc#read(java.lang.String)
      */
-    public DenseIntMatrix read(String fileName) {
+    public DenseMatrix read(String fileName) {
         // check validation
         if (StringUtil.isBlank(fileName)) {
             return null;
         }
 
-        DenseIntMatrix result = null;
+        DenseMatrix result = null;
         try {
             // parse resolution
             NetcdfFile ncfile = NetcdfFile.open(fileName);
             Variable latVar = ncfile.findVariable("latitude");
             ArrayFloat.D2 latArray = (ArrayFloat.D2) latVar.read();
             int[] dimension = latArray.getShape();
-            result = new DenseIntMatrix(dimension[0], dimension[1]);
+            result = new DenseMatrix(dimension[0], dimension[1]);
 
             // read data
             Variable seaice = ncfile.findVariable("greenland_surface_melt");
@@ -59,7 +59,7 @@ public class NetCDFDtProc implements DatasetProc {
     /** 
      * @see cdb.service.dataset.DatasetProc#read(java.lang.String, int[], int[])
      */
-    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
+    public DenseMatrix read(String fileName, int[] rowIncluded, int[] colIncluded) {
         // check validation
         if (StringUtil.isBlank(fileName)) {
             return null;
@@ -67,7 +67,7 @@ public class NetCDFDtProc implements DatasetProc {
 
         Arrays.sort(rowIncluded);
         Arrays.sort(colIncluded);
-        DenseIntMatrix result = new DenseIntMatrix(rowIncluded.length, colIncluded.length);
+        DenseMatrix result = new DenseMatrix(rowIncluded.length, colIncluded.length);
         try {
             // read data
             NetcdfFile ncfile = NetcdfFile.open(fileName);

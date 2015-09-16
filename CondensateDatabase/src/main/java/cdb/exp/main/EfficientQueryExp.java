@@ -16,7 +16,7 @@ import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 import cdb.ml.clustering.Samples;
@@ -47,9 +47,9 @@ public class EfficientQueryExp {
 
     @SuppressWarnings("unchecked")
     public static void queryTest() {
-        Map<String, DenseIntMatrix> meanInfo = (Map<String, DenseIntMatrix>) SerializeUtil
+        Map<String, DenseMatrix> meanInfo = (Map<String, DenseMatrix>) SerializeUtil
             .readObject(SERIALABLE_DIR + "meanInfo.obj");
-        Map<String, DenseIntMatrix> sdInfo = (Map<String, DenseIntMatrix>) SerializeUtil
+        Map<String, DenseMatrix> sdInfo = (Map<String, DenseMatrix>) SerializeUtil
             .readObject(SERIALABLE_DIR + "sdInfo.obj");
 
         //        int p = 1;
@@ -63,14 +63,14 @@ public class EfficientQueryExp {
     }
 
     public static void dectectPossibleQueryTask(int upperBound, int lowerBound, int tol,
-                                                DenseIntMatrix meanInfoMatrix,
-                                                DenseIntMatrix sdInfoMatrix, QueryTask queryTask) {
+                                                DenseMatrix meanInfoMatrix,
+                                                DenseMatrix sdInfoMatrix, QueryTask queryTask) {
         int rowNum = meanInfoMatrix.getRowNum();
         int colNum = meanInfoMatrix.getColNum();
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
-                int mean = meanInfoMatrix.getVal(row, col);
-                int sd = sdInfoMatrix.getVal(row, col);
+                double mean = meanInfoMatrix.getVal(row, col);
+                double sd = sdInfoMatrix.getVal(row, col);
 
                 // detect possible query domain 
                 if ((lowerBound <= (mean - tol * sd)) && (upperBound >= (mean + tol * sd))) {
@@ -87,7 +87,7 @@ public class EfficientQueryExp {
         }
 
         //visualize the query domain
-        DenseIntMatrix queryInfo = new DenseIntMatrix(rowNum, colNum);
+        DenseMatrix queryInfo = new DenseMatrix(rowNum, colNum);
         for (Position2D p : queryTask.getQueryDomain()) {
             queryInfo.setVal(p.x, p.y, 300);
         }
@@ -105,7 +105,7 @@ public class EfficientQueryExp {
     public static void query() {
         // loading dataset
         String filePattern = "C:/Users/chench/Desktop/SIDS/2014/tb_f17_\\d{8}_v4_s19h.bin";
-        List<DenseIntMatrix> seralData = new ArrayList<DenseIntMatrix>();
+        List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
         List<String> fileAssigmnt = new ArrayList<String>();
         loadingDatasetStep(filePattern, seralData, fileAssigmnt);
         LoggerUtil.info(logger, "1. dataset is loaded. Count: " + seralData.size());
@@ -139,8 +139,8 @@ public class EfficientQueryExp {
         }
 
         // constructing query path
-        Map<String, DenseIntMatrix> meanInfo = new HashMap<String, DenseIntMatrix>();
-        Map<String, DenseIntMatrix> sdInfo = new HashMap<String, DenseIntMatrix>();
+        Map<String, DenseMatrix> meanInfo = new HashMap<String, DenseMatrix>();
+        Map<String, DenseMatrix> sdInfo = new HashMap<String, DenseMatrix>();
         constuctingQueryPathStep(seralData, clusteringInfo, fileAssigmnt, meanInfo, sdInfo);
         LoggerUtil.info(logger, "4. Query path is constructed.");
 
@@ -150,7 +150,7 @@ public class EfficientQueryExp {
         LoggerUtil.info(logger, "5. Query path is serialized.");
     }
 
-    public static void loadingDatasetStep(String filePattern, List<DenseIntMatrix> seralData,
+    public static void loadingDatasetStep(String filePattern, List<DenseMatrix> seralData,
                                           List<String> fileAssigmnt) {
         // load data
         File[] dFiles = FileUtil.parserFilesByPattern(filePattern);
@@ -161,9 +161,9 @@ public class EfficientQueryExp {
         }
     }
 
-    public static void tranformingDataStep(List<DenseIntMatrix> seralData, Samples dataSample) {
+    public static void tranformingDataStep(List<DenseMatrix> seralData, Samples dataSample) {
         for (int t = 0; t < seralData.size(); t++) {
-            DenseIntMatrix datapoint = seralData.get(t);
+            DenseMatrix datapoint = seralData.get(t);
 
             int p = 0;
             // compute row average
@@ -190,14 +190,14 @@ public class EfficientQueryExp {
 
     }
 
-    public static void constuctingQueryPathStep(List<DenseIntMatrix> seralData, Cluster[] result,
+    public static void constuctingQueryPathStep(List<DenseMatrix> seralData, Cluster[] result,
                                                 List<String> fileAssigmnt,
-                                                Map<String, DenseIntMatrix> meanInfo,
-                                                Map<String, DenseIntMatrix> sdInfo) {
+                                                Map<String, DenseMatrix> meanInfo,
+                                                Map<String, DenseMatrix> sdInfo) {
         // constructing merged-layer
         for (Cluster cluster : result) {
-            DenseIntMatrix centroid = StatisticParamUtil.meanInOneCluster(seralData, cluster);
-            DenseIntMatrix sd = StatisticParamUtil.sdInOneCluster(seralData, cluster, centroid);
+            DenseMatrix centroid = StatisticParamUtil.meanInOneCluster(seralData, cluster);
+            DenseMatrix sd = StatisticParamUtil.sdInOneCluster(seralData, cluster, centroid);
             for (int seq : cluster) {
                 String fileName = fileAssigmnt.get(seq);
                 meanInfo.put(fileName, centroid);

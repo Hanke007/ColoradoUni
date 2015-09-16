@@ -1,6 +1,6 @@
 package cdb.service.dataset;
 
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * Processor Interface to cope with the operations for different data sets.
@@ -16,7 +16,7 @@ public interface DatasetProc {
      * @param fileName  the file storing the data
      * @return          a general GeoEntity given the file name 
      */
-    public DenseIntMatrix read(String fileName);
+    public DenseMatrix read(String fileName);
 
     /**
      * read the data in the given file path with specific rows and columns.
@@ -26,5 +26,5 @@ public interface DatasetProc {
      * @param colIncluded   the given column indexes included
      * @return              a general GeoEntity given the file name 
      */
-    public DenseIntMatrix read(String fileName, int[] rowIncluded, int[] colIncluded);
+    public DenseMatrix read(String fileName, int[] rowIncluded, int[] colIncluded);
 }

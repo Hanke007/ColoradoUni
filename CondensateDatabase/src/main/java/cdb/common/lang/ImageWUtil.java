@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * The Image utility convert data matrix to different kind of image,
@@ -36,14 +36,14 @@ public final class ImageWUtil {
      * @param outputFile    the file to show the image
      * @param formatName    the image format, i.e., PNG, JPG, and so on
      */
-    public static void plotGrayImage(DenseIntMatrix matrix, String outputFile, String formatName) {
+    public static void plotGrayImage(DenseMatrix matrix, String outputFile, String formatName) {
         //convert to GrayImage
         int height = matrix.getRowNum();
         int width = matrix.getColNum();
         BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
-                int temperature = matrix.getVal(x, y);
+                double temperature = matrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
                 int rgbVal = 255 - (int) (temperature / 6500.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
@@ -70,15 +70,14 @@ public final class ImageWUtil {
      * @param outputFile    the file to show the image
      * @param formatName    the image format, i.e., PNG, JPG, and so on
      */
-    public static void plotImageForMEASURE(DenseIntMatrix matrix, String outputFile,
-                                           String formatName) {
+    public static void plotImageForMEASURE(DenseMatrix matrix, String outputFile, String formatName) {
         //convert to GrayImage
         int height = matrix.getRowNum();
         int width = matrix.getColNum();
         BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
-                int iceCon = matrix.getVal(x, y);
+                int iceCon = (int) matrix.getVal(x, y);
 
                 if (iceCon == -99 | iceCon >= 90) {
                     iceCon = Color.WHITE.getRGB();

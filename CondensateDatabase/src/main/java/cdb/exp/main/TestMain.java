@@ -3,7 +3,7 @@ package cdb.exp.main;
 import java.io.File;
 
 import cdb.common.lang.ImageWUtil;
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 import cdb.service.dataset.DMSPFileDtProc;
 import cdb.service.dataset.DatasetProc;
 import cdb.service.dataset.NetCDFDtProc;
@@ -27,7 +27,7 @@ public class TestMain {
     public static void SSMIFileDtProc() {
         String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2006\\tb_f13_20061201_v2_s85v.bin";
         DatasetProc dProc = new SSMIFileDtProc();
-        DenseIntMatrix matrix = dProc.read(fileName);
+        DenseMatrix matrix = dProc.read(fileName);
 
         File file = new File(fileName);
         String fileN = file.getName();
@@ -39,7 +39,7 @@ public class TestMain {
     public static void DMSPFileDtProc() {
         String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2015\\nt_20150101_f17_nrt_n.bin";
         DatasetProc dProc = new DMSPFileDtProc();
-        DenseIntMatrix matrix = dProc.read(fileName);
+        DenseMatrix matrix = dProc.read(fileName);
 
         File file = new File(fileName);
         String fileN = file.getName();
@@ -51,7 +51,7 @@ public class TestMain {
     public static void NetCDFileDtProc() {
         String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120101_v01r01.nc";
         DatasetProc dProc = new NetCDFDtProc();
-        DenseIntMatrix matrix = dProc.read(fileName);
+        DenseMatrix matrix = dProc.read(fileName);
 
         File file = new File(fileName);
         String fileN = file.getName();
@@ -70,7 +70,7 @@ public class TestMain {
         }
 
         DatasetProc dProc = new NetCDFDtProc();
-        DenseIntMatrix matrix = dProc.read(fileName, rowIncluded, colIncluded);
+        DenseMatrix matrix = dProc.read(fileName, rowIncluded, colIncluded);
 
         File file = new File(fileName);
         String fileN = file.getName();

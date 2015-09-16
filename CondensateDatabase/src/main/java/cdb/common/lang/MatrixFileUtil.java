@@ -1,6 +1,6 @@
 package cdb.common.lang;
 
-import cdb.dal.vo.DenseIntMatrix;
+import cdb.dal.vo.DenseMatrix;
 
 /**
  * The matrix file utility write data matrix into file,
@@ -25,7 +25,7 @@ public final class MatrixFileUtil {
      * @param dMatrix
      * @param fileName
      */
-    public static void gnuHeatmap(DenseIntMatrix dMatrix, String fileName) {
+    public static void gnuHeatmap(DenseMatrix dMatrix, String fileName) {
         int rowNum = dMatrix.getRowNum();
         int colNum = dMatrix.getColNum();
 
