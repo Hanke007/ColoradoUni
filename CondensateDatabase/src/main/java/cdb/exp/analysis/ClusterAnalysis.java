@@ -24,7 +24,7 @@ public class ClusterAnalysis {
      * @param args
      */
     public static void main(String[] args) {
-        String clstFile = ROOT_DIR + "Clustering/kmean_6";
+        String clstFile = ROOT_DIR + "Clustering/kmean_10";
 
         // read clustering result
         int lIndex = -1;
@@ -52,12 +52,16 @@ public class ClusterAnalysis {
             for (int y = 0; y < 100; y++) {
                 double val = matrix.getVal(x, y);
 
-                if (val == 51) {
-                    dMatrix.setVal(x, y, 8);
+                if (val == 10000) {
+                    dMatrix.setVal(x, y, 0);
+
+                    if (locSet.get(1).indexOf(new Location(x, y)) != -1) {
+                        System.out.println(x + "," + y);
+                    }
                 }
             }
         }
 
-        MatrixFileUtil.gnuHeatmap(dMatrix, ROOT_DIR + "clst");
+        MatrixFileUtil.gnuHeatmap(dMatrix, ROOT_DIR + "sd");
     }
 }

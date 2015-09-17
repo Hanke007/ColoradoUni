@@ -44,7 +44,7 @@ public class NetCDFDtProc implements DatasetProc {
             for (int row = 0; row < dimension[0]; row++) {
                 for (int col = 0; col < dimension[1]; col++) {
                     // sighed 8-bit integer
-                    result.setVal(row, col, netcdfData.get(0, row, col));
+                    result.setVal(row, col, calibretion(netcdfData.get(0, row, col)));
                 }
             }
 
@@ -81,7 +81,7 @@ public class NetCDFDtProc implements DatasetProc {
                 int colIndex = 0;
                 for (int col : colIncluded) {
                     // sighed 8-bit integer
-                    result.setVal(rowIndex, colIndex++, netcdfData.get(0, row, col));
+                    result.setVal(rowIndex, colIndex++, calibretion(netcdfData.get(0, row, col)));
                 }
             }
 
@@ -93,4 +93,21 @@ public class NetCDFDtProc implements DatasetProc {
         return result;
     }
 
+    /**
+     * transform original data to label data
+     * 
+     * @param val
+     * @return
+     */
+    private double calibretion(int val) {
+        if (val == -99 | val == 90 | val == 91) {
+            val = -1;
+        } else if (val == 50) {
+            val = 0;
+        } else if (val == 51) {
+            val = 10000;
+        }
+
+        return val;
+    }
 }

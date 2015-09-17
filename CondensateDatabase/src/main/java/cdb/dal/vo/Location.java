@@ -66,4 +66,14 @@ public class Location {
     public int dimension() {
         return dataDimnsn;
     }
+
+    /** 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        Location b2 = (Location) obj;
+        return this.x() == b2.x() && this.y() == b2.y();
+    }
+
 }

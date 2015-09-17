@@ -37,7 +37,12 @@ public class S1ParameterCmp {
      * @param args
      */
     public static void main(String[] args) {
-        case1();
+        //        case2();
+
+        case3(69,10);
+
+        //        DenseMatrix sd = (DenseMatrix) SerializeUtil.readObject(ROOT_DIR + "Serial/SD.OBJ");
+        //        clusterinng(sd, 3, 45);
     }
 
     public static void case1() {
@@ -84,10 +89,24 @@ public class S1ParameterCmp {
         SerializeUtil.writeObject(centroid, ROOT_DIR + "Serial/MEAN.OBJ");
         DenseMatrix sd = StatisticParamUtil.sd(seralData, centroid);
         SerializeUtil.writeObject(sd, ROOT_DIR + "Serial/SD.OBJ");
+    }
 
-        //        LoggerUtil.info(logger, "3. cluster pixels based on SD.");
-        //        DenseMatrix sd = (DenseMatrix) SerializeUtil.readObject(ROOT_DIR + "Serial/SD.OBJ");
-        //        clusterinng(sd, 3, 25);
+    public static void case3(int x, int y) {
+        // loading dataset
+        String[] filePatternSets = {
+                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+
+        LoggerUtil.info(logger, "1. load dataset.");
+        List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
+        List<String> fileAssigmnt = new ArrayList<String>();
+
+        plotWRTOnePoint(filePatternSets, seralData, fileAssigmnt, new NetCDFDtProc(), 1.0, x, y);
     }
 
     /**
@@ -129,7 +148,14 @@ public class S1ParameterCmp {
 
     public static void plotWRTOnePoint(String[] filePatternSets, List<DenseMatrix> seralData,
                                        List<String> fileAssigmnt, DatasetProc dProc,
-                                       double samplingParam) {
+                                       double samplingParam, int x, int y) {
+        int[] rowIncluded = new int[100];
+        int[] colIncluded = new int[100];
+        for (int i = 0; i < rowIncluded.length; i++) {
+            rowIncluded[i] = 370 + i;
+            colIncluded[i] = 260 + i;
+        }
+
         StringBuilder sp = new StringBuilder();
         int iCount = 1;
         for (String filePattern : filePatternSets) {
@@ -140,12 +166,15 @@ public class S1ParameterCmp {
                 }
 
                 LoggerUtil.info(logger, "reads File: " + file.getName());
-                sp.append(iCount++).append("\t")
-                    .append(dProc.read(file.getAbsolutePath()).getVal(443, 304)).append('\n');
+                sp.append(iCount++)
+                    .append("\t")
+                    .append(
+                        dProc.read(file.getAbsolutePath(), rowIncluded, colIncluded).getVal(x, y))
+                    .append('\n');
             }
         }
 
-        FileUtil.write("C:/Users/chench/Desktop/SIDS/List", sp.toString());
+        FileUtil.write("C:/Users/chench/Desktop/SIDS/Statistcs/Trends/List", sp.toString());
     }
 
     public static Cluster[] clusterinng(DenseMatrix diMatrix, int k, int maxIteration) {

@@ -31,7 +31,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == 0) {
+                    if (val == -1) {
                         // no observation
                         continue;
                     }
@@ -73,7 +73,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == 0) {
+                    if (val == -1) {
                         // no observation
                         continue;
                     }
@@ -116,7 +116,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == 0) {
+                    if (val == -1) {
                         // no observation
                         continue;
                     }
@@ -164,7 +164,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == 0) {
+                    if (val == -1) {
                         // no observation
                         continue;
                     }
