@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cdb.common.lang.FileUtil;
-import cdb.common.lang.MatrixFileUtil;
+import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.service.dataset.DatasetProc;
 import cdb.service.dataset.SSMIFileDtProc;
@@ -49,8 +49,8 @@ public class StatisticAnalysis {
         DenseMatrix SD = new DenseMatrix(seralData.get(0).getRowNum(), seralData.get(0).getColNum());
         cmpSD(EX, EXX, SD);
 
-        MatrixFileUtil.gnuHeatmap(EX, "C:/Users/chench/Desktop/SIDS/mean_201412");
-        MatrixFileUtil.gnuHeatmap(SD, "C:/Users/chench/Desktop/SIDS/sd_201412");
+        VisualizationUtil.gnuHeatmap(EX, "C:/Users/chench/Desktop/SIDS/mean_201412");
+        VisualizationUtil.gnuHeatmap(SD, "C:/Users/chench/Desktop/SIDS/sd_201412");
     }
 
     public static void cmpDistrHierarchy() {

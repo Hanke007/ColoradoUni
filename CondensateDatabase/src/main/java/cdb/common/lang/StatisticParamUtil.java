@@ -17,6 +17,22 @@ public final class StatisticParamUtil {
     }
 
     /**
+     * compute the mean of every matrix in the list
+     * 
+     * @param seralData     the list of the overall data
+     * @return
+     */
+    public static double[] meanSeqTimeseries(List<DenseMatrix> seralData) {
+        double[] means = new double[seralData.size()];
+
+        int indx = 0;
+        for (DenseMatrix oneMatrix : seralData) {
+            means[indx++] = oneMatrix.average();
+        }
+        return means;
+    }
+
+    /**
      * compute the mean parameter 
      * 
      * @param seralData     the list of the overall data
@@ -31,7 +47,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == -1) {
+                    if (val == Double.NaN) {
                         // no observation
                         continue;
                     }
@@ -73,7 +89,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == -1) {
+                    if (val == Double.NaN) {
                         // no observation
                         continue;
                     }
@@ -100,6 +116,22 @@ public final class StatisticParamUtil {
     }
 
     /**
+     * compute the standard deviation across time
+     * 
+     * @param seralData     the list of the overall data
+     * @return
+     */
+    public static double[] sdSeqTimeseries(List<DenseMatrix> seralData) {
+        double[] sd = new double[seralData.size()];
+
+        int indx = 0;
+        for (DenseMatrix oneMatrix : seralData) {
+            sd[indx++] = oneMatrix.sd();
+        }
+        return sd;
+    }
+
+    /**
      * compute the standard deviation
      * 
      * @param seralData     the list of the overall data
@@ -116,7 +148,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == -1) {
+                    if (val == Double.NaN) {
                         // no observation
                         continue;
                     }
@@ -164,7 +196,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == -1) {
+                    if (val == Double.NaN) {
                         // no observation
                         continue;
                     }

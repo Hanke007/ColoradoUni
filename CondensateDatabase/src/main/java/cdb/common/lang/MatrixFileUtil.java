@@ -1,6 +1,10 @@
 package cdb.common.lang;
 
+import java.io.File;
+import java.util.List;
+
 import cdb.dal.vo.DenseMatrix;
+import cdb.service.dataset.DatasetProc;
 
 /**
  * The matrix file utility write data matrix into file,
@@ -19,25 +23,30 @@ public final class MatrixFileUtil {
     }
 
     /**
-     * The data matrix will be transformed into GNUPlot data file 
-     * in the type of HeatMap.
+     * read data within limited rows and columns in given files
      * 
-     * @param dMatrix
-     * @param fileName
+     * @param filePatternSets       the regex-based file path 
+     * @param seralData             the data structure to store the desired data
+     * @param fileAssigmnt          the corresponding object to store file names 
+     * @param dProc                 the data processor to parse the data
+     * @param rowIncluded           the rows included
+     * @param colIncluded           the column included
+     * @param samplingParam         the sampling probability that data should be counted 
      */
-    public static void gnuHeatmap(DenseMatrix dMatrix, String fileName) {
-        int rowNum = dMatrix.getRowNum();
-        int colNum = dMatrix.getColNum();
+    public static void read(String[] filePatternSets, List<DenseMatrix> seralData,
+                            List<String> fileAssigmnt, DatasetProc dProc, int[] rowIncluded,
+                            int[] colIncluded, double samplingParam) {
+        for (String filePattern : filePatternSets) {
+            File[] dFiles = FileUtil.parserFilesByPattern(filePattern);
+            for (File file : dFiles) {
+                if (Math.random() > samplingParam) {
+                    continue;
+                }
 
-        FileUtil.delete(fileName);
-        for (int row = 0; row < rowNum; row++) {
-            StringBuilder content = new StringBuilder();
-            for (int col = 0; col < colNum; col++) {
-                content.append(row).append('\t').append(colNum - 1 - col).append('\t')
-                    .append(dMatrix.getVal(row, col)).append('\n');
+                seralData.add(dProc.read(file.getAbsolutePath(), rowIncluded, colIncluded));
+                fileAssigmnt.add(file.getName());
             }
-
-            FileUtil.writeAsAppend(fileName, content.append('\n').toString());
         }
     }
+
 }

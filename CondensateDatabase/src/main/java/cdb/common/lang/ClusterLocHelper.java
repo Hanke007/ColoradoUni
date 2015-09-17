@@ -40,7 +40,7 @@ public final class ClusterLocHelper {
         int clusterIndex = 0;
         StringBuilder content = new StringBuilder();
         for (Cluster cluster : clusters) {
-            content.append(clusterIndex).append("::");
+            content.append(clusterIndex++).append("::");
 
             for (int index : cluster) {
                 int row = index / colNum;

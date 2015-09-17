@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cdb.common.lang.ClusterLocHelper;
-import cdb.common.lang.MatrixFileUtil;
+import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
 import cdb.service.dataset.DatasetProc;
@@ -62,6 +62,6 @@ public class ClusterAnalysis {
             }
         }
 
-        MatrixFileUtil.gnuHeatmap(dMatrix, ROOT_DIR + "sd");
+        VisualizationUtil.gnuHeatmap(dMatrix, ROOT_DIR + "sd");
     }
 }

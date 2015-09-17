@@ -129,4 +129,52 @@ public class DenseMatrix implements java.io.Serializable {
         }
         return sum / rowNum;
     }
+
+    /**
+     * Average of all elements
+     * 
+     * @return
+     */
+    public double average() {
+        double sum = 0.0d;
+        int count = 0;
+        for (int row = 0; row < rowNum; row++) {
+            for (int col = 0; col < colNum; col++) {
+                double val = data[row][col];
+                if (val == Double.NaN) {
+                    continue;
+                }
+
+                sum += val;
+                count++;
+            }
+        }
+
+        return sum / count;
+    }
+
+    /**
+     * standard deviation of all elements
+     * 
+     * @return
+     */
+    public double sd() {
+        double mean = average();
+
+        double sum = 0.0d;
+        int count = 0;
+        for (int row = 0; row < rowNum; row++) {
+            for (int col = 0; col < colNum; col++) {
+                double val = data[row][col];
+                if (val == Double.NaN) {
+                    continue;
+                }
+
+                sum += Math.pow(val - mean, 2.0d);
+                count++;
+            }
+        }
+
+        return Math.sqrt(sum / count);
+    }
 }

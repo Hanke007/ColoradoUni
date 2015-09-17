@@ -77,17 +77,18 @@ public final class ImageWUtil {
         BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_INT_RGB);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
-                int iceCon = (int) matrix.getVal(x, y);
+                double iceCon = matrix.getVal(x, y);
 
-                if (iceCon == -99 | iceCon >= 90) {
-                    iceCon = Color.WHITE.getRGB();
+                int rgbVal = Integer.MAX_VALUE;
+                if (iceCon == -99 | iceCon >= 90 | iceCon == Double.NaN) {
+                    rgbVal = Color.WHITE.getRGB();
                 } else if (iceCon == 50) {
-                    iceCon = Color.RED.getRGB();
+                    rgbVal = Color.RED.getRGB();
                 } else if (iceCon == 51) {
-                    iceCon = Color.BLUE.getRGB();
+                    rgbVal = Color.BLUE.getRGB();
                 }
 
-                grayImage.setRGB(x, y, iceCon);
+                grayImage.setRGB(x, y, rgbVal);
             }
         }
 

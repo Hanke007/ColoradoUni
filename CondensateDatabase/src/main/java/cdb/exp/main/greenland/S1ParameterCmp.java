@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 import cdb.common.lang.ClusterLocHelper;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
+import cdb.common.lang.VisualizationUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
@@ -39,7 +39,7 @@ public class S1ParameterCmp {
     public static void main(String[] args) {
         //        case2();
 
-        case3(69,10);
+        case3(69, 10);
 
         //        DenseMatrix sd = (DenseMatrix) SerializeUtil.readObject(ROOT_DIR + "Serial/SD.OBJ");
         //        clusterinng(sd, 3, 45);
@@ -63,9 +63,9 @@ public class S1ParameterCmp {
 
         LoggerUtil.info(logger, "2. compute statistical parameter.");
         DenseMatrix centroid = StatisticParamUtil.mean(seralData);
-        MatrixFileUtil.gnuHeatmap(centroid, "C:\\Users\\chench\\Desktop\\mean");
+        VisualizationUtil.gnuHeatmap(centroid, "C:\\Users\\chench\\Desktop\\mean");
         DenseMatrix sd = StatisticParamUtil.sd(seralData, centroid);
-        MatrixFileUtil.gnuHeatmap(sd, "C:\\Users\\chench\\Desktop\\sd");
+        VisualizationUtil.gnuHeatmap(sd, "C:\\Users\\chench\\Desktop\\sd");
     }
 
     public static void case2() {

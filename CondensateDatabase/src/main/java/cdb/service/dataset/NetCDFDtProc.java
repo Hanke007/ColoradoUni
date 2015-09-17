@@ -99,9 +99,9 @@ public class NetCDFDtProc implements DatasetProc {
      * @param val
      * @return
      */
-    private double calibretion(int val) {
+    private double calibretion(double val) {
         if (val == -99 | val == 90 | val == 91) {
-            val = -1;
+            val = Double.NaN;
         } else if (val == 50) {
             val = 0;
         } else if (val == 51) {

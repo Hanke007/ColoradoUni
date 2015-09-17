@@ -12,9 +12,9 @@ import cdb.app.query.Position2D;
 import cdb.app.query.QueryTask;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
+import cdb.common.lang.VisualizationUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
@@ -99,7 +99,7 @@ public class EfficientQueryExp {
                                 + (queryTask.getQueryDomain().size() * 1.0 / (rowNum * colNum))
                                 + "\tDone: "
                                 + (queryTask.getCompleteDomain().size() * 1.0 / (rowNum * colNum)));
-        MatrixFileUtil.gnuHeatmap(queryInfo, SERIALABLE_DIR + "hmp");
+        VisualizationUtil.gnuHeatmap(queryInfo, SERIALABLE_DIR + "hmp");
     }
 
     public static void query() {
