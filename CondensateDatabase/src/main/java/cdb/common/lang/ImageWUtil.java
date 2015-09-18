@@ -80,7 +80,7 @@ public final class ImageWUtil {
                 double iceCon = matrix.getVal(x, y);
 
                 int rgbVal = Integer.MAX_VALUE;
-                if (iceCon == -99 | iceCon >= 90 | iceCon == Double.NaN) {
+                if (iceCon == -99 | iceCon >= 90 | Double.isNaN(iceCon)) {
                     rgbVal = Color.WHITE.getRGB();
                 } else if (iceCon == 50) {
                     rgbVal = Color.RED.getRGB();

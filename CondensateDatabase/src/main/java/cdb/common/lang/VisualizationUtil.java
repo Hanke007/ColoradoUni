@@ -1,6 +1,9 @@
 package cdb.common.lang;
 
+import java.io.File;
+
 import cdb.dal.vo.DenseMatrix;
+import cdb.ml.clustering.Cluster;
 
 /**
  * 
@@ -55,5 +58,41 @@ public class VisualizationUtil {
 
             FileUtil.writeAsAppend(fileName, content.append('\n').toString());
         }
+    }
+
+    public static void gnuLPWithMultipleFile(double[] datas, Cluster[] resultSet, String workingRoot) {
+        // delete files in working directory
+        File direcFile = new File(workingRoot);
+        if (direcFile.exists() && direcFile.isDirectory()) {
+            File[] subFiles = direcFile.listFiles();
+            for (File subFile : subFiles) {
+                subFile.delete();
+            }
+        }
+
+        // fill files
+        int fileCount = 0;
+        for (Cluster cluster : resultSet) {
+            String fileName = workingRoot + '[' + (fileCount++) + ']';
+            StringBuilder content = new StringBuilder();
+            for (Integer pIndx : cluster) {
+                content.append(pIndx).append('\t').append(datas[pIndx]).append('\n');
+            }
+
+            FileUtil.delete(fileName);
+            FileUtil.existDirAndMakeDir(fileName);
+            FileUtil.write(fileName, content.toString());
+        }
+
+        String plotFile = workingRoot + "z.plt";
+        StringBuilder plotCon = new StringBuilder();
+        plotCon.append("set term pngcairo").append("\nset output \"trend.png\"")
+            .append("\n plot \\");
+        for (int i = 0; i < fileCount; i++) {
+            plotCon.append("\n\"[" + i + "]\" using 1:2 notitle lw 2 with linespoints,\\");
+        }
+        plotCon.delete(plotCon.length() - 2, plotCon.length());
+
+        FileUtil.write(plotFile, plotCon.toString());
     }
 }

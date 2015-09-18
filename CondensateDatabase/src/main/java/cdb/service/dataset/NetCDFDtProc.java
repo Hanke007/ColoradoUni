@@ -103,7 +103,7 @@ public class NetCDFDtProc implements DatasetProc {
         if (val == -99 | val == 90 | val == 91) {
             val = Double.NaN;
         } else if (val == 50) {
-            val = 0;
+            val = 1;
         } else if (val == 51) {
             val = 10000;
         }

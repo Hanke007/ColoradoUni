@@ -47,7 +47,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == Double.NaN) {
+                    if (Double.isNaN(val)) {
                         // no observation
                         continue;
                     }
@@ -89,7 +89,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == Double.NaN) {
+                    if (Double.isNaN(val)) {
                         // no observation
                         continue;
                     }
@@ -148,7 +148,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = denseMatrix.getVal(row, col);
-                    if (val == Double.NaN) {
+                    if (Double.isNaN(val)) {
                         // no observation
                         continue;
                     }
@@ -196,7 +196,7 @@ public final class StatisticParamUtil {
             for (int row = 0; row < rowNum; row++) {
                 for (int col = 0; col < colNum; col++) {
                     double val = seralData.get(index).getVal(row, col);
-                    if (val == Double.NaN) {
+                    if (Double.isNaN(val)) {
                         // no observation
                         continue;
                     }

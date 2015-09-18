@@ -1,12 +1,15 @@
 package cdb.ml.clustering;
 
+import java.util.Arrays;
+import java.util.Iterator;
+
 /**
  * Samples contains data points
  * 
  * @author Chao Chen
  * @version $Id: Sample.java, v 0.1 Aug 17, 2015 9:59:39 AM chench Exp $
  */
-public class Samples {
+public class Samples implements Iterable<Point> {
 
     /** data points*/
     private Point[] rows;
@@ -124,5 +127,12 @@ public class Samples {
      */
     public double average() {
         return this.sum() / (sampleNum * dataDimnsn);
+    }
+
+    /** 
+     * @see java.lang.Iterable#iterator()
+     */
+    public Iterator<Point> iterator() {
+        return Arrays.asList(rows).iterator();
     }
 }

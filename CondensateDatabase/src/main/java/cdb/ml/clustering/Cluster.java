@@ -81,6 +81,18 @@ public final class Cluster implements Iterable<Integer> {
     }
 
     /** 
+     * deep clone
+     * @return
+     */
+    protected Object deepClone() {
+        Cluster newOne = new Cluster();
+        for (Integer index : elements) {
+            newOne.add(index);
+        }
+        return newOne;
+    }
+
+    /** 
      * @see java.lang.Iterable#iterator()
      */
     public Iterator<Integer> iterator() {

@@ -1,5 +1,7 @@
 package cdb.dal.vo;
 
+import java.util.Arrays;
+
 /**
  * General Mode to store the data.
  * 
@@ -27,6 +29,21 @@ public class DenseMatrix implements java.io.Serializable {
         this.rowNum = rowNum;
         this.colNum = colNum;
         data = new double[rowNum][colNum];
+    }
+
+    /**
+     * Constructions 
+     * 
+     * @param rowNum    the number of rows
+     * @param colNum    the number of columns
+     */
+    public DenseMatrix(int rowNum, int colNum, double deftVal) {
+        this.rowNum = rowNum;
+        this.colNum = colNum;
+        data = new double[rowNum][colNum];
+        for (int row = 0; row < rowNum; row++) {
+            Arrays.fill(data[row], deftVal);
+        }
     }
 
     /**
@@ -141,16 +158,21 @@ public class DenseMatrix implements java.io.Serializable {
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
                 double val = data[row][col];
-                if (val == Double.NaN) {
+                if (Double.isNaN(val)) {
                     continue;
                 }
 
                 sum += val;
                 count++;
+
             }
         }
 
-        return sum / count;
+        if (count == 0) {
+            return 0.0d;
+        } else {
+            return sum / count;
+        }
     }
 
     /**
@@ -166,7 +188,7 @@ public class DenseMatrix implements java.io.Serializable {
         for (int row = 0; row < rowNum; row++) {
             for (int col = 0; col < colNum; col++) {
                 double val = data[row][col];
-                if (val == Double.NaN) {
+                if (Double.isNaN(val)) {
                     continue;
                 }
 
