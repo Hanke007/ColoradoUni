@@ -24,7 +24,12 @@ public class ClusterAnalysis {
      * @param args
      */
     public static void main(String[] args) {
-        String clstFile = ROOT_DIR + "Clustering/kmean_10";
+        case1();
+        //        case2();
+    }
+
+    public static void case1() {
+        String clstFile = ROOT_DIR + "Clustering/kmean_5";
 
         // read clustering result
         int lIndex = -1;
@@ -38,7 +43,25 @@ public class ClusterAnalysis {
             }
         }
 
-        // read matrix 
+        VisualizationUtil.gnuHeatmap(dMatrix, ROOT_DIR + "sd");
+    }
+
+    public static void case2() {
+        String clstFile = ROOT_DIR + "Clustering/kmean_5";
+
+        // read clustering result
+        int lIndex = -1;
+        DenseMatrix dMatrix = new DenseMatrix(100, 100);
+        List<List<Location>> locSet = new ArrayList<List<Location>>();
+        ClusterLocHelper.readLoc(clstFile, locSet);
+        for (List<Location> locOne : locSet) {
+            lIndex++;
+            for (Location loc : locOne) {
+                dMatrix.setVal(loc.x(), loc.y(), lIndex);
+            }
+        }
+
+        //         read matrix 
         String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120901_v01r01.nc";
         int[] rowIncluded = new int[100];
         int[] colIncluded = new int[100];
@@ -59,6 +82,24 @@ public class ClusterAnalysis {
                         System.out.println(x + "," + y);
                     }
                 }
+            }
+        }
+
+        VisualizationUtil.gnuHeatmap(dMatrix, ROOT_DIR + "sd");
+    }
+
+    public static void case3() {
+        String clstFile = ROOT_DIR + "Clustering/Hierarchy_5";
+
+        // read clustering result
+        int lIndex = -1;
+        DenseMatrix dMatrix = new DenseMatrix(2559, 1);
+        List<List<Location>> locSet = new ArrayList<List<Location>>();
+        ClusterLocHelper.readLoc(clstFile, locSet);
+        for (List<Location> locOne : locSet) {
+            lIndex++;
+            for (Location loc : locOne) {
+                dMatrix.setVal(loc.x(), loc.y(), lIndex);
             }
         }
 

@@ -84,13 +84,22 @@ public class HierarchicalClustering {
                 for (Cluster one : resultSet) {
                     oldReSet.add((Cluster) one.deepClone());
                 }
-                LoggerUtil.info(logger, round + "\t" + curErr);
+                //                LoggerUtil.info(logger, round + "\t" + curErr);
             }
 
         }
-
         Cluster[] returnSet = new Cluster[resultSet.size()];
         resultSet.toArray(returnSet);
+
+        // record centers
+        int cenIndex = 0;
+        StringBuilder centdInfo = new StringBuilder();
+        for (Cluster cluster : returnSet) {
+            centdInfo.append('\n').append(cenIndex).append(": ").append(cluster.centroid(points))
+                .append("\tSize: ").append(returnSet[cenIndex].getList().size());
+            cenIndex++;
+        }
+        LoggerUtil.info(logger, centdInfo.toString());
         return returnSet;
     }
 

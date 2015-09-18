@@ -37,12 +37,9 @@ public class S1ParameterCmp {
      * @param args
      */
     public static void main(String[] args) {
-        //        case2();
+        case2();
+        //        case3(69, 10);
 
-        case3(69, 10);
-
-        //        DenseMatrix sd = (DenseMatrix) SerializeUtil.readObject(ROOT_DIR + "Serial/SD.OBJ");
-        //        clusterinng(sd, 3, 45);
     }
 
     public static void case1() {
@@ -89,6 +86,8 @@ public class S1ParameterCmp {
         SerializeUtil.writeObject(centroid, ROOT_DIR + "Serial/MEAN.OBJ");
         DenseMatrix sd = StatisticParamUtil.sd(seralData, centroid);
         SerializeUtil.writeObject(sd, ROOT_DIR + "Serial/SD.OBJ");
+
+        clusterinng(sd, 5, 40);
     }
 
     public static void case3(int x, int y) {

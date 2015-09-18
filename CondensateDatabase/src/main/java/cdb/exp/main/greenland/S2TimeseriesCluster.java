@@ -9,6 +9,9 @@ import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
+import cdb.ml.clustering.Cluster;
+import cdb.ml.clustering.HierarchicalClustering;
+import cdb.ml.clustering.Samples;
 import cdb.service.dataset.NetCDFDtProc;
 
 /**
@@ -25,7 +28,8 @@ public class S2TimeseriesCluster {
      * @param args
      */
     public static void main(String[] args) {
-        case1();
+        //        case1();
+        case2();
     }
 
     public static void case1() {
@@ -43,10 +47,38 @@ public class S2TimeseriesCluster {
         loadingdataset(filePatternSets, seralData, fileAssigmnt);
 
         String clstFile = ROOT_DIR + "Clustering/kmean_5";
-        List<Location> oneCluster = loadingClusterResulting(clstFile, 1);
+        List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
         cmpingParamWithCluster(seralData, oneCluster);
 
+    }
+
+    public static void case2() {
+        String[] filePatternSets = {
+                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+
+        List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
+        List<String> fileAssigmnt = new ArrayList<String>();
+        loadingdataset(filePatternSets, seralData, fileAssigmnt);
+
+        String clstFile = ROOT_DIR + "Clustering/kmean_5";
+        List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
+
+        Cluster[] resultSet = clusterTimeseries(seralData, oneCluster, 25);
+        ClusterLocHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(),
+            1);
+
+        // computer statistical parameters
+        double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
+
+        VisualizationUtil
+            .gnuLPWithMultipleFile(means, resultSet, ROOT_DIR + "Statistcs/Automatic/");
     }
 
     public static void loadingdataset(String[] filePatternSets, List<DenseMatrix> seralData,
@@ -63,7 +95,7 @@ public class S2TimeseriesCluster {
             rowIncluded, colIncluded, 1.0d);
     }
 
-    public static List<Location> loadingClusterResulting(String clstFile, int oneSeq) {
+    public static List<Location> loadingSpatialClusterResulting(String clstFile, int oneSeq) {
         List<List<Location>> locSet = new ArrayList<List<Location>>();
         ClusterLocHelper.readLoc(clstFile, locSet);
         return locSet.get(oneSeq);
@@ -74,7 +106,31 @@ public class S2TimeseriesCluster {
         int mNum = seralData.size();
         for (int i = 0; i < mNum; i++) {
             DenseMatrix curMatrix = seralData.get(i);
-            DenseMatrix newMatrix = new DenseMatrix(curMatrix.getRowNum(), curMatrix.getColNum());
+            DenseMatrix newMatrix = new DenseMatrix(curMatrix.getRowNum(), curMatrix.getColNum(),
+                Double.NaN);
+
+            for (Location loc : oneCluster) {
+                newMatrix.setVal(loc.x(), loc.y(), curMatrix.getVal(loc.x(), loc.y()));
+            }
+            seralData.set(i, newMatrix);
+        }
+
+        // computer statistical parameters
+        //        double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
+        //        VisualizationUtil.gnuLinepoint(means, 0, ROOT_DIR + "Statistcs/Trends/List");
+
+        double[] sds = StatisticParamUtil.sdSeqTimeseries(seralData);
+        VisualizationUtil.gnuLinepoint(sds, 0, ROOT_DIR + "Statistcs/Trends/List");
+    }
+
+    public static Cluster[] clusterTimeseries(List<DenseMatrix> seralData,
+                                              List<Location> oneCluster, int maxK) {
+        // save data in specific cluster
+        int mNum = seralData.size();
+        for (int i = 0; i < mNum; i++) {
+            DenseMatrix curMatrix = seralData.get(i);
+            DenseMatrix newMatrix = new DenseMatrix(curMatrix.getRowNum(), curMatrix.getColNum(),
+                Double.NaN);
 
             for (Location loc : oneCluster) {
                 newMatrix.setVal(loc.x(), loc.y(), curMatrix.getVal(loc.x(), loc.y()));
@@ -84,9 +140,16 @@ public class S2TimeseriesCluster {
 
         // computer statistical parameters
         double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
-        VisualizationUtil.gnuLinepoint(means, 0, ROOT_DIR + "Statistcs/Trends/List");
+        double[] sds = StatisticParamUtil.sdSeqTimeseries(seralData);
 
-        //        double[] sds = StatisticParamUtil.sdSeqTimeseries(seralData);
-        //        VisualizationUtil.gnuLinepoint(sds, 0, ROOT_DIR + "Statistcs/Trends/List");
+        // transfer data to Samples formulation
+        Samples dataSample = new Samples(means.length, 2);
+        for (int indxCount = 0; indxCount < means.length; indxCount++) {
+            dataSample.setValue(indxCount, 0, means[indxCount]);
+            dataSample.setValue(indxCount, 1, sds[indxCount]);
+        }
+
+        return HierarchicalClustering.cluster(dataSample, maxK,
+            HierarchicalClustering.SQUARE_EUCLIDEAN_DISTANCE);
     }
 }

@@ -196,7 +196,10 @@ public class DenseMatrix implements java.io.Serializable {
                 count++;
             }
         }
-
-        return Math.sqrt(sum / count);
+        if (count == 0) {
+            return 0.0d;
+        } else {
+            return Math.sqrt(sum / count);
+        }
     }
 }
