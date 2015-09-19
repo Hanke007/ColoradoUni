@@ -76,7 +76,7 @@ public class S3ParameterAnomaly {
         String clstFile = ROOT_DIR + "Clustering/kmean_5";
         List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
-        clusterTimeseries(seralData, oneCluster, 50, fileAssigmnt);
+        clusterTimeseries(seralData, oneCluster, 200, fileAssigmnt);
     }
 
     public static void loadingdataset(String[] filePatternSets, List<DenseMatrix> seralData,
@@ -154,12 +154,10 @@ public class S3ParameterAnomaly {
             maxDist[i] = allDist[resultSet.length - 4];
         }
 
-        for (int k = 0; k < 3; k++) {
+        for (int k = 0; k < 10; k++) {
             int indx = findMaximum(maxDist);
-            maxDist[indx] = Double.MIN_VALUE;
-
             StringBuilder context = new StringBuilder();
-            context.append("ClusterId: " + indx + "\n");
+            context.append("ClusterId: " + indx + "\t" + maxDist[indx] + "\n");
             Collections.sort(resultSet[indx].getList());
 
             int firstIndx = resultSet[indx].getList().get(0);
@@ -167,6 +165,8 @@ public class S3ParameterAnomaly {
             context.append(fileAssigmnt.get(firstIndx)).append('\t')
                 .append(fileAssigmnt.get(lasttIndx)).append('.');
             LoggerUtil.info(logger, context.toString());
+
+            maxDist[indx] = Double.MIN_VALUE;
         }
 
     }
@@ -178,9 +178,7 @@ public class S3ParameterAnomaly {
         double mean2 = b.getValue(0);
         double sigma2 = b.getValue(1);
 
-        if (sigma2 == 0.0d) {
-            return 0.0d;
-        } else if (Double.isNaN(sigma2 / sigma1)) {
+        if (sigma2 == 0.0d | sigma1 == 0.0d) {
             return 0.0d;
         }
 
@@ -191,7 +189,8 @@ public class S3ParameterAnomaly {
     protected static int findMaximum(double[] allDist) {
         double max = Double.MIN_VALUE;
         int pivot = -1;
-        for (int i = 0; i < allDist.length; i++) {
+        // ignoring side effects
+        for (int i = 1; i < allDist.length; i++) {
             double val = allDist[i];
 
             if (max < val) {
