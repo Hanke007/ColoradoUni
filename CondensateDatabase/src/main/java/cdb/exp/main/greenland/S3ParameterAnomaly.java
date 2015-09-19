@@ -28,12 +28,13 @@ import cdb.service.dataset.NetCDFDtProc;
  */
 public class S3ParameterAnomaly {
 
-    public final static String ROOT_DIR = "C:/Users/chench/Desktop/SIDS/";
+    public final static String    ROOT_DIR             = "C:/Users/chench/Desktop/SIDS/";
 
-    public final static int NEAREST_NEIGHBOR_NUM = 5;
+    public final static int       NEAREST_NEIGHBOR_NUM = 5;
 
     /** logger */
-    protected final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_NORMAL);
+    protected final static Logger logger               = Logger
+                                                           .getLogger(LoggerDefineConstant.SERVICE_NORMAL);
 
     /**
      * 
@@ -44,29 +45,30 @@ public class S3ParameterAnomaly {
     }
 
     public static void case2() {
-        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/1990/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1991/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1992/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1993/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1994/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1995/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1996/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1997/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1998/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/1999/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
-                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = {
+                "C:/Users/chench/Desktop/SIDS/1990/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1991/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1992/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1993/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1994/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1995/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1996/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1997/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1998/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/1999/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
+                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. loading dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
@@ -129,8 +131,8 @@ public class S3ParameterAnomaly {
         }
         Cluster[] resultSet = HierarchicalClustering.cluster(dataSample, maxK,
             HierarchicalClustering.SQUARE_EUCLIDEAN_DISTANCE);
-        VisualizationUtil.gnuLPWithMultipleFile(means, resultSet,
-            ROOT_DIR + "Statistcs/Automatic/");
+        VisualizationUtil
+            .gnuLPWithMultipleFile(means, resultSet, ROOT_DIR + "Statistcs/Automatic/");
 
         // out-lier detection 
         LoggerUtil.info(logger, "5. detecting outliers.");
@@ -144,6 +146,8 @@ public class S3ParameterAnomaly {
             Point a = centers[i];
 
             if (a.getValue(0) == 0.0d && a.getValue(1) == 0.0d) {
+                maxDist[i] = Double.MIN_VALUE;
+            } else {
                 double[] allDist = new double[resultSet.length];
                 for (int j = 0; j < resultSet.length; j++) {
                     Point b = centers[j];
@@ -159,8 +163,6 @@ public class S3ParameterAnomaly {
 
                 Arrays.sort(allDist);
                 maxDist[i] = allDist[resultSet.length - NEAREST_NEIGHBOR_NUM];
-            } else {
-                maxDist[i] = Double.MIN_VALUE;
             }
         }
 
@@ -169,7 +171,7 @@ public class S3ParameterAnomaly {
             StringBuilder context = new StringBuilder();
             context.append("ClusterId: " + indx + "\t"
                            + ((maxDist[indx] == Double.MAX_VALUE) ? ("Infinity") : maxDist[indx])
-                           + "\n");
+                           + '\t' + centers[indx] + "\n");
             Collections.sort(resultSet[indx].getList());
 
             int firstIndx = resultSet[indx].getList().get(0);
@@ -196,8 +198,8 @@ public class S3ParameterAnomaly {
             return Double.MAX_VALUE;
         }
 
-        return Math.log(sigma2 / sigma1)
-               + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d)) / (2 * sigma2 * sigma2) - 1 / 2;
+        return Math.log(sigma2 / sigma1) + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d))
+               / (2 * sigma2 * sigma2) - 1 / 2;
     }
 
     protected static int findMaximum(double[] allDist) {
