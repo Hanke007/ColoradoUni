@@ -143,25 +143,33 @@ public class S3ParameterAnomaly {
         for (int i = 0; i < resultSet.length; i++) {
             Point a = centers[i];
 
-            double[] allDist = new double[resultSet.length];
-            for (int j = 0; j < resultSet.length; j++) {
-                Point b = centers[j];
-                //                double distance = (KL_UniNormal(a, b) + KL_UniNormal(b, a)) / 2.0d;
-                double distance = KL_UniNormal(b, a);
+            if (a.getValue(0) == 0.0d && a.getValue(1) == 0.0d) {
+                double[] allDist = new double[resultSet.length];
+                for (int j = 0; j < resultSet.length; j++) {
+                    Point b = centers[j];
+                    if (b.getValue(0) == 0.0d && b.getValue(1) == 0.0d) {
+                        continue;
+                    }
 
-                allDist[j] = distance;
+                    //                double distance = (KL_UniNormal(a, b) + KL_UniNormal(b, a)) / 2.0d;
+                    double distance = KL_UniNormal(b, a);
+
+                    allDist[j] = distance;
+                }
+
+                Arrays.sort(allDist);
+                maxDist[i] = allDist[resultSet.length - NEAREST_NEIGHBOR_NUM];
+            } else {
+                maxDist[i] = Double.MIN_VALUE;
             }
-
-            Arrays.sort(allDist);
-            maxDist[i] = allDist[resultSet.length - NEAREST_NEIGHBOR_NUM];
         }
 
         for (int k = 0; k < 10; k++) {
             int indx = findMaximum(maxDist);
             StringBuilder context = new StringBuilder();
-            context
-                .append("ClusterId: " + indx + "\t"
-                        + (Double.isInfinite(maxDist[indx]) ? ("Infinity") : maxDist[indx]) + "\n");
+            context.append("ClusterId: " + indx + "\t"
+                           + ((maxDist[indx] == Double.MAX_VALUE) ? ("Infinity") : maxDist[indx])
+                           + "\n");
             Collections.sort(resultSet[indx].getList());
 
             int firstIndx = resultSet[indx].getList().get(0);
