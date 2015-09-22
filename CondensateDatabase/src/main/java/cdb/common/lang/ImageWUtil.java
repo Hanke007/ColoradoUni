@@ -80,11 +80,11 @@ public final class ImageWUtil {
                 double iceCon = matrix.getVal(x, y);
 
                 int rgbVal = Integer.MAX_VALUE;
-                if (iceCon == -99 | iceCon >= 90 | Double.isNaN(iceCon)) {
+                if (Double.isNaN(iceCon)) {
                     rgbVal = Color.WHITE.getRGB();
-                } else if (iceCon == 50) {
+                } else if (iceCon == 5000) {
                     rgbVal = Color.RED.getRGB();
-                } else if (iceCon == 51) {
+                } else if (iceCon == 10000) {
                     rgbVal = Color.BLUE.getRGB();
                 }
 

@@ -84,7 +84,7 @@ public class HierarchicalClustering {
                 for (Cluster one : resultSet) {
                     oldReSet.add((Cluster) one.deepClone());
                 }
-                //                LoggerUtil.info(logger, round + "\t" + curErr);
+                LoggerUtil.info(logger, round + "\t" + curErr);
             }
 
         }
@@ -184,6 +184,7 @@ public class HierarchicalClustering {
 
         // computer the overall errors
         double avgError = 0.0d;
+        int modelCount = 0;
         for (int clstIndex = 0; clstIndex < resultSet.size(); clstIndex++) {
             Cluster cluster = resultSet.get(clstIndex);
             Point center = centroids.get(clstIndex);
@@ -194,9 +195,14 @@ public class HierarchicalClustering {
                 sum += distance(elem, center, type);
             }
             sum /= cluster.getList().size();
+
+            if (Double.isInfinite(sum)) {
+                continue;
+            }
             avgError += Math.sqrt(sum);
+            modelCount++;
         }
-        return Math.sqrt(avgError / resultSet.size());
+        return Math.sqrt(avgError / modelCount);
     }
 
     /**
@@ -221,6 +227,22 @@ public class HierarchicalClustering {
                 a.sub(a.average());
                 centroid.sub(centroid.average());
                 return a.innerProduct(centroid) / (a.norm() * centroid.norm());
+            case KL_DISTANCE:
+                double mean1 = a.getValue(0);
+                double sigma1 = a.getValue(1);
+
+                double mean2 = centroid.getValue(0);
+                double sigma2 = centroid.getValue(1);
+
+                if (sigma2 == 0.0d & sigma1 == 0.0d & mean1 == mean2) {
+                    return 0.0d;
+                } else if (sigma2 == 0.0d | sigma1 == 0.0d) {
+                    return Double.POSITIVE_INFINITY;
+                }
+
+                return Math.log(sigma2 / sigma1)
+                       + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d)) / (2 * sigma2 * sigma2)
+                       - 1 / 2;
             default:
                 throw new RuntimeException("Wrong Distance Type! ");
         }

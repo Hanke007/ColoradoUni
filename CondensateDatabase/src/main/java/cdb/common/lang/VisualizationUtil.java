@@ -89,7 +89,7 @@ public class VisualizationUtil {
         plotCon.append("set term pngcairo").append("\nset output \"trend.png\"")
             .append("\n plot \\");
         for (int i = 0; i < fileCount; i++) {
-            plotCon.append("\n\"[" + i + "]\" using 1:2 notitle lw 2 with linespoints,\\");
+            plotCon.append("\n\"[" + i + "]\" using 1:2 notitle,\\");
         }
         plotCon.delete(plotCon.length() - 2, plotCon.length());
 
