@@ -26,6 +26,12 @@ public class Point {
         data = new double[dimention];
     }
 
+    public Point(double... args) {
+        super();
+        this.dataDimnsn = args.length;
+        data = args;
+    }
+
     /*========================================
      * Getter/Setter
      *========================================*/

@@ -1,20 +1,17 @@
 package cdb.exp.main.greenland;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import cdb.common.lang.ClusterLocHelper;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
+import cdb.ml.anomaly.SimpleAnomalyDetection;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.HierarchicalClustering;
 import cdb.ml.clustering.Point;
@@ -26,25 +23,23 @@ import cdb.service.dataset.NetCDFDtProc;
  * @author Chao Chen
  * @version $Id: S3ParameterAnomaly.java, v 0.1 Sep 18, 2015 2:48:53 PM chench Exp $
  */
-public class S3ParameterAnomaly {
+public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
 
-    public final static String    ROOT_DIR             = "C:/Users/chench/Desktop/SIDS/";
+    public final static int NEAREST_NEIGHBOR_NUM = 8;
 
-    public final static int       NEAREST_NEIGHBOR_NUM = 5;
+    public final static int ANOMALY_NUM          = 20;
 
-    /** logger */
-    protected final static Logger logger               = Logger
-                                                           .getLogger(LoggerDefineConstant.SERVICE_NORMAL);
+    public final static int MAX_CLUSTER_NUM      = 200;
 
     /**
      * 
      * @param args
      */
     public static void main(String[] args) {
-        case2();
+        case1();
     }
 
-    public static void case2() {
+    public static void case1() {
         String[] filePatternSets = {
                 "C:/Users/chench/Desktop/SIDS/1990/GLSMD25E2_\\d{8}_v01r01.nc",
                 "C:/Users/chench/Desktop/SIDS/1991/GLSMD25E2_\\d{8}_v01r01.nc",
@@ -79,7 +74,7 @@ public class S3ParameterAnomaly {
         String clstFile = ROOT_DIR + "Clustering/kmean_5";
         List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
-        clusterTimeseries(seralData, oneCluster, 200, fileAssigmnt);
+        clusterTimeseries(seralData, oneCluster, MAX_CLUSTER_NUM, fileAssigmnt);
     }
 
     public static void loadingdataset(String[] filePatternSets, List<DenseMatrix> seralData,
@@ -141,37 +136,13 @@ public class S3ParameterAnomaly {
             centers[indx] = resultSet[indx].centroid(dataSample);
         }
 
-        double[] maxDist = new double[resultSet.length];
-        for (int i = 0; i < resultSet.length; i++) {
-            Point a = centers[i];
+        SimpleAnomalyDetection dectector = new SimpleAnomalyDetection();
+        int[] anomalyIndx = dectector.detect(centers, NEAREST_NEIGHBOR_NUM, ANOMALY_NUM);
 
-            if (a.getValue(0) == 0.0d && a.getValue(1) == 0.0d) {
-                maxDist[i] = Double.MIN_VALUE;
-            } else {
-                double[] allDist = new double[resultSet.length];
-                for (int j = 0; j < resultSet.length; j++) {
-                    Point b = centers[j];
-                    if (b.getValue(0) == 0.0d && b.getValue(1) == 0.0d) {
-                        continue;
-                    }
-
-                    //                double distance = (KL_UniNormal(a, b) + KL_UniNormal(b, a)) / 2.0d;
-                    double distance = KL_UniNormal(b, a);
-
-                    allDist[j] = distance;
-                }
-
-                Arrays.sort(allDist);
-                maxDist[i] = allDist[resultSet.length - NEAREST_NEIGHBOR_NUM];
-            }
-        }
-
-        for (int k = 0; k < 10; k++) {
-            int indx = findMaximum(maxDist);
+        for (int k = 0; k < ANOMALY_NUM; k++) {
+            int indx = anomalyIndx[k];
             StringBuilder context = new StringBuilder();
-            context.append("ClusterId: " + indx + "\t"
-                           + ((maxDist[indx] == Double.MAX_VALUE) ? ("Infinity") : maxDist[indx])
-                           + '\t' + centers[indx] + "\n");
+            context.append("ClusterId: " + indx + "\t" + centers[indx] + "\n");
             Collections.sort(resultSet[indx].getList());
 
             int firstIndx = resultSet[indx].getList().get(0);
@@ -179,41 +150,8 @@ public class S3ParameterAnomaly {
             context.append(fileAssigmnt.get(firstIndx)).append('\t')
                 .append(fileAssigmnt.get(lasttIndx)).append('.');
             LoggerUtil.info(logger, context.toString());
-
-            maxDist[indx] = Double.MIN_VALUE;
         }
 
     }
 
-    protected static double KL_UniNormal(final Point a, final Point b) {
-        double mean1 = a.getValue(0);
-        double sigma1 = a.getValue(1);
-
-        double mean2 = b.getValue(0);
-        double sigma2 = b.getValue(1);
-
-        if (sigma2 == 0.0d & sigma1 == 0.0d & mean1 == mean2) {
-            return 0.0d;
-        } else if (sigma2 == 0.0d | sigma1 == 0.0d) {
-            return Double.MAX_VALUE;
-        }
-
-        return Math.log(sigma2 / sigma1) + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d))
-               / (2 * sigma2 * sigma2) - 1 / 2;
-    }
-
-    protected static int findMaximum(double[] allDist) {
-        double max = Double.MIN_VALUE;
-        int pivot = -1;
-        // ignoring side effects
-        for (int i = 1; i < allDist.length; i++) {
-            double val = allDist[i];
-
-            if (max < val) {
-                max = val;
-                pivot = i;
-            }
-        }
-        return pivot;
-    }
 }

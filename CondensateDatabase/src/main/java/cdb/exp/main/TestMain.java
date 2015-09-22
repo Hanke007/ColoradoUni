@@ -61,7 +61,7 @@ public class TestMain {
     }
 
     public static void filteringNetCDFileDtProc() {
-        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120101_v01r01.nc";
+        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\1990\\GLSMD25E2_19900205_v01r01.nc";
         int[] rowIncluded = new int[100];
         int[] colIncluded = new int[100];
         for (int i = 0; i < rowIncluded.length; i++) {

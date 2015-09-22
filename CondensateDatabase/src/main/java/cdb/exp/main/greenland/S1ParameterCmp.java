@@ -4,15 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import cdb.common.lang.ClusterLocHelper;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
@@ -25,12 +22,7 @@ import cdb.service.dataset.NetCDFDtProc;
  * @author Chao Chen
  * @version $Id: S1ParameterCmp.java, v 0.1 Sep 15, 2015 12:02:03 PM chench Exp $
  */
-public class S1ParameterCmp {
-
-    public final static String  ROOT_DIR = "C:/Users/chench/Desktop/SIDS/";
-
-    /** logger */
-    private final static Logger logger   = Logger.getLogger(LoggerDefineConstant.SERVICE_NORMAL);
+public class S1ParameterCmp extends AbstractGreenLandAnalysis {
 
     /**
      * 

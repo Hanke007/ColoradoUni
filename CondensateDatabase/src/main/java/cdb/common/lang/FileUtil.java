@@ -309,6 +309,21 @@ public final class FileUtil {
     }
 
     /**
+     * delete all file in the given directory
+     * 
+     * @param dir   the given directory
+     */
+    public static void deleteDir(String dir) {
+        File direcFile = new File(dir);
+        if (direcFile.exists() && direcFile.isDirectory()) {
+            File[] subFiles = direcFile.listFiles();
+            for (File subFile : subFiles) {
+                subFile.delete();
+            }
+        }
+    }
+
+    /**
      * Check whether the director of this file exists, if not, then make this
      * directory.
      * 

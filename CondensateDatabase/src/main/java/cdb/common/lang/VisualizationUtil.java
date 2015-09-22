@@ -1,9 +1,11 @@
 package cdb.common.lang;
 
-import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
+import cdb.ml.clustering.Point;
 
 /**
  * 
@@ -37,6 +39,40 @@ public class VisualizationUtil {
         FileUtil.write(fileName, content.toString());
     }
 
+    public static void gnuLinepoint(Map<String, List<Point>> pltContext, String workingRoot) {
+        // delete files in working directory
+        FileUtil.deleteDir(workingRoot);
+
+        // fill files
+        for (String key : pltContext.keySet()) {
+            String fileName = workingRoot + '[' + key + ']';
+            StringBuilder content = new StringBuilder();
+
+            for (Point point : pltContext.get(key)) {
+                int dimensn = point.dimension();
+                for (int i = 0; i < dimensn; i++) {
+                    content.append('\t').append(point.getValue(i));
+                }
+                content.append('\n');
+            }
+            FileUtil.delete(fileName);
+            FileUtil.existDirAndMakeDir(fileName);
+            FileUtil.write(fileName, content.toString());
+        }
+
+        // GUNPLOT script
+        String plotFile = workingRoot + "z.plt";
+        StringBuilder plotCon = new StringBuilder();
+        plotCon.append("set term pngcairo").append("\nset output \"trend.png\"")
+            .append("\nset xrange [-10: 380] \nset xtics 30").append("\n plot \\");
+        for (String key : pltContext.keySet()) {
+            plotCon.append("\n\"[" + key + "]\" using 1:2 title \"" + key + "\",\\");
+        }
+        plotCon.delete(plotCon.length() - 2, plotCon.length());
+
+        FileUtil.write(plotFile, plotCon.toString());
+    }
+
     /**
      * The data matrix will be transformed into GNUPlot data file 
      * in the type of HeatMap.
@@ -62,13 +98,7 @@ public class VisualizationUtil {
 
     public static void gnuLPWithMultipleFile(double[] datas, Cluster[] resultSet, String workingRoot) {
         // delete files in working directory
-        File direcFile = new File(workingRoot);
-        if (direcFile.exists() && direcFile.isDirectory()) {
-            File[] subFiles = direcFile.listFiles();
-            for (File subFile : subFiles) {
-                subFile.delete();
-            }
-        }
+        FileUtil.deleteDir(workingRoot);
 
         // fill files
         int fileCount = 0;

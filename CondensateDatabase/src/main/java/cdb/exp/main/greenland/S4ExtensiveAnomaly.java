@@ -1,25 +1,31 @@
 package cdb.exp.main.greenland;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cdb.common.lang.ClusterLocHelper;
+import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
-import cdb.ml.clustering.Cluster;
-import cdb.ml.clustering.HierarchicalClustering;
-import cdb.ml.clustering.Samples;
+import cdb.ml.anomaly.SimpleAnomalyDetection;
+import cdb.ml.clustering.Point;
 import cdb.service.dataset.NetCDFDtProc;
 
 /**
  * 
  * @author Chao Chen
- * @version $Id: S2TimeseriesCluster.java, v 0.1 Sep 17, 2015 9:57:00 AM chench Exp $
+ * @version $Id: S4ExtensiveAnomaly.java, v 0.1 Sep 22, 2015 1:40:08 PM chench Exp $
  */
-public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
+public class S4ExtensiveAnomaly extends AbstractGreenLandAnalysis {
+
+    public final static int NEAREST_NEIGHBOR_NUM = 5;
+
+    public final static int ANOMALY_NUM          = 1;
 
     /**
      * 
@@ -27,7 +33,6 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
      */
     public static void main(String[] args) {
         case1();
-        //        case2();
     }
 
     public static void case1() {
@@ -46,43 +51,16 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
                 "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
                 "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
+        LoggerUtil.info(logger, "1. loading dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
         List<String> fileAssigmnt = new ArrayList<String>();
         loadingdataset(filePatternSets, seralData, fileAssigmnt);
 
+        LoggerUtil.info(logger, "2. loading spatial clustering.");
         String clstFile = ROOT_DIR + "Clustering/kmean_5";
         List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
-        cmpingParamWithCluster(seralData, oneCluster);
-
-    }
-
-    public static void case2() {
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
-
-        List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
-        List<String> fileAssigmnt = new ArrayList<String>();
-        loadingdataset(filePatternSets, seralData, fileAssigmnt);
-
-        String clstFile = ROOT_DIR + "Clustering/kmean_5";
-        List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
-
-        Cluster[] resultSet = clusterTimeseries(seralData, oneCluster, 25);
-        ClusterLocHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(),
-            1);
-
-        // computer statistical parameters
-        double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
-
-        VisualizationUtil
-            .gnuLPWithMultipleFile(means, resultSet, ROOT_DIR + "Statistcs/Automatic/");
+        anomalyDetection(seralData, oneCluster, fileAssigmnt, 365);
     }
 
     public static void loadingdataset(String[] filePatternSets, List<DenseMatrix> seralData,
@@ -105,8 +83,10 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
         return locSet.get(oneSeq);
     }
 
-    public static void cmpingParamWithCluster(List<DenseMatrix> seralData, List<Location> oneCluster) {
+    public static void anomalyDetection(List<DenseMatrix> seralData, List<Location> oneCluster,
+                                        List<String> fileAssigmnt, int repeatCycle) {
         // save data in specific cluster
+        LoggerUtil.info(logger, "3. compute statistical parameters.");
         int mNum = seralData.size();
         for (int i = 0; i < mNum; i++) {
             DenseMatrix curMatrix = seralData.get(i);
@@ -118,42 +98,51 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
             }
             seralData.set(i, newMatrix);
         }
-
-        // computer statistical parameters
-        double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
-        VisualizationUtil.gnuLinepoint(means, 0, ROOT_DIR + "Statistcs/Trends/means");
-
-        double[] sds = StatisticParamUtil.sdSeqTimeseries(seralData);
-        VisualizationUtil.gnuLinepoint(sds, 0, ROOT_DIR + "Statistcs/Trends/sds");
-    }
-
-    public static Cluster[] clusterTimeseries(List<DenseMatrix> seralData,
-                                              List<Location> oneCluster, int maxK) {
-        // save data in specific cluster
-        int mNum = seralData.size();
-        for (int i = 0; i < mNum; i++) {
-            DenseMatrix curMatrix = seralData.get(i);
-            DenseMatrix newMatrix = new DenseMatrix(curMatrix.getRowNum(), curMatrix.getColNum(),
-                Double.NaN);
-
-            for (Location loc : oneCluster) {
-                newMatrix.setVal(loc.x(), loc.y(), curMatrix.getVal(loc.x(), loc.y()));
-            }
-            seralData.set(i, newMatrix);
-        }
-
-        // computer statistical parameters
         double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
         double[] sds = StatisticParamUtil.sdSeqTimeseries(seralData);
 
         // transfer data to Samples formulation
-        Samples dataSample = new Samples(means.length, 2);
-        for (int indxCount = 0; indxCount < means.length; indxCount++) {
-            dataSample.setValue(indxCount, 0, means[indxCount]);
-            dataSample.setValue(indxCount, 1, sds[indxCount]);
+        LoggerUtil.info(logger, "4. clustering time-series data.");
+        int cycles = mNum / repeatCycle + 1;
+        Point[][] samples = new Point[repeatCycle][cycles];
+        for (int i = 0; i < mNum; i++) {
+            int dateInYear = i % repeatCycle;
+            int seqInYear = i / repeatCycle;
+            double mean = means[i];
+            double sd = sds[i];
+
+            samples[dateInYear][seqInYear] = new Point(mean, sd);
         }
 
-        return HierarchicalClustering.cluster(dataSample, maxK,
-            HierarchicalClustering.SQUARE_EUCLIDEAN_DISTANCE);
+        // out-lier detection 
+        LoggerUtil.info(logger, "5. detecting outliers.");
+        int[][] anomalies = new int[repeatCycle][0];
+        SimpleAnomalyDetection dectector = new SimpleAnomalyDetection();
+        for (int dateSeq = 0; dateSeq < repeatCycle; dateSeq++) {
+            anomalies[dateSeq] = dectector.detect(samples[dateSeq], NEAREST_NEIGHBOR_NUM,
+                ANOMALY_NUM);
+        }
+
+        // visualization
+        visualization(means, anomalies, repeatCycle);
+    }
+
+    protected static void visualization(double[] means, int[][] anomalies, int repeatCycle) {
+        Map<String, List<Point>> pltContext = new HashMap<String, List<Point>>();
+        for (int dateSeq = 0; dateSeq < repeatCycle; dateSeq++) {
+            for (int anomalyIndx : anomalies[dateSeq]) {
+                String key = String.valueOf(anomalyIndx + 1990);
+                List<Point> value = pltContext.get(key);
+                if (value == null) {
+                    value = new ArrayList<Point>();
+                    pltContext.put(key, value);
+                }
+
+                double meanVal = means[anomalyIndx * repeatCycle + dateSeq];
+                Point point = new Point(dateSeq, meanVal);
+                value.add(point);
+            }
+        }
+        VisualizationUtil.gnuLinepoint(pltContext, ROOT_DIR + "Statistcs/Automatic2/");
     }
 }
