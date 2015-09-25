@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html>
+<!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>AGU2015</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width">
+
+<script src="js/jquery-2.1.4.min.js"></script>
+<script src="http://code.highcharts.com/maps/highmaps.js"></script>
+<script src="http://code.highcharts.com/maps/modules/exporting.js"></script>
+<script src="http://code.highcharts.com/mapdata/custom/antarctica.js"></script>
+
+<link rel="stylesheet" href="css/style.css" />
+
+</head>
+<body id="index" class="home">
+
+	<header class='container' id='header'>
+		<!--<img src="css/img/logo_nsidc.jpg"> </img>-->
+		<h1 id='project' class='center'>Condensing Massive Satellite
+			Datasets For Rapid Interactive Analysis</h1>
+	</header>
+
+	<!--<nav class='container roundEdge' id='nav'>
+
+	</nav>-->
+
+	<section class='container' id='main'>
+		<section id='content'>
+			<div id='map'>
+				<script>
+					$(function() {
+
+						// Prepare demo data
+						var data = [ {
+							"hc-key" : "aq-3638",
+							"value" : 0
+						}, {
+							"hc-key" : "aq-3639",
+							"value" : 1
+						} ];
+
+						// Initiate the chart
+						$('#map')
+								.highcharts(
+										'Map',
+										{
+
+											title : {
+												text : 'Antarctica'
+											},
+
+											subtitle : {
+												text : 'Source map: <a href="http://code.highcharts.com/mapdata/custom/antarctica.js">Antarctica</a>'
+											},
+
+											mapNavigation : {
+												enabled : true,
+												buttonOptions : {
+													verticalAlign : 'bottom'
+												}
+											},
+
+											colorAxis : {
+												min : 0
+											},
+
+											series : [ {
+												data : data,
+												mapData : Highcharts.maps['custom/antarctica'],
+												joinBy : 'hc-key',
+												name : 'Random data',
+												states : {
+													hover : {
+														color : '#BADA55'
+													}
+												},
+												dataLabels : {
+													enabled : true,
+													format : '{point.name}'
+												}
+											} ]
+										});
+					});
+				</script>
+			</div>
+		</section>
+
+		<aside id='sidebar' class='roundEdge'></aside>
+	</section>
+
+	<footer class='container' id='footer'>
+		<p>© 2015 NSIDC &amp; University of Colorado at Boulder</p>
+	</footer>
+
+
+</body>
+</html>
