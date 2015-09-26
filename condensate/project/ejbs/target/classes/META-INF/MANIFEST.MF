@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-Built-By: chench
-Build-Jdk: 1.8.0_51
-Class-Path: primary-source-1.0.jar logging-1.0.jar
-Created-By: Maven Integration for Eclipse
-
