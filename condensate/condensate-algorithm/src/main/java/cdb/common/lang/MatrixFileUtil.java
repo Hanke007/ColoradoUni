@@ -23,6 +23,25 @@ public final class MatrixFileUtil {
     }
 
     /**
+     * read data following the given file regular pattern
+     * 
+     * @param fileRE            the regex-based file path 
+     * @param seralData         the data structure to store the desired data
+     * @param dProc             the data processor to parse the data
+     * @param samplingParam     the sampling probability that data should be counted
+     */
+    public static void read(String fileRE, List<DenseMatrix> seralData, DatasetProc dProc,
+                            double samplingParam) {
+        File[] dFiles = FileUtil.parserFilesByPattern(fileRE);
+        for (File file : dFiles) {
+            if (Math.random() > samplingParam) {
+                continue;
+            }
+            seralData.add(dProc.read(file.getAbsolutePath()));
+        }
+    }
+
+    /**
      * read data within limited rows and columns in given files
      * 
      * @param filePatternSets       the regex-based file path 

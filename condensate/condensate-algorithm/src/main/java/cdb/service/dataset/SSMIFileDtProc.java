@@ -82,7 +82,7 @@ public class SSMIFileDtProc implements DatasetProc {
 
                 for (int j = 0; j < colNum; j++) {
                     int val = Byte2NumUtil.byte2int(buffer, j * 2, 2);
-                    geoEntity.setVal(i, j, val);
+                    geoEntity.setVal(i, j, calibretion(val));
                 }
             }
 
@@ -93,5 +93,21 @@ public class SSMIFileDtProc implements DatasetProc {
         } finally {
             IOUtils.closeQuietly(inStream);
         }
+    }
+
+    /**
+     * transform original data to label data
+     * 
+     * @param val
+     * @return
+     */
+    private double calibretion(double val) {
+        if (val == 0) {
+            val = Double.NaN;
+        } else {
+            val /= 10;
+        }
+
+        return val;
     }
 }
