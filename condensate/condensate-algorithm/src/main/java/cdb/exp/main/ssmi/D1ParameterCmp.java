@@ -25,6 +25,7 @@ import cdb.service.dataset.SSMIFileDtProc;
  */
 public class D1ParameterCmp extends AbstractArcticAnalysis {
 
+    /** frequency identity*/
     protected final static String FREQNCY_ID = "s19h";
 
     /**
