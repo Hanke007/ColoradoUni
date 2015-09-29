@@ -21,6 +21,7 @@
 				<groupId>org.nsidc.cbd</groupId>
 				<artifactId>condensate-algorithm</artifactId>
 				<version>1.0.0</version>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
