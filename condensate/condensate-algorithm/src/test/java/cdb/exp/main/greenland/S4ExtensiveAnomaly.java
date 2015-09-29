@@ -12,7 +12,7 @@ import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
-import cdb.ml.anomaly.SimpleAnomalyDetection;
+import cdb.ml.anomaly.NearestNeighborOutlierDetection;
 import cdb.ml.clustering.Point;
 import cdb.service.dataset.NetCDFDtProc;
 
@@ -117,7 +117,7 @@ public class S4ExtensiveAnomaly extends AbstractGreenLandAnalysis {
         // out-lier detection 
         LoggerUtil.info(logger, "5. detecting outliers.");
         int[][] anomalies = new int[repeatCycle][0];
-        SimpleAnomalyDetection dectector = new SimpleAnomalyDetection();
+        NearestNeighborOutlierDetection dectector = new NearestNeighborOutlierDetection();
         for (int dateSeq = 0; dateSeq < repeatCycle; dateSeq++) {
             anomalies[dateSeq] = dectector.detect(samples[dateSeq], NEAREST_NEIGHBOR_NUM,
                 ANOMALY_NUM);

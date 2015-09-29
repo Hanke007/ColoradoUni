@@ -118,13 +118,11 @@ public class D1ParameterCmp extends AbstractArcticAnalysis {
                 }
 
                 // computer the parameters
-                String meanFileName = ROOT_DIR + "Condensate/mean_" + taskId + "_" + FREQNCY_ID
-                                      + ".OBJ";
+                String meanFileName = meanSerialNameConvntn(taskId, FREQNCY_ID);
                 DenseMatrix means = StatisticParamUtil.mean(seralData);
                 SerializeUtil.writeObject(means, meanFileName);
 
-                String sdFileName = ROOT_DIR + "Condensate/sd_" + taskId + "_" + FREQNCY_ID
-                                    + ".OBJ";
+                String sdFileName = sdSerialNameConvntn(taskId, FREQNCY_ID);
                 DenseMatrix sds = StatisticParamUtil.sd(seralData, means);
                 SerializeUtil.writeObject(sds, sdFileName);
                 LoggerUtil.info(logger, taskId + " completed");

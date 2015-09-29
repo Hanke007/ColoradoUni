@@ -11,7 +11,7 @@ import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
-import cdb.ml.anomaly.SimpleAnomalyDetection;
+import cdb.ml.anomaly.NearestNeighborOutlierDetection;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.HierarchicalClustering;
 import cdb.ml.clustering.Point;
@@ -136,7 +136,7 @@ public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
             centers[indx] = resultSet[indx].centroid(dataSample);
         }
 
-        SimpleAnomalyDetection dectector = new SimpleAnomalyDetection();
+        NearestNeighborOutlierDetection dectector = new NearestNeighborOutlierDetection();
         int[] anomalyIndx = dectector.detect(centers, NEAREST_NEIGHBOR_NUM, ANOMALY_NUM);
 
         for (int k = 0; k < ANOMALY_NUM; k++) {

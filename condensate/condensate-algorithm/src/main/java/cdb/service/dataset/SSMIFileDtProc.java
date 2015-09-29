@@ -50,8 +50,8 @@ public class SSMIFileDtProc implements DatasetProc {
         }
 
         DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
-        readInner(fileName, result);
-        return result;
+        boolean isSuccess = readInner(fileName, result);
+        return isSuccess ? result : null;
     }
 
     /** 
@@ -67,7 +67,7 @@ public class SSMIFileDtProc implements DatasetProc {
      * @param fileName      the file contains data
      * @param geoEntity     the Object to store data
      */
-    protected void readInner(String fileName, DenseMatrix geoEntity) {
+    protected boolean readInner(String fileName, DenseMatrix geoEntity) {
 
         DataInputStream inStream = null;
         try {
@@ -86,6 +86,7 @@ public class SSMIFileDtProc implements DatasetProc {
                 }
             }
 
+            return true;
         } catch (FileNotFoundException e) {
             ExceptionUtil.caught(e, fileName + " Not Found.");
         } catch (IOException e) {
@@ -93,6 +94,8 @@ public class SSMIFileDtProc implements DatasetProc {
         } finally {
             IOUtils.closeQuietly(inStream);
         }
+
+        return false;
     }
 
     /**

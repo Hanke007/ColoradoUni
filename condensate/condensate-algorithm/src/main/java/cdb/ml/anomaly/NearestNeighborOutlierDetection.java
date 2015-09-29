@@ -5,19 +5,16 @@ import cdb.ml.clustering.Point;
 
 /**
  * 
+ * 
  * @author Chao Chen
  * @version $Id: SimpleAnomalyDetection.java, v 0.1 Sep 22, 2015 1:24:09 PM chench Exp $
  */
-public class SimpleAnomalyDetection {
+public class NearestNeighborOutlierDetection implements AnomalyDetection {
 
     /**
-     * detect the anomalous data in the given domains
-     * 
-     * @param domains       the data domain includes anomaly
-     * @param neighNum      the number of the neighbor to count the anomaly scores
-     * @param anomalyNum    the number of anomalies to return
-     * @return              the indices of the anomalies
+     * @see cdb.ml.anomaly.AnomalyDetection#detect(cdb.ml.clustering.Point[], int, int)
      */
+    @Override
     public int[] detect(Point[] domains, int neighNum, int anomalyNum) {
         double[] maxDist = new double[domains.length];
         for (int i = 0; i < domains.length; i++) {
@@ -88,8 +85,8 @@ public class SimpleAnomalyDetection {
             return 0.0d;
         }
 
-        return Math.log(sigma2 / sigma1) + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d))
-               / (2 * sigma2 * sigma2) - 1 / 2;
+        return Math.log(sigma2 / sigma1)
+               + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d)) / (2 * sigma2 * sigma2) - 1 / 2;
     }
 
     /**
