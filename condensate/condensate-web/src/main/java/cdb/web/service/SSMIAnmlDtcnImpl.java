@@ -163,7 +163,7 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
 
                 AnomalyDetection detector = new SimpleAnomalyDetecion(
                     meanRep.get(season).getVal(loc.x(), loc.y()),
-                    sdRep.get(season).getVal(loc.x(), loc.y()), 2.0);
+                    sdRep.get(season).getVal(loc.x(), loc.y()), 3.0);
                 int[] anmlyIndx = detector.detect(domains[locIndx], 0, 0);
                 if (anmlyIndx == null) {
                     continue;
@@ -191,7 +191,7 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
      */
     protected String binFileConvntn(String taskId, String freqId) {
         int timeRange = Integer.valueOf(taskId) / 100;
-        int year = timeRange / 10000;
+        int year = timeRange / 100;
         String fileName = SSMI_ROOT_DIR + year + "/";
         if (timeRange < 199201) {
             fileName += "tb_f08_" + taskId + "_v2_" + freqId + ".bin";

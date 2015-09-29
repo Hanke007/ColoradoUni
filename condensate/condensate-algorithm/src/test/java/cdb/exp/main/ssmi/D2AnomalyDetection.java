@@ -53,8 +53,8 @@ public class D2AnomalyDetection extends AbstractArcticAnalysis {
         // detect anomalies
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("20080112", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20100112", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("20120112", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20140112", DateUtil.SHORT_FORMAT);
             Location[] locals = { new Location(100, 100) };
             detectAnomalies(meanRep, sdRep, seasons, sDate, eDate, locals, new SSMIFileDtProc());
         } catch (ParseException e) {

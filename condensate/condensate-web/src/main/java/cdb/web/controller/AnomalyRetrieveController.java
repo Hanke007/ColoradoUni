@@ -35,8 +35,8 @@ public class AnomalyRetrieveController {
     public List<AnomalyVO> ajaxRetrieveAnomalies(@RequestParam("dsName") String dsName,
                                                  @RequestParam("dsFreq") String freqId) {
         try {
-            Date sDate = DateUtil.parse("20050112", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20100112", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("20120112", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20140212", DateUtil.SHORT_FORMAT);
             Location[] locals = { new Location(100, 100) };
             return anomalyService.retrvAnomaly(sDate, eDate, locals, freqId);
         } catch (ParseException e) {

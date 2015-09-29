@@ -48,7 +48,7 @@ public abstract class AbstractArcticAnalysis {
      */
     protected static String binFileConvntn(String taskId, String freqId) {
         int timeRange = Integer.valueOf(taskId) / 100;
-        int year = timeRange / 10000;
+        int year = timeRange / 100;
         String fileName = ROOT_DIR + year + "/";
         if (timeRange < 199201) {
             fileName += "tb_f08_" + taskId + "_v2_" + freqId + ".bin";

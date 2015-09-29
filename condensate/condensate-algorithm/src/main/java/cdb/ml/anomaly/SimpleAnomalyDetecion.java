@@ -52,7 +52,7 @@ public class SimpleAnomalyDetecion implements AnomalyDetection {
         }
 
         List<Integer> anomalies = new ArrayList<Integer>();
-        for (int p = 0; p < anomalies.size(); p++) {
+        for (int p = 0; p < domains.length; p++) {
             if (domains[p] == null | Double.isNaN(domains[p].getValue(0))) {
                 continue;
             } else if (Math.abs(domains[p].getValue(0) - meanVal) > sdNum * sdVal) {
