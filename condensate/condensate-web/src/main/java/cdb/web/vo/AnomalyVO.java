@@ -24,6 +24,29 @@ public class AnomalyVO {
     private double lati;
 
     /**
+     * Construction
+     */
+    public AnomalyVO() {
+        super();
+    }
+
+    /**
+     * Construction
+     * 
+     * @param date
+     * @param val
+     * @param longi
+     * @param lati
+     */
+    public AnomalyVO(Date date, double val, double longi, double lati) {
+        super();
+        this.date = date;
+        this.val = val;
+        this.longi = longi;
+        this.lati = lati;
+    }
+
+    /**
      * Getter method for property <tt>date</tt>.
      * 
      * @return property value of date

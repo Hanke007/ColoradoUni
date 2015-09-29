@@ -5,10 +5,8 @@
 	id="study" version="2.5">
 	<display-name>Archetype Created Web Application</display-name>
 
-	<!-- Home page -->
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-	</welcome-file-list>
+	<!-- Home page <welcome-file-list> <welcome-file>index.html</welcome-file> 
+		</welcome-file-list> -->
 
 	<!-- encoding filters -->
 	<filter>
@@ -29,18 +27,18 @@
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/applicationContext-servlet.xml</param-value>
+	</context-param>
+	<context-param>
 		<param-name>log4jConfigLocation</param-name>
-		<param-value>classpath*:/classes/log4j.properties</param-value>
+		<param-value>/WEB-INF/log4j.properties</param-value>
 	</context-param>
 
 	<!-- Spring Dispatcher -->
 	<servlet>
 		<servlet-name>applicationContext</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>classpath*:/applicationContext.xml</param-value>
-		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet-mapping>
