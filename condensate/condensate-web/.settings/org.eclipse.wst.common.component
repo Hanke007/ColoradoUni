@@ -5,6 +5,9 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/webapp"/>
+        <dependent-module archiveName="condensate-algorithm-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/condensate-algorithm/condensate-algorithm">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="condensate-web"/>
         <property name="java-output-path" value="/condensate-web/target/classes"/>
     </wb-module>
