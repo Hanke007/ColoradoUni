@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.vo.Location;
 import cdb.service.dataset.DatasetProc;
+import cdb.web.bean.Location2D;
 import cdb.web.vo.AnomalyVO;
 
 /**
@@ -32,7 +32,7 @@ public abstract class AbstractAnmlDtcnService {
      * @return          the list of the anomalies
      * @throws ParseException  Date parse exception
      */
-    public abstract List<AnomalyVO> retrvAnomaly(Date sDate, Date eDate, Location[] locals,
+    public abstract List<AnomalyVO> retrvAnomaly(Date sDate, Date eDate, Location2D[] locals,
                                                  String freqId);
 
     /**

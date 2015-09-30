@@ -76,4 +76,40 @@ public class Location {
         return this.x() == b2.x() && this.y() == b2.y();
     }
 
+    /**
+     * Getter method for property <tt>data</tt>.
+     * 
+     * @return property value of data
+     */
+    public int[] getData() {
+        return data;
+    }
+
+    /**
+     * Setter method for property <tt>data</tt>.
+     * 
+     * @param data value to be assigned to property data
+     */
+    public void setData(int[] data) {
+        this.data = data;
+    }
+
+    /**
+     * Getter method for property <tt>dataDimnsn</tt>.
+     * 
+     * @return property value of dataDimnsn
+     */
+    public int getDataDimnsn() {
+        return dataDimnsn;
+    }
+
+    /**
+     * Setter method for property <tt>dataDimnsn</tt>.
+     * 
+     * @param dataDimnsn value to be assigned to property dataDimnsn
+     */
+    public void setDataDimnsn(int dataDimnsn) {
+        this.dataDimnsn = dataDimnsn;
+    }
+
 }

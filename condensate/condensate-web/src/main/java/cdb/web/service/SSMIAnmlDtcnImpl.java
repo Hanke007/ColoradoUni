@@ -18,10 +18,10 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.SimpleAnomalyDetecion;
 import cdb.ml.clustering.Point;
+import cdb.web.bean.Location2D;
 import cdb.web.vo.AnomalyVO;
 
 /**
@@ -47,7 +47,8 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
      * @return          the list of the anomalies
      */
     @Override
-    public List<AnomalyVO> retrvAnomaly(Date sDate, Date eDate, Location[] locals, String freqId) {
+    public List<AnomalyVO> retrvAnomaly(Date sDate, Date eDate, Location2D[] locals,
+                                        String freqId) {
         // group test data-set by month
         Map<String, List<String>> testSets = testsetGroupByMonth(sDate, eDate);
         String[] seasons = testSets.keySet().toArray(new String[testSets.keySet().size()]);
@@ -133,7 +134,7 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
 
     protected List<AnomalyVO> detectAnomalies(Map<String, List<String>> testSets,
                                               Map<String, DenseMatrix> meanRep,
-                                              Map<String, DenseMatrix> sdRep, Location[] locs,
+                                              Map<String, DenseMatrix> sdRep, Location2D[] locs,
                                               String freqId) throws ParseException {
         List<AnomalyVO> result = new ArrayList<AnomalyVO>();
 
@@ -152,18 +153,19 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
                         continue;
                     }
 
-                    Location loc = locs[locIndx];
-                    domains[locIndx][tIndx] = new Point(tMatrix.getVal(loc.x(), loc.y()));
+                    Location2D loc = locs[locIndx];
+                    domains[locIndx][tIndx] = new Point(
+                        tMatrix.getVal(loc.getLongitude(), loc.getLatitude()));
                 }
             }
 
             // anomaly detection
             for (int locIndx = 0; locIndx < locSize; locIndx++) {
-                Location loc = locs[locIndx];
+                Location2D loc = locs[locIndx];
 
                 AnomalyDetection detector = new SimpleAnomalyDetecion(
-                    meanRep.get(season).getVal(loc.x(), loc.y()),
-                    sdRep.get(season).getVal(loc.x(), loc.y()), 3.0);
+                    meanRep.get(season).getVal(loc.getLongitude(), loc.getLatitude()),
+                    sdRep.get(season).getVal(loc.getLongitude(), loc.getLatitude()), 3.0);
                 int[] anmlyIndx = detector.detect(domains[locIndx], 0, 0);
                 if (anmlyIndx == null) {
                     continue;
@@ -172,8 +174,8 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
                 for (int tIndx : anmlyIndx) {
                     Date tDate = DateUtil.parse(taskIds.get(tIndx), DateUtil.SHORT_FORMAT);
                     double val = domains[locIndx][tIndx].getValue(0);
-                    double longi = loc.x();
-                    double lati = loc.y();
+                    double longi = loc.getLongitude();
+                    double lati = loc.getLatitude();
                     result.add(new AnomalyVO(tDate, val, longi, lati));
                 }
             }

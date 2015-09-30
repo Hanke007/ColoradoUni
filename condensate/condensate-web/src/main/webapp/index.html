@@ -12,94 +12,46 @@
 <meta name="description" content="">
 <meta name="viewport" content="width=device-width">
 
-<script src="js/jquery-2.1.4.min.js"></script>
-<script src="http://code.highcharts.com/maps/highmaps.js"></script>
-<script src="http://code.highcharts.com/maps/modules/exporting.js"></script>
-<script src="http://code.highcharts.com/mapdata/custom/antarctica.js"></script>
+<script src="http://code.jquery.com/jquery-2.0.0.js"></script>
 
-<link rel="stylesheet" href="css/style.css" />
+<script type="text/javascript">
+	function sendJson() {
+		var loctnArray = Array();
+		loctnArray[0] = {
+			"longitude" : 100,
+			"latitude" : 100
+		}
+		loctnArray[1] = {
+			"longitude" : 200,
+			"latitude" : 200
+		}
 
+		var anomlyRequest = {
+			"dsName" : "SSMI",
+			"dsFreq" : "s19h",
+			"sDate" : "20120101",
+			"eDate" : "20130101",
+			"locations" : loctnArray
+		}
+
+		var ajaxHandle = $.ajax({
+			type : "POST",
+			contentType : "application/json; charset=utf-8",
+			url : "anomaly/ajaxRetrv.do",
+			data : JSON.stringify(anomlyRequest),
+			dataType : 'jsonp',
+			async : false,
+			success : function(response) {
+				$("#expDiv").html("Hi")
+			}
+		});
+		$("#expDiv").html(ajaxHandle.responseText)
+	}
+</script>
 </head>
-<body id="index" class="home">
 
-	<header class='container' id='header'>
-		<!--<img src="css/img/logo_nsidc.jpg"> </img>-->
-		<h1 id='project' class='center'>Condensing Massive Satellite
-			Datasets For Rapid Interactive Analysis</h1>
-	</header>
-
-	<!--<nav class='container roundEdge' id='nav'>
-
-	</nav>-->
-
-	<section class='container' id='main'>
-		<section id='content'>
-			<div id='map'>
-				<script>
-					$(function() {
-
-						// Prepare demo data
-						var data = [ {
-							"hc-key" : "aq-3638",
-							"value" : 0
-						}, {
-							"hc-key" : "aq-3639",
-							"value" : 1
-						} ];
-
-						// Initiate the chart
-						$('#map')
-								.highcharts(
-										'Map',
-										{
-
-											title : {
-												text : 'Antarctica'
-											},
-
-											subtitle : {
-												text : 'Source map: <a href="http://code.highcharts.com/mapdata/custom/antarctica.js">Antarctica</a>'
-											},
-
-											mapNavigation : {
-												enabled : true,
-												buttonOptions : {
-													verticalAlign : 'bottom'
-												}
-											},
-
-											colorAxis : {
-												min : 0
-											},
-
-											series : [ {
-												data : data,
-												mapData : Highcharts.maps['custom/antarctica'],
-												joinBy : 'hc-key',
-												name : 'Random data',
-												states : {
-													hover : {
-														color : '#BADA55'
-													}
-												},
-												dataLabels : {
-													enabled : true,
-													format : '{point.name}'
-												}
-											} ]
-										});
-					});
-				</script>
-			</div>
-		</section>
-
-		<aside id='sidebar' class='roundEdge'></aside>
-	</section>
-
-	<footer class='container' id='footer'>
-		<p>© 2015 NSIDC &amp; University of Colorado at Boulder</p>
-	</footer>
-
-
+<body>
+	<button class="button" onclick="sendJson()">Send</button>
+	<div id="expDiv"></div>
 </body>
 </html>

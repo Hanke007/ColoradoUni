@@ -6,14 +6,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
-import cdb.dal.vo.Location;
+import cdb.web.bean.AnomlyRequest;
+import cdb.web.bean.Location2D;
 import cdb.web.service.AbstractAnmlDtcnService;
 import cdb.web.vo.AnomalyVO;
 
@@ -30,19 +31,27 @@ public class AnomalyRetrieveController {
     @Autowired
     private AbstractAnmlDtcnService anomalyService;
 
-    @RequestMapping(value = "/anomaly/ajaxRetrv", method = RequestMethod.GET)
+    /**
+     * 
+     * <a href="http://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webservice/">Json with multiple object</a>
+     *  
+     * @param anomlyRequest     Request object
+     * @return
+     */
+    @RequestMapping(value = "/anomaly/ajaxRetrv", method = RequestMethod.POST)
     @ResponseBody
-    public List<AnomalyVO> ajaxRetrieveAnomalies(@RequestParam("dsName") String dsName,
-                                                 @RequestParam("dsFreq") String freqId) {
+    public List<AnomalyVO> ajaxRetrieveAnomalies(@RequestBody AnomlyRequest anomlyRequest) {
         try {
-            Date sDate = DateUtil.parse("20120112", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20140212", DateUtil.SHORT_FORMAT);
-            Location[] locals = { new Location(100, 100) };
-            return anomalyService.retrvAnomaly(sDate, eDate, locals, freqId);
+            int loctnNum = anomlyRequest.getLocations().size();
+            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.SHORT_FORMAT);
+            return anomalyService.retrvAnomaly(sDate, eDate,
+                anomlyRequest.getLocations().toArray(new Location2D[loctnNum]),
+                anomlyRequest.getDsFreq());
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
         }
-
         return null;
     }
+
 }
