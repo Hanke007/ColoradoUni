@@ -35,7 +35,8 @@ public class NearestNeighborOutlierDetection implements AnomalyDetection {
                     }
 
                     //                double distance = (KL_UniNormal(a, b) + KL_UniNormal(b, a)) / 2.0d;
-                    double distance = KL_UniNormal(b, a);
+                    //                    double distance = KL_UniNormal(b, a);
+                    double distance = Euclidean_distance(b, a);
 
                     allDist[j] = distance;
                 }
@@ -87,6 +88,24 @@ public class NearestNeighborOutlierDetection implements AnomalyDetection {
 
         return Math.log(sigma2 / sigma1)
                + (sigma1 * sigma1 + Math.pow(mean1 - mean2, 2.0d)) / (2 * sigma2 * sigma2) - 1 / 2;
+    }
+
+    /**
+     * distance measures based on KL-Divergence
+     * 
+     * @param a     data point a
+     * @param b     data point b
+     * @return      the distance between two points
+     */
+    protected double Euclidean_distance(final Point a, final Point b) {
+
+        int dimsn = a.dimension();
+        double sum = 0.0d;
+        for (int i = 0; i < dimsn; i++) {
+            sum += Math.pow(a.getValue(i) - b.getValue(i), 2.0d);
+        }
+
+        return Math.sqrt(sum);
     }
 
     /**

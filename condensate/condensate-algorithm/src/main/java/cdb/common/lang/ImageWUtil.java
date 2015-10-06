@@ -40,17 +40,17 @@ public final class ImageWUtil {
         //convert to GrayImage
         int height = matrix.getRowNum();
         int width = matrix.getColNum();
-        BufferedImage grayImage = new BufferedImage(height, width, BufferedImage.TYPE_BYTE_GRAY);
+        BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
         for (int x = 0; x < height; x++) {
             for (int y = 0; y < width; y++) {
                 double temperature = matrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
-                int rgbVal = 255 - (int) (temperature / 6500.0 * 255.0);
+                int rgbVal = (int) (temperature / 300.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
                 //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
                 //the greater RGBVal, the lighter the pixel is
                 //e.g., White is 255, Black is 0
-                grayImage.setRGB(x, y, (new Color(rgbVal, rgbVal, rgbVal)).getRGB());
+                grayImage.setRGB(y, x, (new Color(rgbVal, rgbVal, rgbVal)).getRGB());
             }
         }
 
@@ -70,7 +70,8 @@ public final class ImageWUtil {
      * @param outputFile    the file to show the image
      * @param formatName    the image format, i.e., PNG, JPG, and so on
      */
-    public static void plotImageForMEASURE(DenseMatrix matrix, String outputFile, String formatName) {
+    public static void plotImageForMEASURE(DenseMatrix matrix, String outputFile,
+                                           String formatName) {
         //convert to GrayImage
         int height = matrix.getRowNum();
         int width = matrix.getColNum();

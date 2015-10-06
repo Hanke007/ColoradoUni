@@ -7,7 +7,7 @@ import java.util.List;
  * @author Chao Chen
  * @version $Id: AnomlyRequest.java, v 0.1 Sep 30, 2015 9:52:45 AM chench Exp $
  */
-public class AnomlyRequest {
+public class AnomalyRequest {
 
     /** the name of the date set*/
     private String           dsName;
