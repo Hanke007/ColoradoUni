@@ -9,18 +9,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.dal.vo.DenseMatrix;
+import cdb.dal.vo.SparseMatrix;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.SimpleAnomalyDetecion;
 import cdb.ml.clustering.Point;
+import cdb.service.dataset.DatasetProc;
+import cdb.service.dataset.SSMIFileDtProc;
 import cdb.web.bean.Location2D;
 import cdb.web.vo.AnomalyVO;
 
@@ -36,7 +43,72 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
 
     /** the root directory of SSMI dataset */
     @Value("#{configProperties['ROOT_DIR']}")
-    private String SSMI_ROOT_DIR;
+    private String           SSMI_ROOT_DIR;
+    /** the root directory of anomaly repository */
+    @Value("#{configProperties['ANOMALY_REPO_DIR']}")
+    private String           ANOMALY_REPO_DIR;
+    @Autowired
+    protected ServletContext servltContext;
+
+    /** 
+     * @see cdb.web.service.AbstractAnmlDtcnService#retrvImageUrl(java.util.Date, java.util.Date, cdb.web.bean.Location2D[], java.lang.String)
+     */
+    @Override
+    public List<String> retrvImageUrl(Date sDate, Date eDate, Location2D[] locals, String freqId) {
+        DatasetProc dProc = new SSMIFileDtProc();
+
+        int rLeftCorner = locals[0].getLongitude();
+        int rRightCorner = locals[1].getLongitude();
+        int cLeftCorner = locals[0].getLatitude();
+        int cRightCorner = locals[1].getLongitude();
+
+        int imageNum = 0;
+        List<String> urlArr = new ArrayList<String>();
+        Date curDate = sDate;
+        while (curDate.before(eDate)) {
+            SparseMatrix sMatrix = (SparseMatrix) SerializeUtil.readObject(
+                ANOMALY_REPO_DIR + DateUtil.format(curDate, DateUtil.SHORT_FORMAT) + ".OBJ");
+
+            // check whether anomalies exists
+            for (int x = rLeftCorner; x < rRightCorner; x++) {
+                int[] MxList = sMatrix.getRow(x).indexList();
+                if (MxList == null) {
+                    continue;
+                }
+
+                boolean hasAnomaly = false;
+                for (int indx : MxList) {
+                    if (indx >= cLeftCorner & indx < cRightCorner) {
+                        hasAnomaly = true;
+                        break;
+                    }
+                }
+
+                if (hasAnomaly) {
+                    imageNum++;
+                    //  a) read bin file
+                    String binName = binFileConvntn(DateUtil.format(curDate, DateUtil.SHORT_FORMAT),
+                        freqId);
+                    DenseMatrix binImage = dProc.read(binName);
+                    //  b) render image file
+                    String psiName = servltContext.getRealPath("/tempImage") + "/" + imageNum
+                                     + ".jpg";
+                    ImageWUtil.plotGrayImage(binImage, psiName, ImageWUtil.JPG_FORMMAT);
+                    urlArr.add("/tempImage/" + imageNum + ".jpg");
+                    break;
+                }
+            }
+
+            // check the cache wheter is full
+            if (imageNum >= 13) {
+                break;
+            }
+
+            //move to next day
+            curDate.setTime(curDate.getTime() + 24 * 60 * 60 * 1000);
+        }
+        return urlArr;
+    }
 
     /**
      * detect anomalies in SSIM-dataset given start and end dates

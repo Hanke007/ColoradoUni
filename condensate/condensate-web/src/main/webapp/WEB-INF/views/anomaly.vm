@@ -1,0 +1,69 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>AGU2015-Anomaly</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <script src="/js/jquery-confirm.min.js"></script>
+    <script src="/js/highmaps.js"></script>
+    <script src="/js/exporting.js"></script>
+    <script src="/js/antarctica.js"></script>
+    <script src="/js/proj4.js"></script>
+    <!-- include the jQuery and jQuery UI scripts -->
+    <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="/js/jquery-ui-slider-pips.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+    <link rel="stylesheet" href="/css/jquery-ui-slider-pips.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body id="index" class="home">
+    <header class='container' id='header'>
+    </header>
+    <nav class='container roundEdge' id='nav'>
+        <h1 id='project' class='center'>ROI Anomaly Analysis</h1>
+    </nav>
+    
+    <!-- construct urlArray list -->
+    <div align="center">
+    	<img id="image" src="$!{context.imageUrl.get(0)}" width="800" height="800"/>
+    	<div class="slider"></div>
+    </div>
+    
+    <script>
+            <!-- construct urlArray list -->
+            var urlArrays = [];
+        	#set($commentCount=0)
+            #foreach($imageUrl in $context.imageUrl)
+				urlArrays[$commentCount] = "$!{imageUrl}";
+				#set($commentCount=$commentCount+1)
+			#end
+			
+            // set up an array to hold the months
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            // lets be fancy for the demo and select the current month.
+			
+            $(".slider")
+                // activate the slider with options
+                .slider({
+                    min: 0,
+                    max: months.length - 1,
+                    value: 0
+                })
+
+            // add pips with the labels set to "months"
+            .slider("pips", {
+                rest: "label",
+                labels: months
+            })
+
+            // and whenever the slider changes, lets echo out the month
+            .on("slidechange", function(e, ui) {
+                $("#labels-months-output").text("You selected " + months[ui.value] + " (" + ui.value + ")");
+                //display corresponding images based on selected date
+                $("#image").attr("src", urlArrays[ui.value]);
+            });
+	</script>
+</body>
+</html>

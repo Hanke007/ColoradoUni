@@ -36,6 +36,18 @@ public abstract class AbstractAnmlDtcnService {
                                                  String freqId);
 
     /**
+     * query the anomalies in Repository
+     * 
+     * @param sDate     start date
+     * @param eDate     end date
+     * @param locals    the target locations to check
+     * @return          the list of the anomalies
+     * @throws ParseException  Date parse exception
+     */
+    public abstract List<String> retrvImageUrl(Date sDate, Date eDate, Location2D[] locals,
+                                               String freqId);
+
+    /**
      * Getter method for property <tt>dProc</tt>.
      * 
      * @return property value of dProc

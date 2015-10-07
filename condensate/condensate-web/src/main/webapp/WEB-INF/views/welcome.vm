@@ -1,0 +1,9 @@
+<html>
+<body>
+	<h1>Spring MVC Hello World Annotation Example</h1>
+
+	#foreach($imageUrl in $context.imageUrl)
+		<img src="$!{imageUrl}" width="450" height="450"/>
+	#end  
+</body>
+</html>
