@@ -65,8 +65,8 @@ public class AnomalyRetrieveController {
     public ModelAndView ajaxDrawImage(@RequestBody AnomalyRequest anomlyRequest) {
         try {
             int loctnNum = anomlyRequest.getLocations().size();
-            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
+            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
             List<String> imageUrl = anomalyService.retrvImageUrl(sDate, eDate,
                 anomlyRequest.getLocations().toArray(new Location2D[loctnNum]),
                 anomlyRequest.getDsFreq());
