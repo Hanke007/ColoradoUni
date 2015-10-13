@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cdb.dal.vo.DenseMatrix;
+import cdb.dal.vo.SparseMatrix;
 
 /**
  * The Image utility convert data matrix to different kind of image,
@@ -45,12 +46,105 @@ public final class ImageWUtil {
             for (int y = 0; y < width; y++) {
                 double temperature = matrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
-                int rgbVal = (int) (temperature / 300.0 * 255.0);
+                int rgbVal = Double.isNaN(temperature) ? 0 : (int) (temperature / 300.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
                 //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
                 //the greater RGBVal, the lighter the pixel is
                 //e.g., White is 255, Black is 0
                 grayImage.setRGB(y, x, (new Color(rgbVal, rgbVal, rgbVal)).getRGB());
+            }
+        }
+
+        //save in the disk
+        File file = new File(outputFile);
+        try {
+            ImageIO.write(grayImage, formatName, file);
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, outputFile + " failed in ImageConvert! ");
+        }
+    }
+
+    /**
+     * plot the gray image w.r.t the given data matrix.
+     * 
+     * @param matrix        given data matrix
+     * @param outputFile    the file to show the image
+     * @param formatName    the image format, i.e., PNG, JPG, and so on
+     */
+    public static void plotGrayImage(SparseMatrix matrix, String outputFile, String formatName) {
+        //convert to GrayImage
+        int height = matrix.length()[0];
+        int width = matrix.length()[1];
+        BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        for (int x = 0; x < height; x++) {
+            int[] ys = matrix.getRow(x).indexList();
+            if (ys == null) {
+                continue;
+            }
+
+            for (int y : ys) {
+                double temperature = matrix.getValue(x, y);
+                //the greater temperature is, the darker the pixel is
+                int rgbVal = Double.isNaN(temperature) ? 0 : (int) (temperature / 300.0 * 255.0);
+                //with setting r = g = b = rgbVal, then follow the rule:
+                //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
+                //the greater RGBVal, the lighter the pixel is
+                //e.g., White is 255, Black is 0
+                grayImage.setRGB(y, x, (new Color(rgbVal, rgbVal, rgbVal)).getRGB());
+            }
+        }
+
+        //save in the disk
+        File file = new File(outputFile);
+        try {
+            ImageIO.write(grayImage, formatName, file);
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, outputFile + " failed in ImageConvert! ");
+        }
+    }
+
+    /**
+     * plot the gray image w.r.t the given data matrix.
+     * 
+     * @param matrix        given data matrix
+     * @param outputFile    the file to show the image
+     * @param formatName    the image format, i.e., PNG, JPG, and so on
+     */
+    public static void plotRGBImageWithMask(DenseMatrix dmatrix, String outputFile,
+                                            SparseMatrix smatrix, String formatName) {
+        //  convert to GrayImage
+        int height = dmatrix.getRowNum();
+        int width = dmatrix.getColNum();
+        BufferedImage grayImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < height; x++) {
+            for (int y = 0; y < width; y++) {
+                double temperature = dmatrix.getVal(x, y);
+                //the greater temperature is, the darker the pixel is
+                int rgbVal = Double.isNaN(temperature) ? 0 : (int) (temperature / 300.0 * 255.0);
+                //with setting r = g = b = rgbVal, then follow the rule:
+                //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
+                //the greater RGBVal, the lighter the pixel is
+                //e.g., White is 255, Black is 0
+                grayImage.setRGB(y, x, (new Color(rgbVal, rgbVal, rgbVal)).getRGB());
+            }
+        }
+
+        // anomaly layers
+        for (int x = 0; x < height; x++) {
+            int[] ys = smatrix.getRow(x).indexList();
+            if (ys == null) {
+                continue;
+            }
+
+            for (int y : ys) {
+                double temperature = dmatrix.getVal(x, y);
+                //the greater temperature is, the darker the pixel is
+                int rgbVal = Double.isNaN(temperature) ? 0 : (int) (temperature / 300.0 * 255.0);
+                //with setting r = g = b = rgbVal, then follow the rule:
+                //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
+                //the greater RGBVal, the lighter the pixel is
+                //e.g., White is 255, Black is 0
+                grayImage.setRGB(y, x, (new Color(rgbVal, 0, 0)).getRGB());
             }
         }
 

@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
@@ -37,33 +38,35 @@ import cdb.service.dataset.SSMIFileDtProc;
 public class D3MultiThreadDetection extends AbstractArcticAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "s19h";
+    protected final static String FREQNCY_ID = "s85v";
 
     /**
      * 
      * @param args
      */
-    @SuppressWarnings("unchecked")
+
     public static void main(String[] args) {
+        case1();
+        //        case2();
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void case1() {
         // fetch related mean and sd files
         LoggerUtil.info(logger, "1. compute statistical parameter.");
-        String[] seasons = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11",
-                             "12" };
-        //        Map<String, DenseMatrix> meanRep = new HashMap<String, DenseMatrix>();
-        //        Map<String, DenseMatrix> sdRep = new HashMap<String, DenseMatrix>();
-        //        cmpParams(seasons, meanRep, sdRep);
+        String[] seasons = { "08" };
 
         HashMap<String, DenseMatrix> meanRep = (HashMap<String, DenseMatrix>) SerializeUtil
-            .readObject(ROOT_DIR + "Condensate/mean.OBJ");
+            .readObject(ROOT_DIR + "Condensate/mean_" + FREQNCY_ID + ".OBJ");
         HashMap<String, DenseMatrix> sdRep = (HashMap<String, DenseMatrix>) SerializeUtil
-            .readObject(ROOT_DIR + "Condensate/sd.OBJ");
+            .readObject(ROOT_DIR + "Condensate/sd_" + FREQNCY_ID + ".OBJ");
 
         // task id lists
         Queue<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("20100112", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20120112", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("20000801", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20000831", DateUtil.SHORT_FORMAT);
             taskIds = testsetGroupByMonth(seasons, sDate, eDate);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
@@ -71,9 +74,10 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         AnomalyThread.task = taskIds;
 
         //test locations
+        int[] dimsns = dimensions(FREQNCY_ID);
         List<Location> locals = new ArrayList<Location>();
-        for (int i = 0; i < 332; i++) {
-            for (int j = 0; j < 316; j++) {
+        for (int i = 0; i < dimsns[0]; i++) {
+            for (int j = 0; j < dimsns[1]; j++) {
                 locals.add(new Location(i, j));
             }
         }
@@ -94,7 +98,16 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             ExceptionUtil.caught(e, "ExecutorService await crush! ");
         } finally {
         }
+    }
 
+    public static void case2() {
+        // fetch related mean and sd files
+        LoggerUtil.info(logger, "1. compute statistical parameter.");
+        String[] seasons = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11",
+                             "12" };
+        Map<String, DenseMatrix> meanRep = new HashMap<String, DenseMatrix>();
+        Map<String, DenseMatrix> sdRep = new HashMap<String, DenseMatrix>();
+        cmpParams(seasons, meanRep, sdRep);
     }
 
     public static void cmpParams(String[] seasons, Map<String, DenseMatrix> meanRep,
@@ -122,7 +135,7 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             // compute mean
             meanRep.put(seasons[seasonIndx], StatisticParamUtil.mean(meanPartial));
         }
-        SerializeUtil.writeObject(meanRep, ROOT_DIR + "Condensate/mean.OBJ");
+        SerializeUtil.writeObject(meanRep, ROOT_DIR + "Condensate/mean_" + FREQNCY_ID + ".OBJ");
 
         // standard deviation parameters
         for (int seasonIndx = 0; seasonIndx < seasonNum; seasonIndx++) {
@@ -136,7 +149,7 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             // compute mean
             sdRep.put(seasons[seasonIndx], StatisticParamUtil.mean(sdPartial));
         }
-        SerializeUtil.writeObject(sdRep, ROOT_DIR + "Condensate/sd.OBJ");
+        SerializeUtil.writeObject(sdRep, ROOT_DIR + "Condensate/sd_" + FREQNCY_ID + ".OBJ");
     }
 
     public static class AnomalyThread extends Thread {
@@ -174,8 +187,13 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             String taskId = null;
             while ((taskId = task()) != null) {
                 LoggerUtil.info(logger, "Processing " + taskId);
-                SparseMatrix anomalies = detectAnomalies(meanRep, sdRep, taskId, locs, dProc);
-                SerializeUtil.writeObject(anomalies, ROOT_DIR + "Anomaly/" + taskId + ".OBJ");
+                detectAnomalies(meanRep, sdRep, taskId, locs, dProc);
+                //                SerializeUtil.writeObject(anomalies,
+                //                    ROOT_DIR + "Anomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");
+                //                ImageWUtil.plotGrayImage(anomalies,
+                //                    ROOT_DIR + "Anomaly/" + taskId + "_" + FREQNCY_ID + ".jpg",
+                //                    ImageWUtil.JPG_FORMMAT);
+
             }
         }
 
@@ -214,6 +232,11 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
                     sMatrix.setValue(loc.x(), loc.y(), domains[locIndx][0].getValue(0));
                 }
             }
+
+            ImageWUtil.plotRGBImageWithMask(tMatrix,
+                ROOT_DIR + "Anomaly/2000/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
+                ImageWUtil.JPG_FORMMAT);
+
             return sMatrix;
         }
 
