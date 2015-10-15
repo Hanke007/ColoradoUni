@@ -59,10 +59,11 @@ public abstract class AbstractClickButtun extends Button implements ActionListen
             firstOne.getFreqIdTarget());
 
         dateStrLabel.setText(firstOne.getDateStr());
-        rightImgPanel.setImage(oriImg, row, col);
-        rightImgPanel.updateUI();
-        leftImgPanel.setImage(cmpImg, row, col);
+        leftImgPanel.setImage(oriImg, row, col);
         leftImgPanel.updateUI();
+        rightImgPanel.setImage(cmpImg, row, col);
+        rightImgPanel.updateUI();
+
     }
 
     /**
