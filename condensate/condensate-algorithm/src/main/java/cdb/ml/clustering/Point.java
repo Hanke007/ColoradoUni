@@ -200,7 +200,26 @@ public class Point {
      */
     @Override
     public String toString() {
-        return Arrays.toString(data);
+        String arrStr = Arrays.toString(data).replace(',', '#');
+        return arrStr.substring(1, arrStr.length() - 1);
+    }
+
+    /**
+     * similar to valueOf function of Numeric
+     * 
+     * @param line  the string contains object attributes
+     * @return      the object
+     */
+    public static Point parseOf(String line) {
+        String[] elems = line.split("\\#");
+
+        int dataDimnsn = elems.length;
+        Point obj = new Point(dataDimnsn);
+        for (int i = 0; i < dataDimnsn; i++) {
+            obj.setValue(i, Double.valueOf(elems[i].trim()));
+        }
+
+        return obj;
     }
 
 }

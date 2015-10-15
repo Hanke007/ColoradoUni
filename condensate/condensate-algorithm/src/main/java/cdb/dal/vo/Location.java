@@ -1,5 +1,7 @@
 package cdb.dal.vo;
 
+import java.util.Arrays;
+
 /**
  * 
  * @author Chao Chen
@@ -47,6 +49,27 @@ public class Location {
      */
     public int y() {
         return data[1];
+    }
+
+    /**
+     * set the value to given index
+     * 
+     * @param i     the index of the data
+     */
+    public void setVal(int i, int val) {
+        if (i < dataDimnsn) {
+            data[i] = val;
+        }
+    }
+
+    /**
+     * return the value given the index
+     * 
+     * @param i     the index of the data
+     * @return      the value
+     */
+    public int getVal(int i) {
+        return data[i];
     }
 
     /**
@@ -110,6 +133,33 @@ public class Location {
      */
     public void setDataDimnsn(int dataDimnsn) {
         this.dataDimnsn = dataDimnsn;
+    }
+
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        String arrStr = Arrays.toString(data).replace(',', '#');
+        return arrStr.substring(1, arrStr.length() - 1);
+    }
+
+    /**
+     * similar to valueOf function of Numeric
+     * 
+     * @param line  the string contains object attributes
+     * @return      the object
+     */
+    public static Location parseOf(String line) {
+        String[] elems = line.split("\\#");
+
+        int dataDimnsn = elems.length;
+        Location obj = new Location(dataDimnsn);
+        for (int i = 0; i < dataDimnsn; i++) {
+            obj.setVal(i, Integer.valueOf(elems[i]));
+        }
+
+        return obj;
     }
 
 }

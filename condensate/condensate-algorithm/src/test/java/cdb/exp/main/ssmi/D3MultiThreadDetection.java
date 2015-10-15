@@ -38,7 +38,7 @@ import cdb.service.dataset.SSMIFileDtProc;
 public class D3MultiThreadDetection extends AbstractArcticAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "s85v";
+    protected final static String FREQNCY_ID = "s22v";
 
     /**
      * 
@@ -54,7 +54,8 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
     public static void case1() {
         // fetch related mean and sd files
         LoggerUtil.info(logger, "1. compute statistical parameter.");
-        String[] seasons = { "08" };
+        String[] seasons = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11",
+                             "12" };
 
         HashMap<String, DenseMatrix> meanRep = (HashMap<String, DenseMatrix>) SerializeUtil
             .readObject(ROOT_DIR + "Condensate/mean_" + FREQNCY_ID + ".OBJ");
@@ -65,8 +66,8 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         Queue<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("20000801", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20000831", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("20000101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20001231", DateUtil.SHORT_FORMAT);
             taskIds = testsetGroupByMonth(seasons, sDate, eDate);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
@@ -234,9 +235,10 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             }
 
             ImageWUtil.plotRGBImageWithMask(tMatrix,
-                ROOT_DIR + "Anomaly/2000/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
+                ROOT_DIR + "Anomaly/2000LowFreq/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
                 ImageWUtil.JPG_FORMMAT);
-
+            SerializeUtil.writeObject(sMatrix,
+                ROOT_DIR + "StatisticAnomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");
             return sMatrix;
         }
 
