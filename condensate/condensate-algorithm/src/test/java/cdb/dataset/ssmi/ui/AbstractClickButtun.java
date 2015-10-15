@@ -9,6 +9,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
+import cdb.common.lang.FileUtil;
 import cdb.dal.vo.AnomalyInfoVO;
 
 /**
@@ -45,25 +46,33 @@ public abstract class AbstractClickButtun extends Button implements ActionListen
     @Override
     public void actionPerformed(ActionEvent e) {
         // update GUI
-        if (anmlyArr.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Congratulations! No records.");
-            System.exit(0);
+        boolean hasExist = false;
+        while (!hasExist) {
+            if (anmlyArr.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Congratulations! No records.");
+                System.exit(0);
+            }
+
+            AnomalyInfoVO firstOne = anmlyArr.peekFirst();
+            int row = (int) firstOne.getCentroid().getValue(0);
+            int col = (int) firstOne.getCentroid().getValue(1);
+            String oriImg = Freq2ImageFileUtil.freq2ImageFile(rootImageDir, firstOne,
+                firstOne.getFreqIdDomain());
+            String cmpImg = Freq2ImageFileUtil.freq2ImageFile(rootImageDir, firstOne,
+                firstOne.getFreqIdTarget());
+
+            if (!FileUtil.exists(oriImg) | !FileUtil.exists(cmpImg)) {
+                anmlyArr.pollFirst();
+                continue;
+            }
+
+            dateStrLabel.setText(firstOne.getDateStr());
+            leftImgPanel.setImage(oriImg, row, col);
+            leftImgPanel.updateUI();
+            rightImgPanel.setImage(cmpImg, row, col);
+            rightImgPanel.updateUI();
+            hasExist = true;
         }
-
-        AnomalyInfoVO firstOne = anmlyArr.peekFirst();
-        int row = (int) firstOne.getCentroid().getValue(0);
-        int col = (int) firstOne.getCentroid().getValue(1);
-        String oriImg = Freq2ImageFileUtil.freq2ImageFile(rootImageDir, firstOne,
-            firstOne.getFreqIdDomain());
-        String cmpImg = Freq2ImageFileUtil.freq2ImageFile(rootImageDir, firstOne,
-            firstOne.getFreqIdTarget());
-
-        dateStrLabel.setText(firstOne.getDateStr());
-        leftImgPanel.setImage(oriImg, row, col);
-        leftImgPanel.updateUI();
-        rightImgPanel.setImage(cmpImg, row, col);
-        rightImgPanel.updateUI();
-
     }
 
     /**
