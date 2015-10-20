@@ -4,6 +4,7 @@ import java.util.List;
 
 import cdb.dal.vo.DenseMatrix;
 import cdb.ml.clustering.Cluster;
+import cdb.ml.clustering.Point;
 
 /**
  * 
@@ -262,5 +263,65 @@ public final class StatisticParamUtil {
             reslt.setVal(0, dIndx, distributions[dIndx] / count);
         }
         return reslt;
+    }
+
+    /**
+     * compute the distribution given a data set
+     * 
+     * @param dMatrix
+     * @param minVal
+     * @param maxVal
+     * @param k
+     * @return
+     */
+    public static Point distributionInPoint(DenseMatrix dMatrix, double minVal, double maxVal,
+                                            int k, double sampleRate) {
+        double stepVal = (maxVal - minVal) / k;
+        int rowNum = dMatrix.getRowNum();
+        int colNum = dMatrix.getColNum();
+
+        int count = 0;
+        double[] distributions = new double[k];
+        for (int row = 0; row < rowNum; row++) {
+            for (int col = 0; col < colNum; col++) {
+                double val = dMatrix.getVal(row, col);
+                if (Double.isNaN(val)) {
+                    continue;
+                } else if (Math.random() > sampleRate) {
+                    continue;
+                } else if (val > maxVal) {
+                    val = maxVal;
+                }
+
+                int indx = (int) ((val - minVal) / stepVal);
+                distributions[indx]++;
+                count++;
+            }
+        }
+
+        Point reslt = new Point(k);
+        for (int dIndx = 0; dIndx < k; dIndx++) {
+            if (count == 0.0d) {
+                continue;
+            }
+
+            reslt.setValue(dIndx, distributions[dIndx] / count);
+        }
+        return reslt;
+    }
+
+    public static double entropy(Point distribution) {
+        double entropy = 0.0d;
+
+        int dimensn = distribution.dimension();
+        for (int i = 0; i < dimensn; i++) {
+            double val = distribution.getValue(i);
+            if (val == 0.0d | Double.isNaN(val)) {
+                continue;
+            }
+            entropy -= Math.log(val) * val;
+        }
+
+        return entropy;
     }
 }

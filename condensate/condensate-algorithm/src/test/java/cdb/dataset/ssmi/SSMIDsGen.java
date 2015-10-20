@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.springframework.util.StopWatch;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DateUtil;
@@ -19,12 +20,17 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
+import cdb.common.lang.StatisticParamUtil;
 import cdb.dal.vo.AnomalyInfoVO;
+import cdb.dal.vo.DenseMatrix;
+import cdb.dal.vo.ImageInfoVO;
 import cdb.dal.vo.SparseMatrix;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 import cdb.ml.clustering.Point;
 import cdb.ml.clustering.Samples;
+import cdb.service.dataset.DatasetProc;
+import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 
@@ -34,30 +40,172 @@ import cdb.ml.clustering.Samples;
 public class SSMIDsGen extends AbstractDsGen {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID        = "s22v";
+    protected final static String FREQNCY_ID        = "s19v";
     protected final static String FREQNCY_ID_TARGET = "s19v";
     protected final static double alpha             = 2.0;
     protected final static int    maxIter           = 5;
 
     /** */
-    protected final static int K = 20;
+    protected final static int    K                        = 20;
+    /** */
+    protected final static double POTENTIAL_MALICOUS_RATIO = 0.15;
 
     /**
      * 
      * @param args
      */
     public static void main(String[] args) {
-        case1();
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        imageVOGen();
+        //        malicousDetection();
+        stopWatch.stop();
+        LoggerUtil.info(logger, "OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
     }
 
-    public static void case1() {
+    //=======================================
+    //
+    //  Image Value Object Generator
+    //
+    //=======================================
+    public static void imageVOGen() {
+        // make task lists
+        List<String> taskIds = null;
+        try {
+            LoggerUtil.info(logger, "2. making working set.");
+            Date sDate = DateUtil.parse("19900101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20090101", DateUtil.SHORT_FORMAT);
+            taskIds = imgWorkingSetGen(sDate, eDate, FREQNCY_ID);
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "Check date format.");
+        }
+
+        // make object
+        DatasetProc dataProc = new SSMIFileDtProc();
+        List<ImageInfoVO> imgList = new ArrayList<ImageInfoVO>();
+        for (String fileAnml : taskIds) {
+            DenseMatrix dMatrix = dataProc.read(fileAnml);
+            if (dMatrix == null) {
+                continue;
+            }
+
+            ImageInfoVO imgVO = new ImageInfoVO();
+            Point distribution = StatisticParamUtil.distributionInPoint(dMatrix, 0, 500, 5, 0.8);
+            imgVO.setDistribution(distribution);
+
+            double entropy = StatisticParamUtil.entropy(distribution);
+            imgVO.setEntropy(entropy);
+
+            int dIndx = fileAnml.indexOf("_v") - 8;
+            String dateStr = fileAnml.substring(dIndx, dIndx + 8);
+            imgVO.setDateStr(dateStr);
+
+            imgVO.setFreqIdDomain(FREQNCY_ID);
+
+            imgList.add(imgVO);
+        }
+
+        for (int i = 1, len = imgList.size() - 1; i < len; i++) {
+            ImageInfoVO prevOne = imgList.get(i - 1);
+            ImageInfoVO curOne = imgList.get(i);
+            ImageInfoVO nextOne = imgList.get(i + 1);
+
+            double prevGrad = curOne.getEntropy() - prevOne.getEntropy();
+            double nextGrad = nextOne.getEntropy() - curOne.getEntropy();
+
+            curOne.setPrevGrad(prevGrad);
+            curOne.setNextGrad(nextGrad);
+        }
+        //remove the head and tail
+        imgList.remove(imgList.size() - 1);
+        imgList.remove(0);
+
+        // record in file-system
+        StringBuilder strBuld = new StringBuilder();
+        for (ImageInfoVO one : imgList) {
+            strBuld.append(one.toString()).append('\n');
+        }
+        FileUtil.writeAsAppendWithDirCheck(ROOT_DIR + "ClassificationDataset/IMG_" + FREQNCY_ID,
+            strBuld.toString());
+
+    }
+
+    public static void malicousDetection() {
+
+        List<ImageInfoVO> imgList = new ArrayList<ImageInfoVO>();
+
+        String fileName = ROOT_DIR + "ClassificationDataset/IMG_" + FREQNCY_ID;
+        String[] lines = FileUtil.readLines(fileName);
+        for (String line : lines) {
+            imgList.add(ImageInfoVO.parseOf(line));
+        }
+
+        int dSeq = 0;
+        Samples dataSample = new Samples(imgList.size(), 8);
+        for (ImageInfoVO one : imgList) {
+            Point distribution = one.getDistribution();
+            int distbnNum = distribution.dimension();
+            for (int i = 0; i < distbnNum; i++) {
+                dataSample.setValue(dSeq, i, distribution.getValue(i));
+            }
+
+            dataSample.setValue(dSeq, distbnNum, one.getEntropy());
+            dataSample.setValue(dSeq, distbnNum + 1, one.getPrevGrad());
+            dataSample.setValue(dSeq, distbnNum + 2, one.getNextGrad());
+            dSeq++;
+        }
+
+        // clustering 
+        Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, K, 20,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+        Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+
+        Map<Integer, Cluster> num2ClusrMp = new HashMap<Integer, Cluster>();
+        for (Cluster clust : newClusters) {
+            num2ClusrMp.put(clust.getList().size(), clust);
+        }
+
+        List<Integer> numArray = new ArrayList<Integer>(num2ClusrMp.keySet());
+        Collections.sort(numArray);
+
+        DatasetProc dProc = new SSMIFileDtProc();
+        int curNum = 0;
+        int totalNum = imgList.size();
+        int newClusterNum = newClusters.length;
+        for (int i = 0; i < newClusterNum; i++) {
+            Cluster cluster = num2ClusrMp.get(numArray.get(i));
+
+            curNum += cluster.getList().size();
+            if (curNum > totalNum * POTENTIAL_MALICOUS_RATIO) {
+                break;
+            }
+
+            for (int dIndx : cluster.getList()) {
+                ImageInfoVO one = imgList.get(dIndx);
+                String fileAnml = binFileConvntn(one.getDateStr(), FREQNCY_ID);
+
+                DenseMatrix matrix = dProc.read(fileAnml);
+                ImageWUtil.plotGrayImage(matrix,
+                    ROOT_DIR + "Anomaly/Malicious/" + one.getDateStr() + ".jpg",
+                    ImageWUtil.JPG_FORMMAT);
+            }
+        }
+    }
+
+    //=======================================
+    //
+    //  Anomaly Value Object Generator
+    //
+    //=======================================
+    public static void anomalyVOGen() {
         // make task lists
         List<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
             Date sDate = DateUtil.parse("20000701", DateUtil.SHORT_FORMAT);
             Date eDate = DateUtil.parse("20000703", DateUtil.SHORT_FORMAT);
-            taskIds = workingSetGen(sDate, eDate);
+            taskIds = anomalyWorkingSetGen(sDate, eDate, FREQNCY_ID);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
         }
@@ -100,24 +248,8 @@ public class SSMIDsGen extends AbstractDsGen {
         for (AnomalyInfoVO one : anmlyList) {
             strBuld.append(one.toString()).append('\n');
         }
-        FileUtil.writeAsAppendWithDirCheck(ROOT_DIR + "ClassificationDataset/" + FREQNCY_ID,
+        FileUtil.writeAsAppendWithDirCheck(ROOT_DIR + "ClassificationDataset/ANLY" + FREQNCY_ID,
             strBuld.toString());
-    }
-
-    public static List<String> workingSetGen(Date sDate, Date eDate) {
-        List<String> testSet = new ArrayList<String>();
-
-        Date curDate = sDate;
-        while (curDate.before(eDate)) {
-            String fileAnml = ROOT_DIR + "StatisticAnomaly/"
-                              + DateUtil.format(curDate, DateUtil.SHORT_FORMAT) + '_' + FREQNCY_ID
-                              + ".OBJ";
-            testSet.add(fileAnml);
-
-            //move to next day
-            curDate.setTime(curDate.getTime() + 24 * 60 * 60 * 1000);
-        }
-        return testSet;
     }
 
     public static Cluster[] clustering(SparseMatrix sMatrix, Samples sample) {

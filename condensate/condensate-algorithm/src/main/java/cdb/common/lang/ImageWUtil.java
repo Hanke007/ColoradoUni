@@ -49,7 +49,8 @@ public final class ImageWUtil {
             for (int y = 0; y < width; y++) {
                 double temperature = matrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
-                int rgbVal = Double.isNaN(temperature) ? 0 : (int) (temperature / 300.0 * 255.0);
+                int rgbVal = (Double.isNaN(temperature) | temperature > 500) ? 0
+                    : (int) (temperature / 500.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
                 //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
                 //the greater RGBVal, the lighter the pixel is

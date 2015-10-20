@@ -4,6 +4,7 @@ import java.io.File;
 
 import cdb.common.lang.ImageWUtil;
 import cdb.dal.vo.DenseMatrix;
+import cdb.service.dataset.AVHRFileDtProc;
 import cdb.service.dataset.DMSPFileDtProc;
 import cdb.service.dataset.DatasetProc;
 import cdb.service.dataset.NetCDFDtProc;
@@ -21,7 +22,7 @@ public class TestMain {
      * @param args
      */
     public static void main(String[] args) {
-        filteringNetCDFileDtProc();
+        filteringAVHRFileDtProc();
     }
 
     public static void SSMIFileDtProc() {
@@ -75,6 +76,18 @@ public class TestMain {
         File file = new File(fileName);
         String fileN = file.getName();
         ImageWUtil.plotImageForMEASURE(matrix,
+            "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
+            ImageWUtil.PNG_FORMMAT);
+    }
+
+    public static void filteringAVHRFileDtProc() {
+        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\AVHR\\2000PROC\\a14_n005_2000002_0400_chn3.v3";
+        DatasetProc dProc = new AVHRFileDtProc();
+        DenseMatrix matrix = dProc.read(fileName);
+
+        File file = new File(fileName);
+        String fileN = file.getName();
+        ImageWUtil.plotGrayImage(matrix,
             "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
             ImageWUtil.PNG_FORMMAT);
     }
