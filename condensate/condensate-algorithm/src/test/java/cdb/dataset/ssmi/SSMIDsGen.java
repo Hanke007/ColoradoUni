@@ -11,9 +11,12 @@ import java.util.Map;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DateUtil;
+import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.dal.vo.AnomalyInfoVO;
@@ -33,9 +36,11 @@ public class SSMIDsGen extends AbstractDsGen {
     /** frequency identity*/
     protected final static String FREQNCY_ID        = "s22v";
     protected final static String FREQNCY_ID_TARGET = "s19v";
+    protected final static double alpha             = 2.0;
+    protected final static int    maxIter           = 5;
 
     /** */
-    protected final static int K = 10;
+    protected final static int K = 20;
 
     /**
      * 
@@ -50,8 +55,8 @@ public class SSMIDsGen extends AbstractDsGen {
         List<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("20000101", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20010101", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("20000701", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20000703", DateUtil.SHORT_FORMAT);
             taskIds = workingSetGen(sDate, eDate);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
@@ -78,13 +83,16 @@ public class SSMIDsGen extends AbstractDsGen {
             Collections.sort(numArray);
 
             // just fetch the first five anomaly objects
-            for (int cIndx = 0; cIndx < 5; cIndx++) {
+            int newClusterNum = numArray.size();
+            for (int cIndx = 0; cIndx < newClusterNum; cIndx++) {
                 int indx = numArray.size() - 1 - cIndx;
 
                 Cluster gClstr = num2ClusrMp.get(numArray.get(indx));
                 anmlyList.add(makeObject(sample, gClstr, sMatrix, fileAnml));
             }
-
+            LoggerUtil.info(logger, "MergedNum: " + numArray.size());
+            ImageWUtil.plotGrayImageWithCenter(sMatrix, ROOT_DIR + "1.jpg", ImageWUtil.JPG_FORMMAT,
+                clusters);
         }
 
         // record in file-system
@@ -131,8 +139,11 @@ public class SSMIDsGen extends AbstractDsGen {
         }
 
         // clustering
-        return KMeansPlusPlusUtil.cluster(sample, K, 20,
-            KMeansPlusPlusUtil.SQUARE_EUCLIDEAN_DISTANCE);
+        Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(sample, K, 20,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+
+        return ClusterHelper.mergeAdjacentCluster(sample, roughClusters,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
     }
 
     public static AnomalyInfoVO makeObject(Samples sample, Cluster gClstr, SparseMatrix sMatrix,

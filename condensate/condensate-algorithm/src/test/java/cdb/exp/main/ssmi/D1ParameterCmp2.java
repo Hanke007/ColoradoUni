@@ -25,15 +25,19 @@ import cdb.service.dataset.SSMIFileDtProc;
  */
 public class D1ParameterCmp2 extends AbstractArcticAnalysis {
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "s91v";
+    protected final static String FREQNCY_ID = "s85v";
 
     /**
      * 
      * @param args
      */
     public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         case1();
         case2();
+        stopWatch.stop();
+        LoggerUtil.info(logger, "OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
     }
 
     public static void case1() {

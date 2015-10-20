@@ -3,7 +3,7 @@ package cdb.exp.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdb.common.lang.ClusterLocHelper;
+import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.VisualizationUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.Location;
@@ -35,7 +35,7 @@ public class ClusterAnalysis {
         int lIndex = -1;
         DenseMatrix dMatrix = new DenseMatrix(100, 100);
         List<List<Location>> locSet = new ArrayList<List<Location>>();
-        ClusterLocHelper.readLoc(clstFile, locSet);
+        ClusterHelper.readLoc(clstFile, locSet);
         for (List<Location> locOne : locSet) {
             lIndex++;
             for (Location loc : locOne) {
@@ -53,7 +53,7 @@ public class ClusterAnalysis {
         int lIndex = -1;
         DenseMatrix dMatrix = new DenseMatrix(100, 100);
         List<List<Location>> locSet = new ArrayList<List<Location>>();
-        ClusterLocHelper.readLoc(clstFile, locSet);
+        ClusterHelper.readLoc(clstFile, locSet);
         for (List<Location> locOne : locSet) {
             lIndex++;
             for (Location loc : locOne) {
@@ -95,7 +95,7 @@ public class ClusterAnalysis {
         int lIndex = -1;
         DenseMatrix dMatrix = new DenseMatrix(2559, 1);
         List<List<Location>> locSet = new ArrayList<List<Location>>();
-        ClusterLocHelper.readLoc(clstFile, locSet);
+        ClusterHelper.readLoc(clstFile, locSet);
         for (List<Location> locOne : locSet) {
             lIndex++;
             for (Location loc : locOne) {

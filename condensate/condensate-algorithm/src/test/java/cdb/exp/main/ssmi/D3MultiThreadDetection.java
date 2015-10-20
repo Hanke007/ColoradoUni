@@ -13,6 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.util.StopWatch;
+
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
@@ -38,7 +40,7 @@ import cdb.service.dataset.SSMIFileDtProc;
 public class D3MultiThreadDetection extends AbstractArcticAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "s22v";
+    protected final static String FREQNCY_ID = "s85v";
 
     /**
      * 
@@ -46,8 +48,12 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
      */
 
     public static void main(String[] args) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
         case1();
         //        case2();
+        stopWatch.stop();
+        LoggerUtil.info(logger, "OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
     }
 
     @SuppressWarnings("unchecked")
@@ -66,8 +72,8 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         Queue<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("20000101", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("20001231", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("19900101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("19960101", DateUtil.SHORT_FORMAT);
             taskIds = testsetGroupByMonth(seasons, sDate, eDate);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
@@ -202,6 +208,10 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
                                                Map<String, DenseMatrix> sdRep, String taskId,
                                                Location[] locs, DatasetProc dProc) {
             String fileName = binFileConvntn(taskId, FREQNCY_ID);
+            if (!FileUtil.exists(fileName)) {
+                return null;
+            }
+
             DenseMatrix tMatrix = dProc.read(fileName);
             SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());
 
@@ -235,7 +245,7 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             }
 
             ImageWUtil.plotRGBImageWithMask(tMatrix,
-                ROOT_DIR + "Anomaly/2000LowFreq/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
+                ROOT_DIR + "Anomaly/1990to1995/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
                 ImageWUtil.JPG_FORMMAT);
             SerializeUtil.writeObject(sMatrix,
                 ROOT_DIR + "StatisticAnomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");

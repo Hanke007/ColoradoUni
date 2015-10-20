@@ -171,7 +171,7 @@ public final class StatisticParamUtil {
 
                 double squaredMean = Math.pow(centroid.getVal(row, col), 2.0d);
                 double dVal = val * 1.0 / cnt - squaredMean; // DX = EXX - EX*EX
-                sd.setVal(row, col, (int) Math.sqrt(dVal));
+                sd.setVal(row, col, Math.sqrt(dVal));
             }
         }
         return sd;
@@ -219,10 +219,48 @@ public final class StatisticParamUtil {
 
                 double squaredMean = Math.pow(centroid.getVal(row, col), 2.0d);
                 double dVal = val * 1.0 / cnt - squaredMean; // DX = EXX - EX*EX
-                sd.setVal(row, col, (int) Math.sqrt(dVal));
+                sd.setVal(row, col, Math.sqrt(dVal));
             }
         }
         return sd;
     }
 
+    /**
+     * compute the distribution given a data set
+     * 
+     * @param dMatrix
+     * @param minVal
+     * @param maxVal
+     * @param k
+     * @return
+     */
+    public static DenseMatrix distribution(DenseMatrix dMatrix, double minVal, double maxVal, int k,
+                                           double sampleRate) {
+        double stepVal = (maxVal - minVal) / k;
+        int rowNum = dMatrix.getRowNum();
+        int colNum = dMatrix.getColNum();
+
+        int count = 0;
+        double[] distributions = new double[k];
+        for (int row = 0; row < rowNum; row++) {
+            for (int col = 0; col < colNum; col++) {
+                double val = dMatrix.getVal(row, col);
+                if (Double.isNaN(val)) {
+                    continue;
+                } else if (Math.random() > sampleRate) {
+                    continue;
+                }
+
+                int indx = (int) ((val - minVal) / stepVal);
+                distributions[indx]++;
+                count++;
+            }
+        }
+
+        DenseMatrix reslt = new DenseMatrix(1, k);
+        for (int dIndx = 0; dIndx < k; dIndx++) {
+            reslt.setVal(0, dIndx, distributions[dIndx] / count);
+        }
+        return reslt;
+    }
 }

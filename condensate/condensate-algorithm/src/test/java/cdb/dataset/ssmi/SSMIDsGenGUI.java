@@ -10,9 +10,9 @@ import cdb.dataset.ssmi.ui.DsGenFrame;
 public class SSMIDsGenGUI {
 
     /** root director where the new data-set is! OLD: RAWDATA_V1, NEW: RAWDATA_V2*/
-    private final static String rootDataDir  = "C:/Users/chench/Desktop/SIDS/ClassificationDataset/";
+    private final static String rootDataDir  = "C:/Users/chench/Desktop/SIDS/SSMI/ClassificationDataset/";
     /** root director where the new images are*/
-    private final static String rootImageDir = "C:/Users/chench/Desktop/SIDS/Anomaly/2000LowFreq/";
+    private final static String rootImageDir = "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/2000LowFreq/";
 
     /**
      * 

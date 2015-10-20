@@ -18,6 +18,10 @@ public final class Cluster implements Iterable<Integer> {
 
     /** the list with matrix index */
     private List<Integer> elements;
+    /** the center of this cluster*/
+    private Point         center;
+    /** the radius of circle domain*/
+    private double        radius;
 
     /** 
      * Construction
@@ -58,6 +62,42 @@ public final class Cluster implements Iterable<Integer> {
      */
     public List<Integer> getList() {
         return elements;
+    }
+
+    /**
+     * Getter method for property <tt>center</tt>.
+     * 
+     * @return property value of center
+     */
+    public Point getCenter() {
+        return center;
+    }
+
+    /**
+     * Setter method for property <tt>center</tt>.
+     * 
+     * @param center value to be assigned to property center
+     */
+    public void setCenter(Point center) {
+        this.center = center;
+    }
+
+    /**
+     * Getter method for property <tt>radius</tt>.
+     * 
+     * @return property value of radius
+     */
+    public double getRadius() {
+        return radius;
+    }
+
+    /**
+     * Setter method for property <tt>radius</tt>.
+     * 
+     * @param radius value to be assigned to property radius
+     */
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     /**

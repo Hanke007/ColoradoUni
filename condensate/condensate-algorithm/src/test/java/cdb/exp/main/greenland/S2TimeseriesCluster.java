@@ -3,7 +3,7 @@ package cdb.exp.main.greenland;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdb.common.lang.ClusterLocHelper;
+import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
@@ -75,7 +75,7 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
         List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
         Cluster[] resultSet = clusterTimeseries(seralData, oneCluster, 25);
-        ClusterLocHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(),
+        ClusterHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(),
             1);
 
         // computer statistical parameters
@@ -101,7 +101,7 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
 
     public static List<Location> loadingSpatialClusterResulting(String clstFile, int oneSeq) {
         List<List<Location>> locSet = new ArrayList<List<Location>>();
-        ClusterLocHelper.readLoc(clstFile, locSet);
+        ClusterHelper.readLoc(clstFile, locSet);
         return locSet.get(oneSeq);
     }
 

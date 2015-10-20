@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cdb.common.lang.ClusterLocHelper;
+import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
@@ -93,7 +93,7 @@ public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
 
     public static List<Location> loadingSpatialClusterResulting(String clstFile, int oneSeq) {
         List<List<Location>> locSet = new ArrayList<List<Location>>();
-        ClusterLocHelper.readLoc(clstFile, locSet);
+        ClusterHelper.readLoc(clstFile, locSet);
         return locSet.get(oneSeq);
     }
 

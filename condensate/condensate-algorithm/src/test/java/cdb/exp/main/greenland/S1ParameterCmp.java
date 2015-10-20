@@ -4,7 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdb.common.lang.ClusterLocHelper;
+import cdb.common.lang.ClusterHelper;
+import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
@@ -36,14 +37,13 @@ public class S1ParameterCmp extends AbstractGreenLandAnalysis {
 
     public static void case1() {
         // loading dataset
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. load dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
@@ -59,14 +59,13 @@ public class S1ParameterCmp extends AbstractGreenLandAnalysis {
 
     public static void case2() {
         // loading dataset
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. load dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
@@ -84,14 +83,13 @@ public class S1ParameterCmp extends AbstractGreenLandAnalysis {
 
     public static void case3(int x, int y) {
         // loading dataset
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. load dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
@@ -157,8 +155,7 @@ public class S1ParameterCmp extends AbstractGreenLandAnalysis {
                 }
 
                 LoggerUtil.info(logger, "reads File: " + file.getName());
-                sp.append(iCount++)
-                    .append("\t")
+                sp.append(iCount++).append("\t")
                     .append(
                         dProc.read(file.getAbsolutePath(), rowIncluded, colIncluded).getVal(x, y))
                     .append('\n');
@@ -183,8 +180,8 @@ public class S1ParameterCmp extends AbstractGreenLandAnalysis {
 
         // clustering the data points
         Cluster[] clusters = KMeansPlusPlusUtil.cluster(dataSample, k, maxIteration,
-            KMeansPlusPlusUtil.SQUARE_EUCLIDEAN_DISTANCE);
-        ClusterLocHelper.saveLoc(clusters, ROOT_DIR + "Clustering/kmean_" + k, rowNum, colNum);
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+        ClusterHelper.saveLoc(clusters, ROOT_DIR + "Clustering/kmean_" + k, rowNum, colNum);
 
         // save the clustering information
         return clusters;

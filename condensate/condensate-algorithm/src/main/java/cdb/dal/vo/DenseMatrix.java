@@ -202,4 +202,18 @@ public class DenseMatrix implements java.io.Serializable {
             return Math.sqrt(sum / count);
         }
     }
+
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        StringBuilder objStr = new StringBuilder();
+        for (int row = 0; row < rowNum; row++) {
+            objStr.append(Arrays.toString(data[row])).append('\n');
+        }
+
+        return objStr.substring(0, objStr.length() - 1).toString();
+    }
+
 }

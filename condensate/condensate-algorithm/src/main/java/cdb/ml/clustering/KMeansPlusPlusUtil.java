@@ -6,6 +6,7 @@ package cdb.ml.clustering;
 
 import org.apache.log4j.Logger;
 
+import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 
@@ -20,20 +21,8 @@ import cdb.common.lang.log4j.LoggerDefineConstant;
  */
 public class KMeansPlusPlusUtil {
 
-    /** sine distance*/
-    public final static int     SINE_DISTANCE                = 201;
-    /** square error*/
-    public final static int     SQUARE_EUCLIDEAN_DISTANCE    = 202;
-    /** pearson correlation*/
-    public final static int     PEARSON_CORRELATION_DISTANCE = 203;
-    /** KL divergence*/
-    public final static int     KL_DISTANCE                  = 204;
-    /** KL divergence with convergence insurance*/
-    public final static int     KL_DISTANCE_CONVEX           = 205;
-
     /** logger */
-    private final static Logger logger                       = Logger
-                                                                 .getLogger(LoggerDefineConstant.SERVICE_THREAD);
+    private final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_THREAD);
 
     /**
      * forbid construction
@@ -87,7 +76,7 @@ public class KMeansPlusPlusUtil {
                 int pivot = -1;
                 double min = Double.MAX_VALUE;
                 for (int k = 0; k < K; k++) {
-                    double distnce = distance(a, centroids[k], type);
+                    double distnce = DistanceUtil.distance(a, centroids[k], type);
 
                     if (min > distnce) {
                         min = distnce;
@@ -132,8 +121,8 @@ public class KMeansPlusPlusUtil {
         int cenIndex = 1;
         StringBuilder centdInfo = new StringBuilder();
         for (Point centroid : centroids) {
-            centdInfo.append('\n').append(cenIndex).append(": ").append(centroid)
-                .append("\tSize: ").append(resultSet[cenIndex - 1].getList().size());
+            centdInfo.append('\n').append(cenIndex).append(": ").append(centroid).append("\tSize: ")
+                .append(resultSet[cenIndex - 1].getList().size());
             cenIndex++;
         }
         LoggerUtil.info(logger, centdInfo.toString());
@@ -174,7 +163,7 @@ public class KMeansPlusPlusUtil {
                 Point point = points.getPointRef(i);
                 double min = Double.MAX_VALUE;
                 for (int j = 0; j < curCentroid; j++) {
-                    double distance = distance(point, centroids[j], type);
+                    double distance = DistanceUtil.distance(point, centroids[j], type);
 
                     if (min > distance) {
                         min = distance;
@@ -208,33 +197,4 @@ public class KMeansPlusPlusUtil {
         }
     }
 
-    /**
-     * calculate the distance between two vectors
-     *  
-     * @param a     given vector
-     * @param b     given vector
-     * @param type  the distance to compute
-     * @return
-     */
-    public static double distance(final Point a, final Point centroid, final int type) {
-        //check vector with all zeros
-        if (type != SQUARE_EUCLIDEAN_DISTANCE && (a.norm() == 0 || centroid.norm() == 0)) {
-            return 0.0;
-        }
-
-        switch (type) {
-            case SINE_DISTANCE:
-                double cosine = a.innerProduct(centroid) / (a.norm() * centroid.norm());// a*b / (|a|*|b|)
-                return Math.sqrt(1 - cosine * cosine);
-            case SQUARE_EUCLIDEAN_DISTANCE:
-                Point c = a.minus(centroid);
-                return c.innerProduct(c); // |a-b|
-            case PEARSON_CORRELATION_DISTANCE:
-                a.sub(a.average());
-                centroid.sub(centroid.average());
-                return a.innerProduct(centroid) / (a.norm() * centroid.norm());
-            default:
-                throw new RuntimeException("Wrong Distance Type! ");
-        }
-    }
 }

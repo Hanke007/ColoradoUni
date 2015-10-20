@@ -105,7 +105,7 @@ public class SSMIFileDtProc implements DatasetProc {
      * @return
      */
     private double calibretion(double val) {
-        if (val == 0) {
+        if (val == 0 | val > 5000) {
             val = Double.NaN;
         } else {
             val /= 10;

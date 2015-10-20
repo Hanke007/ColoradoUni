@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import cdb.app.query.Position2D;
 import cdb.app.query.QueryTask;
+import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
@@ -34,7 +35,7 @@ public class EfficientQueryExp {
     public final static String  SERIALABLE_DIR = "C:/Users/chench/Desktop/SIDS/OBJ/";
     /** logger */
     private final static Logger logger         = Logger
-                                                   .getLogger(LoggerDefineConstant.SERVICE_NORMAL);
+        .getLogger(LoggerDefineConstant.SERVICE_NORMAL);
 
     /**
      * 
@@ -95,9 +96,8 @@ public class EfficientQueryExp {
             queryInfo.setVal(p.x, p.y, 800);
         }
 
-        LoggerUtil.info(logger, "Query: "
-                                + (queryTask.getQueryDomain().size() * 1.0 / (rowNum * colNum))
-                                + "\tDone: "
+        LoggerUtil.info(logger,
+            "Query: " + (queryTask.getQueryDomain().size() * 1.0 / (rowNum * colNum)) + "\tDone: "
                                 + (queryTask.getCompleteDomain().size() * 1.0 / (rowNum * colNum)));
         VisualizationUtil.gnuHeatmap(queryInfo, SERIALABLE_DIR + "hmp");
     }
@@ -186,7 +186,7 @@ public class EfficientQueryExp {
     public static Cluster[] clusteringStep(Samples dataSample, int k, int maxIteration) {
         // clustering the data points
         return KMeansPlusPlusUtil.cluster(dataSample, k, maxIteration,
-            KMeansPlusPlusUtil.SQUARE_EUCLIDEAN_DISTANCE);
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 
     }
 
