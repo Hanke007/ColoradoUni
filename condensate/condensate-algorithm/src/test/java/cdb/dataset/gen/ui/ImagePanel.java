@@ -1,4 +1,4 @@
-package cdb.dataset.ssmi.ui;
+package cdb.dataset.gen.ui;
 
 import java.awt.Color;
 import java.awt.Graphics;

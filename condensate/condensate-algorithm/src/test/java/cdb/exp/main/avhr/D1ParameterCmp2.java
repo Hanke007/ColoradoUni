@@ -29,7 +29,7 @@ import cdb.service.dataset.AVHRFileDtProc;
  */
 public class D1ParameterCmp2 extends AVHRAnalysis {
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "0400_chn4";
+    protected final static String FREQNCY_ID = "1400_chn4";
 
     /**
      * 

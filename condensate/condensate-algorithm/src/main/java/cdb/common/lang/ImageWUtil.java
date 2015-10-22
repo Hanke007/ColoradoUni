@@ -124,7 +124,7 @@ public final class ImageWUtil {
             for (int y = 0; y < width; y++) {
                 double temperature = dmatrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
-                int rgbVal = Double.isNaN(temperature) | temperature > 500 ? 0
+                int rgbVal = (Double.isNaN(temperature) | temperature > 500) ? 0
                     : (int) (temperature / 500.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
                 //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
@@ -142,15 +142,15 @@ public final class ImageWUtil {
             }
 
             for (int y : ys) {
-                double temperature = dmatrix.getVal(x, y);
+                //                double temperature = dmatrix.getVal(x, y);
                 //the greater temperature is, the darker the pixel is
-                int rgbVal = Double.isNaN(temperature) | temperature > 500 ? 0
-                    : (int) (temperature / 500.0 * 255.0);
+                //                int rgbVal = Double.isNaN(temperature) | temperature > 300 ? 0
+                //                    : (int) (temperature / 300.0 * 255.0);
                 //with setting r = g = b = rgbVal, then follow the rule:
                 //  RGBVal = 0.21 * r + 0.71 * g + 0.07 * b
                 //the greater RGBVal, the lighter the pixel is
                 //e.g., White is 255, Black is 0
-                grayImage.setRGB(y, x, (new Color(rgbVal, 0, 0)).getRGB());
+                grayImage.setRGB(y, x, (new Color(255, 0, 0)).getRGB());
             }
         }
 

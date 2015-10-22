@@ -40,7 +40,7 @@ import cdb.service.dataset.SSMIFileDtProc;
 public class D3MultiThreadDetection extends AbstractArcticAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "s85v";
+    protected final static String FREQNCY_ID = "n85h";
 
     /**
      * 

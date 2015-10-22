@@ -38,7 +38,7 @@ import cdb.service.dataset.DatasetProc;
 public class D3MultiThreadDetection extends AVHRAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "0400_chn4";
+    protected final static String FREQNCY_ID = "1400_chn4";
 
     /**
      * 

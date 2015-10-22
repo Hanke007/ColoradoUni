@@ -12,7 +12,7 @@ import cdb.common.lang.log4j.LoggerDefineConstant;
 public abstract class AbstractArcticAnalysis {
 
     /** the root directory of the dataset*/
-    protected final static String ROOT_DIR = "C:/Users/chench/Desktop/SIDS/";
+    protected final static String ROOT_DIR = "C:/Users/chench/Desktop/SIDS/SSMI/";
 
     /** logger */
     protected final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_NORMAL);

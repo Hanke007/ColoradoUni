@@ -6,7 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -110,8 +113,11 @@ public final class ClusterHelper {
         return newClusters;
     }
 
-    protected static Cluster[] mergeAdjacentClusterOnce(Samples dataSample, Cluster[] clusters,
+    protected static Cluster[] mergeAdjacentClusterOnce(Samples dataSample, Cluster[] oriClusters,
                                                         int disType, double alpha) {
+        // sorting clusters by item number in each cluster
+        Cluster[] clusters = ascndingClusters(oriClusters);
+        //        Cluster[] clusters = oriClusters;
 
         // computer center and radius
         int k = clusters.length;
@@ -169,6 +175,42 @@ public final class ClusterHelper {
                 newClusterSeq++;
             }
         }
+        return newClusters;
+    }
+
+    protected static Cluster[] ascndingClusters(Cluster[] clusters) {
+
+        Map<Integer, List<Cluster>> num2Cluster = new HashMap<Integer, List<Cluster>>();
+        List<Integer> nums = new ArrayList<Integer>();
+        for (Cluster cluster : clusters) {
+            Integer key = cluster.getList().size();
+
+            List<Cluster> cArr = num2Cluster.get(key);
+            if (cArr == null) {
+                cArr = new ArrayList<Cluster>();
+                num2Cluster.put(key, cArr);
+                nums.add(key);
+            }
+
+            cArr.add(cluster);
+        }
+
+        // sort in ascending
+        Collections.sort(nums);
+
+        // sorting
+        int newSeq = 0;
+        int k = clusters.length;
+        Cluster[] newClusters = new Cluster[k];
+        for (Integer num : nums) {
+            List<Cluster> cArr = num2Cluster.get(num);
+
+            for (Cluster cluster : cArr) {
+                newClusters[newSeq] = cluster;
+                newSeq++;
+            }
+        }
+
         return newClusters;
     }
 

@@ -12,8 +12,7 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.ImageInfoVO;
-import cdb.dataset.avhr.AVHRDsGen;
-import cdb.dataset.ssmi.SSMIDsGen;
+import cdb.dataset.gen.support.BinFileConvntnUtil;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 import cdb.ml.clustering.Point;
@@ -47,13 +46,13 @@ public class StepOneMaliciousFiltering {
 
     public static void AVHR() {
         String rootDir = "C:/Users/chench/Desktop/SIDS/AVHR/";
-        String freqId = "chn3";
+        String freqId = "1400_chn4";
         malicousDetection(rootDir, freqId, new AVHRFileDtProc());
     }
 
     public static void SSMI() {
         String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
-        String freqId = "s19v";
+        String freqId = "n22v";
 
         malicousDetection(rootDir, freqId, new SSMIFileDtProc());
     }
@@ -112,15 +111,15 @@ public class StepOneMaliciousFiltering {
                 ImageInfoVO one = imgList.get(dIndx);
 
                 String fileAnml = null;
-                if (freqId.startsWith("chn")) {
-                    fileAnml = AVHRDsGen.binFileConvntn(one.getDateStr(), freqId);
+                if (freqId.indexOf("chn") != -1) {
+                    fileAnml = BinFileConvntnUtil.fileAVHR(rootDir, one.getDateStr(), freqId);
                 } else {
-                    fileAnml = SSMIDsGen.binFileConvntn(one.getDateStr(), freqId);
+                    fileAnml = BinFileConvntnUtil.fileSSMI(rootDir, one.getDateStr(), freqId);
                 }
 
                 DenseMatrix matrix = dProc.read(fileAnml);
                 ImageWUtil.plotGrayImage(matrix,
-                    rootDir + "Anomaly/Malicious/" + one.getDateStr() + ".jpg",
+                    rootDir + "Anomaly/Malicious/" + one.getDateStr() + "_" + freqId + ".jpg",
                     ImageWUtil.JPG_FORMMAT);
             }
         }
