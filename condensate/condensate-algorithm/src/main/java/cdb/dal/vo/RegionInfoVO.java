@@ -28,20 +28,29 @@ public class RegionInfoVO {
     private double mean;
     /** the standard deviation in the region*/
     private double sd;
+
     //==================================
     //  Contextual features
     //==================================
     /** temporal attribute: gradients in adjacent days [-1, 0, 1]*/
-    private Point  tGradCon;
+    private Point tGradCon;
     /** spatial attribute: correlation in 3-by-3 box*/
-    private Point  sCorrCon;
+    private Point sCorrCon;
     /** spatial attribute: difference in 3-by-3 box*/
-    private Point  sDiffCon;
+    private Point sDiffCon;
 
     /** the frequency identification in Domain*/
     private String freqIdDomain;
     /** Output lable:  1: Left  2: Match    3: Right*/
     private int    resultLabel;
+
+    //==================================
+    //  indexing information
+    //==================================
+    /** the row index of the region in entire image*/
+    private int rIndx;
+    /** the column index of the region in entire image*/
+    private int cIndx;
 
     /**
      * Getter method for property <tt>distribution</tt>.
@@ -277,6 +286,42 @@ public class RegionInfoVO {
         this.resultLabel = resultLabel;
     }
 
+    /**
+     * Getter method for property <tt>rIndx</tt>.
+     * 
+     * @return property value of rIndx
+     */
+    public int getrIndx() {
+        return rIndx;
+    }
+
+    /**
+     * Setter method for property <tt>rIndx</tt>.
+     * 
+     * @param rIndx value to be assigned to property rIndx
+     */
+    public void setrIndx(int rIndx) {
+        this.rIndx = rIndx;
+    }
+
+    /**
+     * Getter method for property <tt>cIndx</tt>.
+     * 
+     * @return property value of cIndx
+     */
+    public int getcIndx() {
+        return cIndx;
+    }
+
+    /**
+     * Setter method for property <tt>cIndx</tt>.
+     * 
+     * @param cIndx value to be assigned to property cIndx
+     */
+    public void setcIndx(int cIndx) {
+        this.cIndx = cIndx;
+    }
+
     /** 
      * @see java.lang.Object#toString()
      */
@@ -284,7 +329,7 @@ public class RegionInfoVO {
     public String toString() {
         return distribution + "," + entropy + "," + dateStr + "," + gradRow + "," + gradCol + ","
                + gradMean + "," + mean + "," + sd + "," + tGradCon + "," + sCorrCon + "," + sDiffCon
-               + "," + freqIdDomain + "," + resultLabel;
+               + "," + freqIdDomain + "," + resultLabel + "," + rIndx + "," + cIndx;
     }
 
     /**
@@ -317,6 +362,10 @@ public class RegionInfoVO {
         regnVO.setFreqIdDomain(elems[11].trim());
         regnVO.setResultLabel(
             StringUtil.isBlank(elems[12].trim()) ? 0 : Integer.valueOf(elems[12].trim()));
+
+        // indexing information
+        regnVO.setrIndx(Integer.valueOf(elems[13].trim()));
+        regnVO.setcIndx(Integer.valueOf(elems[14].trim()));
         return regnVO;
     }
 }

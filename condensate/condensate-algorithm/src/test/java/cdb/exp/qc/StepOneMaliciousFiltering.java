@@ -1,4 +1,4 @@
-package cdb.exp.main;
+package cdb.exp.qc;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ public class StepOneMaliciousFiltering {
 
     public static void SSMI() {
         String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
-        String freqId = "n22v";
+        String freqId = "n85v";
 
         malicousDetection(rootDir, freqId, new SSMIFileDtProc());
     }
