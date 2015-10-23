@@ -26,7 +26,7 @@ import cdb.service.dataset.SSMIFileDtProc;
  * @author Chao Chen
  * @version $Id: StepOneMaliciousFiltering.java, v 0.1 Oct 20, 2015 3:40:26 PM chench Exp $
  */
-public class StepOneMaliciousFiltering {
+public class StepOneImageLevelDetecting {
 
     protected final static double alpha                    = 2.0;
     protected final static int    maxIter                  = 5;

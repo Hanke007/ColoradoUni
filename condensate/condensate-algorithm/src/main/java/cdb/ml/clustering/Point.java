@@ -2,6 +2,8 @@ package cdb.ml.clustering;
 
 import java.util.Arrays;
 
+import cdb.common.lang.StringUtil;
+
 /**
  * The point describe a single observation, and it will be used in clustering methods.
  * 
@@ -211,6 +213,10 @@ public class Point {
      * @return      the object
      */
     public static Point parseOf(String line) {
+        if (StringUtil.isBlank(line)) {
+            return null;
+        }
+
         String[] elems = line.split("\\#");
 
         int dataDimnsn = elems.length;

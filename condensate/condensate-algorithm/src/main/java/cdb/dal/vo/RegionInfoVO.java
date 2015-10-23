@@ -32,7 +32,7 @@ public class RegionInfoVO {
     //==================================
     //  Contextual features
     //==================================
-    /** temporal attribute: gradients in adjacent days [-1, 0, 1]*/
+    /** temporal attribute: gradients in adjacent days [-1, 0, 1] in terms of Entropy, Mean, Sd*/
     private Point tGradCon;
     /** spatial attribute: correlation in 3-by-3 box*/
     private Point sCorrCon;
