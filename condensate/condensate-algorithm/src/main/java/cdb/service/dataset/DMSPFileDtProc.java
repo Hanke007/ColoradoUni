@@ -31,14 +31,7 @@ public class DMSPFileDtProc implements DatasetProc {
         }
 
         // initialize the dimension w.r.t pattern of file name
-        int[] dimension = new int[2];
-        if (fileName.endsWith("nrt_n.bin")) {
-            dimension[0] = 448;
-            dimension[1] = 304;
-        } else if (fileName.endsWith("nrt_s.bin")) {
-            dimension[0] = 332;
-            dimension[1] = 316;
-        }
+        int[] dimension = dimensions(fileName);
 
         DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
         readInner(fileName, result);
@@ -88,6 +81,22 @@ public class DMSPFileDtProc implements DatasetProc {
         } finally {
             IOUtils.closeQuietly(inStream);
         }
+    }
+
+    /** 
+     * @see cdb.service.dataset.DatasetProc#dimensions(java.lang.String)
+     */
+    @Override
+    public int[] dimensions(String freqId) {
+        int[] dimension = new int[2];
+        if (freqId.endsWith("nrt_n.bin")) {
+            dimension[0] = 448;
+            dimension[1] = 304;
+        } else if (freqId.endsWith("nrt_s.bin")) {
+            dimension[0] = 332;
+            dimension[1] = 316;
+        }
+        return dimension;
     }
 
 }

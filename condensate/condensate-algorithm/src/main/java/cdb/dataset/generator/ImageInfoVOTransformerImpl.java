@@ -1,4 +1,4 @@
-package cdb.dataset.gen.support;
+package cdb.dataset.generator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ public class ImageInfoVOTransformerImpl extends AbstractDataTransformer {
     }
 
     /** 
-     * @see cdb.dataset.gen.support.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.service.dataset.DatasetProc)
+     * @see cdb.dataset.generator.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.service.dataset.DatasetProc)
      */
     @Override
     public void transform(String rootDir, String freqId, List<String> tDataDump,

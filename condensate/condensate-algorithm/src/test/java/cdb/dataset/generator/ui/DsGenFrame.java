@@ -1,4 +1,4 @@
-package cdb.dataset.gen.ui;
+package cdb.dataset.generator.ui;
 
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;

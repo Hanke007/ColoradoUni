@@ -74,7 +74,8 @@ public class D4AnomalyStat extends AbstractArcticAnalysis {
             ExceptionUtil.caught(e, "Check date format.");
         }
 
-        int[] dimsn = dimensions(FREQNCY_ID);
+        DatasetProc dProc = new SSMIFileDtProc();
+        int[] dimsn = dProc.dimensions(FREQNCY_ID);
         DenseMatrix cMatrix = new DenseMatrix(dimsn[0], dimsn[1]);
         for (String fileAnml : taskIds) {
             SparseMatrix sMatrix = (SparseMatrix) SerializeUtil.readObject(fileAnml);

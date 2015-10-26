@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 
 import cdb.common.lang.Byte2NumUtil;
 import cdb.common.lang.ExceptionUtil;
+import cdb.common.lang.FileUtil;
 import cdb.common.lang.StringUtil;
 import cdb.dal.vo.DenseMatrix;
 
@@ -29,25 +30,12 @@ public class SSMIFileDtProc implements DatasetProc {
         // check validation
         if (StringUtil.isBlank(fileName)) {
             return null;
+        } else if (!FileUtil.exists(fileName)) {
+            return null;
         }
 
         // initialize the dimension w.r.t pattern of file name
-        int[] dimension = new int[2];
-        if ((fileName.indexOf("n85") != -1) | (fileName.indexOf("n91") != -1)) {
-            dimension[0] = 896;
-            dimension[1] = 608;
-        } else if ((fileName.indexOf("n19") != -1) | (fileName.indexOf("n22") != -1)
-                   | (fileName.indexOf("n37") != -1)) {
-            dimension[0] = 448;
-            dimension[1] = 304;
-        } else if ((fileName.indexOf("s85") != -1) | (fileName.indexOf("s91") != -1)) {
-            dimension[0] = 664;
-            dimension[1] = 632;
-        } else if ((fileName.indexOf("s19") != -1) | (fileName.indexOf("s22") != -1)
-                   | (fileName.indexOf("s37") != -1)) {
-            dimension[0] = 332;
-            dimension[1] = 316;
-        }
+        int[] dimension = dimensions(fileName);
 
         DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
         boolean isSuccess = readInner(fileName, result);
@@ -112,5 +100,28 @@ public class SSMIFileDtProc implements DatasetProc {
         }
 
         return val;
+    }
+
+    /**
+     * @see cdb.service.dataset.DatasetProc#dimensions(java.lang.String)
+     */
+    public int[] dimensions(String freqId) {
+        int[] dimension = new int[2];
+        if ((freqId.indexOf("n85") != -1) | (freqId.indexOf("n91") != -1)) {
+            dimension[0] = 896;
+            dimension[1] = 608;
+        } else if ((freqId.indexOf("n19") != -1) | (freqId.indexOf("n22") != -1)
+                   | (freqId.indexOf("n37") != -1)) {
+            dimension[0] = 448;
+            dimension[1] = 304;
+        } else if ((freqId.indexOf("s85") != -1) | (freqId.indexOf("s91") != -1)) {
+            dimension[0] = 664;
+            dimension[1] = 632;
+        } else if ((freqId.indexOf("s19") != -1) | (freqId.indexOf("s22") != -1)
+                   | (freqId.indexOf("s37") != -1)) {
+            dimension[0] = 332;
+            dimension[1] = 316;
+        }
+        return dimension;
     }
 }

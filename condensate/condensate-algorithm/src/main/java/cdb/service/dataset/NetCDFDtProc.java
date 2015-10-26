@@ -110,4 +110,12 @@ public class NetCDFDtProc implements DatasetProc {
 
         return val;
     }
+
+    /** 
+     * @see cdb.service.dataset.DatasetProc#dimensions(java.lang.String)
+     */
+    @Override
+    public int[] dimensions(String freqId) {
+        return null;
+    }
 }

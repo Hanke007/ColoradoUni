@@ -12,7 +12,7 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.dal.vo.DenseMatrix;
 import cdb.dal.vo.ImageInfoVO;
-import cdb.dataset.gen.support.BinFileConvntnUtil;
+import cdb.dataset.generator.BinFileConvntnUtil;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 import cdb.ml.clustering.Point;
@@ -26,7 +26,7 @@ import cdb.service.dataset.SSMIFileDtProc;
  * @author Chao Chen
  * @version $Id: StepOneMaliciousFiltering.java, v 0.1 Oct 20, 2015 3:40:26 PM chench Exp $
  */
-public class StepOneImageLevelDetecting {
+public class StepOneImageLevelDetecting extends AbstractDetecting {
 
     protected final static double alpha                    = 2.0;
     protected final static int    maxIter                  = 5;

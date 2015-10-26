@@ -1,4 +1,4 @@
-package cdb.dataset.gen.support;
+package cdb.dataset.generator;
 
 import java.text.ParseException;
 import java.util.Calendar;

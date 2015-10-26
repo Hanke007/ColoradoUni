@@ -30,11 +30,7 @@ public class AVHRFileDtProc implements DatasetProc {
         }
 
         // initialize the dimension w.r.t pattern of file name
-        int[] dimension = new int[2];
-        if (fileName.indexOf("v3") != -1) {
-            dimension[0] = 452;
-            dimension[1] = 452;
-        }
+        int[] dimension = dimensions(fileName);
 
         DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
         boolean isSuccess = readInner(fileName, result);
@@ -99,6 +95,19 @@ public class AVHRFileDtProc implements DatasetProc {
         }
 
         return val;
+    }
+
+    /** 
+     * @see cdb.service.dataset.DatasetProc#dimensions(java.lang.String)
+     */
+    @Override
+    public int[] dimensions(String freqId) {
+        int[] dimension = new int[2];
+        if (freqId.indexOf("v3") != -1) {
+            dimension[0] = 452;
+            dimension[1] = 452;
+        }
+        return dimension;
     }
 
 }

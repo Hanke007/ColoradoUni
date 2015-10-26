@@ -16,6 +16,7 @@ import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.dal.vo.DenseMatrix;
+import cdb.service.dataset.DatasetProc;
 import cdb.service.dataset.SSMIFileDtProc;
 
 /**
@@ -116,10 +117,12 @@ public class D1ParameterCmp2 extends AbstractArcticAnalysis {
          */
         @Override
         public void run() {
+            DatasetProc dProc = new SSMIFileDtProc();
+
             String taskId = null;
             while ((taskId = task()) != null) {
 
-                int[] dimsns = dimensions(FREQNCY_ID);
+                int[] dimsns = dProc.dimensions(FREQNCY_ID);
                 DenseMatrix means = new DenseMatrix(dimsns[0], dimsns[1]);
                 DenseMatrix meanSquares = new DenseMatrix(dimsns[0], dimsns[1]);
                 DenseMatrix counts = new DenseMatrix(dimsns[0], dimsns[1]);
@@ -143,7 +146,7 @@ public class D1ParameterCmp2 extends AbstractArcticAnalysis {
 
                     // load data set
                     List<DenseMatrix> partialData = new ArrayList<DenseMatrix>();
-                    MatrixFileUtil.read(fileRE, partialData, new SSMIFileDtProc(), 1.0d);
+                    MatrixFileUtil.read(fileRE, partialData, dProc, 1.0d);
                     if (partialData.isEmpty()) {
                         LoggerUtil.warn(logger, timeRange + " is empty.\t\t[*]");
                         continue;

@@ -5,7 +5,7 @@ package cdb.exp.qc;
  * @author Chao Chen
  * @version $Id: StepTwoRegionLevelDetecting.java, v 0.1 Oct 23, 2015 4:47:20 PM chench Exp $
  */
-public class StepTwoRegionLevelDetecting {
+public class StepTwoRegionLevelDetecting extends AbstractDetecting {
 
     protected final static double alpha                    = 2.0;
     protected final static int    maxIter                  = 5;
@@ -19,6 +19,10 @@ public class StepTwoRegionLevelDetecting {
      * @param args
      */
     public static void main(String[] args) {
+
+    }
+
+    public static void SSMI() {
 
     }
 

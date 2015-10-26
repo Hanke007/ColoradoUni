@@ -81,7 +81,8 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         AnomalyThread.task = taskIds;
 
         //test locations
-        int[] dimsns = dimensions(FREQNCY_ID);
+        DatasetProc dProc = new SSMIFileDtProc();
+        int[] dimsns = dProc.dimensions(FREQNCY_ID);
         List<Location> locals = new ArrayList<Location>();
         for (int i = 0; i < dimsns[0]; i++) {
             for (int j = 0; j < dimsns[1]; j++) {
@@ -91,7 +92,6 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         Location[] locs = locals.toArray(new Location[locals.size()]);
 
         //detecting
-        DatasetProc dProc = new SSMIFileDtProc();
         try {
             CmpThread.task = taskIds;
             ExecutorService exec = Executors.newCachedThreadPool();

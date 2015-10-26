@@ -27,4 +27,12 @@ public interface DatasetProc {
      * @return              a general GeoEntity given the file name 
      */
     public DenseMatrix read(String fileName, int[] rowIncluded, int[] colIncluded);
+
+    /**
+     * get the dimensions given the frequency identification
+     *      
+     * @param freqId    frequency id
+     * @return
+     */
+    public int[] dimensions(String freqId);
 }

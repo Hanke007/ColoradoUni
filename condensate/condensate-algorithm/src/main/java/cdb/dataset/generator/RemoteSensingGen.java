@@ -1,4 +1,4 @@
-package cdb.dataset.gen.support;
+package cdb.dataset.generator;
 
 import java.util.ArrayList;
 import java.util.List;

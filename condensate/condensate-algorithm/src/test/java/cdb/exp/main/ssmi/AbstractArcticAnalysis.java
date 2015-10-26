@@ -65,29 +65,4 @@ public abstract class AbstractArcticAnalysis {
         return fileName;
     }
 
-    /**
-     * get the dimensions given the frequency identification
-     *      
-     * @param freqId    frequency id
-     * @return
-     */
-    protected static int[] dimensions(String freqId) {
-        int[] dimension = new int[2];
-        if ((freqId.indexOf("n85") != -1) | (freqId.indexOf("n91") != -1)) {
-            dimension[0] = 896;
-            dimension[1] = 608;
-        } else if ((freqId.indexOf("n19") != -1) | (freqId.indexOf("n22") != -1)
-                   | (freqId.indexOf("n37") != -1)) {
-            dimension[0] = 448;
-            dimension[1] = 304;
-        } else if ((freqId.indexOf("s85") != -1) | (freqId.indexOf("s91") != -1)) {
-            dimension[0] = 664;
-            dimension[1] = 632;
-        } else if ((freqId.indexOf("s19") != -1) | (freqId.indexOf("s22") != -1)
-                   | (freqId.indexOf("s37") != -1)) {
-            dimension[0] = 332;
-            dimension[1] = 316;
-        }
-        return dimension;
-    }
 }

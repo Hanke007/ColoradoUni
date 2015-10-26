@@ -1,4 +1,4 @@
-package cdb.dataset.gen.support;
+package cdb.dataset.generator;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -15,7 +15,7 @@ import cdb.common.lang.ExceptionUtil;
 public class AVHRSourceDumpImpl extends AbstractSourceDump {
 
     /** 
-     * @see cdb.dataset.gen.support.AbstractSourceDump#collect(java.lang.String, java.lang.String, java.lang.String, java.util.List, java.util.List)
+     * @see cdb.dataset.generator.AbstractSourceDump#collect(java.lang.String, java.lang.String, java.lang.String, java.util.List, java.util.List)
      */
     @Override
     public void collect(String rootDir, String sDateStr, String eDateStr, String freqId,
@@ -30,7 +30,7 @@ public class AVHRSourceDumpImpl extends AbstractSourceDump {
     }
 
     /**
-     * @see cdb.dataset.gen.support.AbstractSourceDump#binFileConvntn(java.lang.String, java.lang.String, java.lang.String)
+     * @see cdb.dataset.generator.AbstractSourceDump#binFileConvntn(java.lang.String, java.lang.String, java.lang.String)
      */
     protected String binFileConvntn(String rootDir, String taskId, String freqId) {
         return BinFileConvntnUtil.fileAVHR(rootDir, taskId, freqId);
