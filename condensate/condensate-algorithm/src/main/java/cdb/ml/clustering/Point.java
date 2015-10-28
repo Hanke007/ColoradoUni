@@ -1,6 +1,9 @@
 package cdb.ml.clustering;
 
 import java.util.Arrays;
+import java.util.Iterator;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import cdb.common.lang.StringUtil;
 
@@ -10,7 +13,7 @@ import cdb.common.lang.StringUtil;
  * @author Chao Chen
  * @version $Id: Point.java, v 0.1 Aug 17, 2015 9:53:53 AM chench Exp $
  */
-public class Point {
+public class Point implements Iterable<Double> {
 
     /** data */
     private double[] data;
@@ -226,6 +229,15 @@ public class Point {
         }
 
         return obj;
+    }
+
+    /** 
+     * @see java.lang.Iterable#iterator()
+     */
+    @Override
+    public Iterator<Double> iterator() {
+        Double[] doubleArray = ArrayUtils.toObject(data);
+        return Arrays.asList(doubleArray).iterator();
     }
 
 }

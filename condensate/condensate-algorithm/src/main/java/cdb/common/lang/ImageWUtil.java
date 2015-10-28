@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import cdb.dal.vo.DenseMatrix;
+import cdb.dal.vo.Location;
 import cdb.dal.vo.SparseMatrix;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.Point;
@@ -252,4 +253,22 @@ public final class ImageWUtil {
             ExceptionUtil.caught(e, outputFile + " failed in ImageConvert! ");
         }
     }
+
+    public static void drawRects(String orgnImag, String targtImag, Location[] rects, int width,
+                                 int height, String formatName) {
+        try {
+            BufferedImage grayImage = ImageIO.read(new File(orgnImag));
+
+            // draw rects
+            Graphics2D g = grayImage.createGraphics();
+            for (Location loc : rects) {
+                g.drawRect(loc.y(), loc.x(), width, height);
+            }
+
+            ImageIO.write(grayImage, formatName, new File(targtImag));
+        } catch (IOException e) {
+            ExceptionUtil.caught(e, "File not found: " + orgnImag);
+        }
+    }
+
 }

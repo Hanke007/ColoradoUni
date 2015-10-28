@@ -112,14 +112,14 @@ public class RemoteSensingOverallDsGen {
 
     public static void regionSSMI() {
         String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
-        int regionHeight = 3;
-        int regionWeight = 3;
+        int regionHeight = 8;
+        int regionWeight = 8;
         int minVal = 0;
         int maxVal = 400;
         int k = 5;
         String freqId = "n19v";
-        String sDateStr = "19900101";
-        String eDateStr = "19960101";
+        String sDateStr = "20100101";
+        String eDateStr = "20140101";
 
         LoggerUtil.info(logger, "1. Achieve parameters.");
         Map<String, DenseMatrix> meanRep = new HashMap<String, DenseMatrix>();

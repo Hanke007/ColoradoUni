@@ -48,12 +48,12 @@ public class KMeansPlusPlusUtil {
         }
 
         //Create the initial clusters
-        LoggerUtil.info(logger, "0. Create the initial clusters.");
+        LoggerUtil.debug(logger, "0. Create the initial clusters.");
         Point[] centroids = new Point[K];
         chooseInitialCenters(points, centroids, K, type);
 
         //Converge to a minimun
-        LoggerUtil.info(logger, "1. Locally search optimal solution.");
+        LoggerUtil.debug(logger, "1. Locally search optimal solution.");
         Cluster[] resultSet = new Cluster[K];
         int[] assigmnt = new int[pointCount];
         double oldErr = Double.MAX_VALUE;
@@ -105,15 +105,15 @@ public class KMeansPlusPlusUtil {
             //if no change, then exist
             round++;
             if (changes == 0) {
-                LoggerUtil.info(logger, round + "\tNo Changes");
+                LoggerUtil.debug(logger, round + "\tNo Changes");
                 break;
             } else if (curErr > oldErr) {
-                LoggerUtil.info(logger, round + "\t" + curErr + ">" + oldErr);
+                LoggerUtil.debug(logger, round + "\t" + curErr + ">" + oldErr);
                 break;
             } else {
                 oldErr = curErr;
                 resultSet = newSet;
-                LoggerUtil.info(logger, round + "\t" + curErr);
+                LoggerUtil.debug(logger, round + "\t" + curErr);
             }
 
         }
@@ -125,7 +125,7 @@ public class KMeansPlusPlusUtil {
                 .append(resultSet[cenIndex - 1].getList().size());
             cenIndex++;
         }
-        LoggerUtil.info(logger, centdInfo.toString());
+        LoggerUtil.debug(logger, centdInfo.toString());
 
         return resultSet;
     }
