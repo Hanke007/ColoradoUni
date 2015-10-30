@@ -26,7 +26,7 @@ import cdb.service.dataset.SSMIFileDtProc;
  */
 public class D1ParameterCmp2 extends AbstractArcticAnalysis {
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "n85h";
+    protected final static String FREQNCY_ID = "n19v";
 
     /**
      * 
@@ -44,7 +44,7 @@ public class D1ParameterCmp2 extends AbstractArcticAnalysis {
     public static void case1() {
 
         // make task queues
-        int yearStart = 1990;
+        int yearStart = 1993;
         int yearEnd = 2014;
         String[] years = new String[yearEnd - yearStart + 1];
         for (int year = yearStart; year <= yearEnd; year++) {

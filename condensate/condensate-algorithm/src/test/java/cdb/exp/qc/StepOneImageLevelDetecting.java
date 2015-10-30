@@ -119,8 +119,8 @@ public class StepOneImageLevelDetecting extends AbstractDetecting {
 
                 DenseMatrix matrix = dProc.read(fileAnml);
                 ImageWUtil.plotGrayImage(matrix,
-                    rootDir + "Anomaly/Malicious/" + one.getDateStr() + "_" + freqId + ".jpg",
-                    ImageWUtil.JPG_FORMMAT);
+                    rootDir + "Anomaly/Malicious/" + one.getDateStr() + "_" + freqId + ".bmp",
+                    ImageWUtil.BMP_FORMAT);
             }
         }
     }

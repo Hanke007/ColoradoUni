@@ -190,8 +190,8 @@ public class D3MultiThreadDetection extends AVHRAnalysis {
             }
 
             ImageWUtil.plotRGBImageWithMask(tMatrix,
-                ROOT_DIR + "Anomaly/2000/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
-                ImageWUtil.JPG_FORMMAT);
+                ROOT_DIR + "Anomaly/2000/" + taskId + "_" + FREQNCY_ID + ".bmp", sMatrix,
+                ImageWUtil.BMP_FORMAT);
             SerializeUtil.writeObject(sMatrix,
                 ROOT_DIR + "StatisticAnomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");
             return sMatrix;

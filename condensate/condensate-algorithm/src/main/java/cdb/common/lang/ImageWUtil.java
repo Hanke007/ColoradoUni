@@ -22,6 +22,8 @@ import cdb.ml.clustering.Point;
  * @version $Id: ImageUtil.java, v 0.1 Jul 22, 2015 7:59:01 PM chench Exp $
  */
 public final class ImageWUtil {
+    /** Image format: BMP*/
+    public final static String BMP_FORMAT  = "bmp";
     /** Image format: PNG*/
     public final static String PNG_FORMMAT = "png";
     /** Image format: JPG*/

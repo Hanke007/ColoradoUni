@@ -122,7 +122,7 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
                     regns[rIndx][cIndx] = regn;
                 }
             }
-            regnWindow.put(regns);
+            regnWindow.put(regns, tDateDump.get(tIndx));
 
             // contextual features: spatial attributes
             conSpatialFeatureInsert(regns, regnRowNum, regnColNum, tDateDump.get(tIndx));
@@ -134,14 +134,16 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
 
             // check buffer wehter to flush
             if (regnInfoBuffer.length() >= 1000 * 1000 * 80) {
-                FileUtil.writeAsAppend(rootDir + "ClassificationDataset/REG_" + freqId,
+                FileUtil.writeAsAppend(rootDir + "ClassificationDataset/REG_" + freqId + '_'
+                                       + regionHeight + '_' + regionWeight,
                     regnInfoBuffer.toString());
                 regnInfoBuffer = new StringBuilder();
             }
         }
 
         // record in file-system
-        FileUtil.writeAsAppend(rootDir + "ClassificationDataset/REG_" + freqId,
+        FileUtil.writeAsAppend(rootDir + "ClassificationDataset/REG_" + freqId + '_' + regionHeight
+                               + '_' + regionWeight,
             regnInfoBuffer.toString());
 
     }

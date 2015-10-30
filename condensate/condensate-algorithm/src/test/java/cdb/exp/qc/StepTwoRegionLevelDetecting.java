@@ -46,7 +46,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         double alpha = 2.0;
         int maxIter = 5;
         int maxClusterNum = 20;
-        double potentialMaliciousRatio = 0.01;
+        double potentialMaliciousRatio = 0.10;
         int regionHeight = 8;
         int regionWeight = 8;
 
@@ -147,7 +147,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
                 regnBuffer.append(regnVO.toString()).append('\n');
 
                 bufferSize++;
-                if (bufferSize > 100 * 1000) {
+                if (bufferSize > 300 * 1000) {
                     for (Entry<String, StringBuilder> entry : regnDistbtBuffer.entrySet()) {
                         FileUtil.writeAsAppendWithDirCheck(entry.getKey(),
                             entry.getValue().toString());

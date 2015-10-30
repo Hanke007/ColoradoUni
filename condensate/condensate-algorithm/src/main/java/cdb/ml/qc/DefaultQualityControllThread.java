@@ -12,6 +12,7 @@ import java.util.Queue;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.math3.stat.StatUtils;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DistanceUtil;
@@ -134,6 +135,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         Samples dataSample = new Samples(regnList.size(), pDimen);
         List<String> regnDateStr = new ArrayList<String>();
         tranformRegionVO(regnList, dataSample, regnDateStr);
+        normalization(dataSample);
 
         // clustering 
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
@@ -182,14 +184,20 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
             }
 
             // gradient along row
+            double gradRowSum = 0;
             for (double gradRowVal : one.getGradRow()) {
-                dataSample.setValue(dSeq, pSeq++, gradRowVal);
+                gradRowSum += gradRowVal;
+                //                dataSample.setValue(dSeq, pSeq++, gradRowVal);
             }
+            dataSample.setValue(dSeq, pSeq++, gradRowSum);
 
             // gradient along column
+            double gradColSum = 0;
             for (double gradColVal : one.getGradCol()) {
-                dataSample.setValue(dSeq, pSeq++, gradColVal);
+                gradColSum += gradColVal;
+                //                dataSample.setValue(dSeq, pSeq++, gradColVal);
             }
+            dataSample.setValue(dSeq, pSeq++, gradColSum);
 
             // Contextual: temporal gradients
             for (double tGradConVal : one.gettGradCon()) {
@@ -197,14 +205,20 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
             }
 
             // Contextual: spatial correlations
+            double sCorrSum = 0;
             for (double sCorrConVal : one.getsCorrCon()) {
-                dataSample.setValue(dSeq, pSeq++, sCorrConVal);
+                sCorrSum += sCorrConVal;
+                //                dataSample.setValue(dSeq, pSeq++, sCorrConVal);
             }
+            dataSample.setValue(dSeq, pSeq++, sCorrSum);
 
             // Contextual: spatial differences
+            double sDiffSum = 0;
             for (double sDiffConVal : one.getsDiffCon()) {
-                dataSample.setValue(dSeq, pSeq++, sDiffConVal);
+                sDiffSum += sDiffConVal;
+                //                dataSample.setValue(dSeq, pSeq++, sDiffConVal);
             }
+            dataSample.setValue(dSeq, pSeq++, sDiffSum);
 
             dataSample.setValue(dSeq, pSeq++, one.getEntropy());
             dataSample.setValue(dSeq, pSeq++, one.getGradMean());
@@ -280,4 +294,25 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         return pivot;
     }
 
+    protected void normalization(Samples dataSample) {
+        int[] dimens = dataSample.length();
+
+        for (int pIndx = 0; pIndx < dimens[1]; pIndx++) {
+
+            // read datas
+            double[] vals = new double[dimens[0]];
+            for (int sIndx = 0; sIndx < dimens[0]; sIndx++) {
+                vals[sIndx] = dataSample.getValue(sIndx, pIndx);
+            }
+
+            // normalization
+            double sd = StatUtils.variance(vals);
+            if (sd != 0) {
+                double[] valNorm = StatUtils.normalize(vals);
+                for (int sIndx = 0; sIndx < dimens[0]; sIndx++) {
+                    dataSample.setValue(sIndx, pIndx, valNorm[sIndx]);
+                }
+            }
+        }
+    }
 }

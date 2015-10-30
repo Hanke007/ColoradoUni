@@ -15,25 +15,25 @@ import java.util.Locale;
 public final class DateUtil {
 
     /** yyyyMMdd */
-    public final static String SHORT_FORMAT           = "yyyyMMdd";
+    public final static String SHORT_FORMAT = "yyyyMMdd";
 
     /** yyyyMMddHHmmss */
-    public final static String LONG_FORMAT            = "yyyyMMddHHmmss";
+    public final static String LONG_FORMAT = "yyyyMMddHHmmss";
 
     /** yyyy-MM-dd */
-    public final static String WEB_FORMAT             = "yyyy-MM-dd";
+    public final static String WEB_FORMAT = "yyyy-MM-dd";
 
     /** HHmmss */
-    public final static String TIME_FORMAT            = "HHmmss";
+    public final static String TIME_FORMAT = "HHmmss";
 
     /** yyyyMM */
-    public final static String MONTH_FORMAT           = "yyyyMM";
+    public final static String MONTH_FORMAT = "yyyyMM";
 
     /** yyyy年MM月dd日 */
-    public final static String CHINA_FORMAT           = "yyyy年MM月dd日";
+    public final static String CHINA_FORMAT = "yyyy年MM月dd日";
 
     /** yyyy-MM-dd HH:mm:ss */
-    public final static String LONG_WEB_FORMAT        = "yyyy-MM-dd HH:mm:ss";
+    public final static String LONG_WEB_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     /** yyyy-MM-dd HH:mm */
     public final static String LONG_WEB_FORMAT_NO_SEC = "yyyy-MM-dd HH:mm";
@@ -54,6 +54,24 @@ public final class DateUtil {
 
         return (cal1.get(Calendar.HOUR_OF_DAY) == cal2.get(Calendar.HOUR_OF_DAY))
                && (cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+    }
+
+    /**
+     *  判断两个时间，是否隔日
+     * 
+     * @param dateStr1
+     * @param dateStr2
+     * @param format
+     * @return
+     * @throws ParseException
+     */
+    public static boolean isNextDay(String dateStr1, String dateStr2,
+                                    String format) throws ParseException {
+        Date date1 = DateUtil.parse(dateStr1, format);
+        Date date2 = DateUtil.parse(dateStr2, format);
+
+        long diff = Math.abs(date1.getTime() - date2.getTime());
+        return diff >= 24 * 60 * 60 * 1000 & diff < 2 * 24 * 60 * 60 * 1000;
     }
 
     /**

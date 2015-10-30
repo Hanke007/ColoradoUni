@@ -93,7 +93,7 @@ public class AnomalyInfoVOTransformerImpl extends AbstractDataTransformer {
                 Cluster gClstr = num2ClusrMp.get(numArray.get(indx));
                 anmlyList.add(makeObject(sample, gClstr, sMatrix, fileAnml, freqId));
             }
-            ImageWUtil.plotGrayImageWithCenter(sMatrix, rootDir + "1.jpg", ImageWUtil.JPG_FORMMAT,
+            ImageWUtil.plotGrayImageWithCenter(sMatrix, rootDir + "1.bmp", ImageWUtil.BMP_FORMAT,
                 clusters);
         }
 

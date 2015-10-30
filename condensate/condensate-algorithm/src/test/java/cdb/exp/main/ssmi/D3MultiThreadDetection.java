@@ -40,7 +40,7 @@ import cdb.service.dataset.SSMIFileDtProc;
 public class D3MultiThreadDetection extends AbstractArcticAnalysis {
 
     /** frequency identity*/
-    protected final static String FREQNCY_ID = "n85h";
+    protected final static String FREQNCY_ID = "n19v";
 
     /**
      * 
@@ -72,8 +72,8 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
         Queue<String> taskIds = null;
         try {
             LoggerUtil.info(logger, "2. detect anomalies.");
-            Date sDate = DateUtil.parse("19900101", DateUtil.SHORT_FORMAT);
-            Date eDate = DateUtil.parse("19960101", DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse("19980101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20150101", DateUtil.SHORT_FORMAT);
             taskIds = testsetGroupByMonth(seasons, sDate, eDate);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
@@ -245,10 +245,10 @@ public class D3MultiThreadDetection extends AbstractArcticAnalysis {
             }
 
             ImageWUtil.plotRGBImageWithMask(tMatrix,
-                ROOT_DIR + "Anomaly/1990to1995/" + taskId + "_" + FREQNCY_ID + ".jpg", sMatrix,
-                ImageWUtil.JPG_FORMMAT);
-            SerializeUtil.writeObject(sMatrix,
-                ROOT_DIR + "StatisticAnomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");
+                ROOT_DIR + "Anomaly/1990to1995/" + taskId + "_" + FREQNCY_ID + ".bmp", sMatrix,
+                ImageWUtil.BMP_FORMAT);
+            //            SerializeUtil.writeObject(sMatrix,
+            //                ROOT_DIR + "StatisticAnomaly/" + taskId + "_" + FREQNCY_ID + ".OBJ");
             return sMatrix;
         }
 

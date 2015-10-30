@@ -1,5 +1,10 @@
 package cdb.dal.vo;
 
+import java.text.ParseException;
+
+import cdb.common.lang.DateUtil;
+import cdb.common.lang.ExceptionUtil;
+
 /**
  * 
  * @author Chao Chen
@@ -8,6 +13,7 @@ package cdb.dal.vo;
 public class RegionInfoWindow {
     /** the window of objects */
     private RegionInfoVO[][][] regnWindow;
+    private String[]           dateWindow;
     /** */
     private int                curIndx;
     private int                winSize;
@@ -19,6 +25,7 @@ public class RegionInfoWindow {
         super();
         this.winSize = winSize;
         regnWindow = new RegionInfoVO[winSize][regnRowNum][regnColNum];
+        dateWindow = new String[winSize];
         curIndx = -1;
     }
 
@@ -33,21 +40,41 @@ public class RegionInfoWindow {
     }
 
     /**
-     * add new item into windows
+     * add new item into this window
      * 
      * @param regInfoVO
      */
-    public void put(RegionInfoVO[][] regInfoVO) {
+    public void put(RegionInfoVO[][] regInfoVO, String dateStr) {
+        // add new items into this window
         if (curIndx == winSize - 1) {
             for (int i = 1; i < winSize; i++) {
                 regnWindow[i - 1] = regnWindow[i];
+                dateWindow[i - 1] = dateWindow[i];
             }
 
             regnWindow[winSize - 1] = regInfoVO;
+            dateWindow[winSize - 1] = dateStr;
         } else {
             curIndx++;
             regnWindow[curIndx] = regInfoVO;
+            dateWindow[curIndx] = dateStr;
         }
+
+        // check whether the objects in this window are continuous across the time
+        try {
+            if (curIndx == 0) {
+                return;
+            } else if (!DateUtil.isNextDay(dateWindow[curIndx], dateWindow[curIndx - 1],
+                DateUtil.SHORT_FORMAT)) {
+                // the object in window is not continues
+                curIndx = 0;
+                regnWindow[curIndx] = regInfoVO;
+                dateWindow[curIndx] = dateStr;
+            }
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "Date format error.");
+        }
+
     }
 
     /**

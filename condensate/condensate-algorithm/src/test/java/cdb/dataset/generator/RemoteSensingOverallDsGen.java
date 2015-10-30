@@ -118,8 +118,8 @@ public class RemoteSensingOverallDsGen {
         int maxVal = 400;
         int k = 5;
         String freqId = "n19v";
-        String sDateStr = "20100101";
-        String eDateStr = "20140101";
+        String sDateStr = "19980101";
+        String eDateStr = "20150101";
 
         LoggerUtil.info(logger, "1. Achieve parameters.");
         Map<String, DenseMatrix> meanRep = new HashMap<String, DenseMatrix>();
