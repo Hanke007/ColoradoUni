@@ -61,6 +61,16 @@ public class Samples implements Iterable<Point> {
     }
 
     /**
+     * set the point to the given index
+     * 
+     * @param i the index to set
+     * @param p the data point
+     */
+    public void setPoint(int i, Point p) {
+        rows[i] = p;
+    }
+
+    /**
      * Return a reference of a given point.
      * Make sure to use this method only for read-only purpose.
      * 

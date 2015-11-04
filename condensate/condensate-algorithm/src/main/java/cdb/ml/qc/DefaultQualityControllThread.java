@@ -23,6 +23,7 @@ import cdb.dal.vo.RegionAnomalyInfoVO;
 import cdb.dal.vo.RegionInfoVO;
 import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
+import cdb.ml.clustering.Point;
 import cdb.ml.clustering.Samples;
 
 /**
@@ -127,9 +128,10 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
         // making clustering samples
         RegionInfoVO pivot = regnList.peek();
-        int pDimen = 6 + pivot.getDistribution().dimension() + pivot.getGradCol().dimension()
-                     + pivot.getGradRow().dimension() + pivot.gettGradCon().dimension()
-                     + pivot.getsCorrCon().dimension() + pivot.getsDiffCon().dimension();
+        //        int pDimen = 6 + pivot.getDistribution().dimension() + pivot.getGradCol().dimension()
+        //                     + pivot.getGradRow().dimension() + pivot.gettGradCon().dimension()
+        //                     + pivot.getsCorrCon().dimension() + pivot.getsDiffCon().dimension();
+        int pDimen = 12;
         int rRIndx = pivot.getrIndx();
         int cRIndx = pivot.getcIndx();
         Samples dataSample = new Samples(regnList.size(), pDimen);
@@ -144,7 +146,8 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
             DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
 
         // compute potential error data
-        return computingPotentialError(fileName, newClusters, regnDateStr, rRIndx, cRIndx);
+        return computingPotentialError(dataSample, fileName, newClusters, regnDateStr, rRIndx,
+            cRIndx);
     }
 
     protected void readRegionVO(String fileName, Queue<RegionInfoVO> regnList) {
@@ -176,63 +179,14 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         int dSeq = 0;
         RegionInfoVO one = null;
         while ((one = regnList.poll()) != null) {
-            int pSeq = 0;
-
-            // distribution information
-            for (double distrbtnVal : one.getDistribution()) {
-                dataSample.setValue(dSeq, pSeq++, distrbtnVal);
-            }
-
-            // gradient along row
-            double gradRowSum = 0;
-            for (double gradRowVal : one.getGradRow()) {
-                gradRowSum += gradRowVal;
-                //                dataSample.setValue(dSeq, pSeq++, gradRowVal);
-            }
-            dataSample.setValue(dSeq, pSeq++, gradRowSum);
-
-            // gradient along column
-            double gradColSum = 0;
-            for (double gradColVal : one.getGradCol()) {
-                gradColSum += gradColVal;
-                //                dataSample.setValue(dSeq, pSeq++, gradColVal);
-            }
-            dataSample.setValue(dSeq, pSeq++, gradColSum);
-
-            // Contextual: temporal gradients
-            for (double tGradConVal : one.gettGradCon()) {
-                dataSample.setValue(dSeq, pSeq++, tGradConVal);
-            }
-
-            // Contextual: spatial correlations
-            double sCorrSum = 0;
-            for (double sCorrConVal : one.getsCorrCon()) {
-                sCorrSum += sCorrConVal;
-                //                dataSample.setValue(dSeq, pSeq++, sCorrConVal);
-            }
-            dataSample.setValue(dSeq, pSeq++, sCorrSum);
-
-            // Contextual: spatial differences
-            double sDiffSum = 0;
-            for (double sDiffConVal : one.getsDiffCon()) {
-                sDiffSum += sDiffConVal;
-                //                dataSample.setValue(dSeq, pSeq++, sDiffConVal);
-            }
-            dataSample.setValue(dSeq, pSeq++, sDiffSum);
-
-            dataSample.setValue(dSeq, pSeq++, one.getEntropy());
-            dataSample.setValue(dSeq, pSeq++, one.getGradMean());
-            dataSample.setValue(dSeq, pSeq++, one.getMean());
-            dataSample.setValue(dSeq, pSeq++, one.getSd());
-            dataSample.setValue(dSeq, pSeq++, one.getrIndx());
-            dataSample.setValue(dSeq, pSeq++, one.getcIndx());
-
+            Point point = RegionInfoVOHelper.make12Features(one);
+            dataSample.setPoint(dSeq, point);
             regnDateStr.add(one.getDateStr());
             dSeq++;
         }
     }
 
-    protected List<RegionAnomalyInfoVO> computingPotentialError(String fileName,
+    protected List<RegionAnomalyInfoVO> computingPotentialError(Samples dataSample, String fileName,
                                                                 Cluster[] newClusters,
                                                                 List<String> regnDateStr,
                                                                 int rRIndx, int cRIndx) {
@@ -264,6 +218,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
                 raVO.setWidth(regionWeight);
                 raVO.setX(rRIndx * regionHeight);
                 raVO.setY(cRIndx * regionWeight);
+                raVO.setdPoint(dataSample.getPointRef(dIndx));
                 raArr.add(raVO);
             }
         }

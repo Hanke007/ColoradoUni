@@ -19,6 +19,7 @@ import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.vo.Location;
 import cdb.dal.vo.RegionAnomalyInfoVO;
 import cdb.dal.vo.RegionInfoVO;
+import cdb.exp.qc.ui.RegionJFrame;
 import cdb.ml.clustering.Samples;
 
 /**
@@ -36,10 +37,24 @@ public class RegionInfoAnalysis {
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception {
+        gui();
         //        SSMI();
         //        trackValCheckByDate(312, 152);
-        e2();
+        //        e2();
+    }
 
+    public static void gui() {
+        String imgRootDir = "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/1990to1995/";
+        String regnInfoRootDir = "C:/Users/chench/Desktop/SIDS/SSMI/ClassificationDataset/n19v_8_8/";
+        String regnAnmInfoFile = "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/REG_n19v_8_8";
+        String freqId = "n19v";
+
+        RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,
+            3);
+        frame.pack();
+        frame.setLocation(300, 20);
+        frame.setSize(520, 700);
+        frame.setVisible(true);
     }
 
     public static void e1() throws ParseException {
@@ -50,8 +65,7 @@ public class RegionInfoAnalysis {
     }
 
     public static void e2() {
-        Location[] locs = { new Location(288, 152), new Location(288, 160),
-                            new Location(312, 152) };
+        Location[] locs = { new Location(312, 152) };
         ImageWUtil.drawRects(
             "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/1990to1995/19980101_n19v.bmp",
             "C:/Users/chench/Desktop/SIDS/SSMI/1.bmp", locs, 8, 8, ImageWUtil.BMP_FORMAT);

@@ -324,4 +324,18 @@ public final class StatisticParamUtil {
 
         return entropy;
     }
+
+    public static int indexOfAbsMaxNum(double[] vals) {
+        int pivot = -1;
+        double max = 0.0d;
+
+        int vLen = vals.length;
+        for (int i = 0; i < vLen; i++) {
+            if (Math.abs(vals[i]) > max) {
+                max = Math.abs(vals[i]);
+                pivot = i;
+            }
+        }
+        return pivot;
+    }
 }

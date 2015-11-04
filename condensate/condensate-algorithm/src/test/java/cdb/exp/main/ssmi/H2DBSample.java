@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.Date;
 
+import org.apache.commons.math3.stat.StatUtils;
 import org.springframework.util.StopWatch;
 
 import cdb.common.lang.DateUtil;
@@ -30,11 +31,17 @@ public class H2DBSample {
         long edayFor1970 = ecur.getTime() / (24 * 60 * 60 * 1000);
         System.out.println(edayFor1970);
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-        queryH2_37V(sdayFor1970, edayFor1970);
-        stopWatch.stop();
-        System.out.println("OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
+        double[] ticks = new double[10];
+        for (int i = 0; i < ticks.length; i++) {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+            queryH2_37V(sdayFor1970, edayFor1970);
+            stopWatch.stop();
+            System.out.println(i + ": " + stopWatch.getTotalTimeMillis() / 1000.0);
+            ticks[i] = stopWatch.getTotalTimeMillis() / 1000.0;
+        }
+        System.out.println("OVERALL TIME SPENDED: " + StatUtils.mean(ticks) + "\tSD: "
+                           + Math.sqrt(StatUtils.variance(ticks)));
     }
 
     protected static void queryH2_19H(long sdayFor1970, long edayFor1970) throws Exception {
@@ -100,12 +107,15 @@ public class H2DBSample {
         Connection conn = DriverManager.getConnection("jdbc:h2:~/ssmi37v19902014", "", "");
         Statement stmt = conn.createStatement();
 
+        int row = (int) (Math.random() * 300);
+        int col = (int) (Math.random() * 300);
+
         String query = "SELECT loc.ROW, loc.COL " + "FROM SSMI37V19902014.VECTORS As vec "
                        + " JOIN SSMI37V19902014.LOCATIONS   AS loc  ON loc.ID = vec.LOCATIONID "
                        + " JOIN SSMI37V19902014.TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
                        + "WHERE tp.TIMESTAMP >  " + sdayFor1970 + " AND tp.TIMESTAMP < "
-                       + edayFor1970
-                       + " AND loc.ROW > 100 AND loc.ROW < 200 AND loc.COL > 100 AND loc.COL < 200 ";
+                       + edayFor1970 + " AND loc.ROW > " + row + " AND loc.ROW < " + (row + 100)
+                       + " AND loc.COL > " + col + " AND loc.COL < " + (col + 100);
         stmt.executeQuery(query);
         //        ResultSet rs = stmt.executeQuery(query);
         //        SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());

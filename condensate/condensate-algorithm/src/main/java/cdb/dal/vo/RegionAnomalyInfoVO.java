@@ -1,6 +1,7 @@
 package cdb.dal.vo;
 
 import cdb.common.lang.StringUtil;
+import cdb.ml.clustering.Point;
 
 /**
  * 
@@ -19,6 +20,8 @@ public class RegionAnomalyInfoVO {
     private int    height;
     /** the string of the date*/
     private String dateStr;
+    /** the data computed*/
+    private Point  dPoint;
 
     /**
      * Getter method for property <tt>dateStr</tt>.
@@ -110,12 +113,30 @@ public class RegionAnomalyInfoVO {
         this.height = height;
     }
 
+    /**
+     * Getter method for property <tt>dPoint</tt>.
+     * 
+     * @return property value of dPoint
+     */
+    public Point getdPoint() {
+        return dPoint;
+    }
+
+    /**
+     * Setter method for property <tt>dPoint</tt>.
+     * 
+     * @param dPoint value to be assigned to property dPoint
+     */
+    public void setdPoint(Point dPoint) {
+        this.dPoint = dPoint;
+    }
+
     /** 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return x + "," + y + "," + width + "," + height + "," + dateStr;
+        return x + "," + y + "," + width + "," + height + "," + dateStr + "," + dPoint.toString();
     }
 
     /**
@@ -136,6 +157,7 @@ public class RegionAnomalyInfoVO {
         regnAnamlVO.setWidth(Integer.valueOf(elems[2].trim()));
         regnAnamlVO.setHeight(Integer.valueOf(elems[3].trim()));
         regnAnamlVO.setDateStr(elems[4].trim());
+        regnAnamlVO.setdPoint(Point.parseOf(elems[5].trim()));
         return regnAnamlVO;
     }
 
