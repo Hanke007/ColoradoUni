@@ -3,6 +3,8 @@ package cdb.dal.test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cdb.common.lang.ExceptionUtil;
+import cdb.dal.dao.RegiondescDAO;
+import cdb.dal.model.RegionDescBean;
 
 /**
  * 
@@ -18,10 +20,12 @@ public class DalTest {
     public static void main(String[] args) {
         ClassPathXmlApplicationContext ctx = null;
         try {
-            ctx = new ClassPathXmlApplicationContext(
-                "experiment/recommendation/wemarec/wemaRcmd.xml");
+            ctx = new ClassPathXmlApplicationContext("springContext.xml");
+            RegiondescDAO dao = (RegiondescDAO) ctx.getBean("regiondescDAO");
+            RegionDescBean bean = dao.selectByPrimaryKey(0);
+            System.out.println(bean.getRheight());
         } catch (Exception e) {
-            ExceptionUtil.caught(e, "");
+            ExceptionUtil.caught(e, "It goes wrong.");
         } finally {
             if (ctx != null) {
                 ctx.close();

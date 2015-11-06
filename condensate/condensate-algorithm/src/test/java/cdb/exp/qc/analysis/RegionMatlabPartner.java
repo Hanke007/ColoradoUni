@@ -1,22 +1,227 @@
 package cdb.exp.qc.analysis;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
+import cdb.common.lang.DateUtil;
+import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.lang.LoggerUtil;
+import cdb.common.model.DenseMatrix;
 import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.dataset.generator.BinFileConvntnUtil;
 
 /**
  * 
  * @author Chao Chen
  * @version $Id: RegionMatlabPartner.java, v 0.1 Oct 30, 2015 3:21:02 PM chench Exp $
  */
-public class RegionMatlabPartner {
+public class RegionMatlabPartner extends AbstractQcAnalysis {
 
     /**
      * 
      * @param args
      */
     public static void main(String[] args) {
-        case1();
+        //        case1();
+        //        case2(160, 24);
+
+        case3(160, 24);
+    }
+
+    protected static void case2(int rowIndx, int colIndx) {
+        // thread setting
+        int regionHeight = 8;
+        int regionWeight = 8;
+
+        // read objects
+        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+        String freqId = "n19v";
+
+        DatasetProc dProc = new SSMIFileDtProc();
+
+        try {
+            Date sDate = DateUtil.parse("19920101", DateUtil.SHORT_FORMAT);
+            Date mDate = DateUtil.parse("20100101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20150101", DateUtil.SHORT_FORMAT);
+
+            Calendar cal = Calendar.getInstance();
+            DescriptiveStatistics[] stats = new DescriptiveStatistics[367];
+
+            StringBuilder strBuilder = new StringBuilder();
+            Date cDate = sDate;
+            while (!cDate.after(eDate)) {
+                String taskId = DateUtil.format(cDate, DateUtil.SHORT_FORMAT);
+                String fileName = BinFileConvntnUtil.fileSSMI(rootDir, taskId, freqId);
+                DenseMatrix dMatrix = dProc.read(fileName);
+
+                cDate.setTime(cDate.getTime() + 24 * 60 * 60 * 1000);
+                if (dMatrix == null) {
+                    continue;
+                } else if (cDate.after(mDate)) {
+                    LoggerUtil.info(logger, taskId);
+                    List<Double> vals = new ArrayList<Double>();
+                    for (int row = rowIndx; row < rowIndx + regionHeight; row++) {
+                        for (int col = colIndx; col < colIndx + regionWeight; col++) {
+                            if (Double.isNaN(dMatrix.getVal(row, col))) {
+                                continue;
+                            }
+                            vals.add(dMatrix.getVal(row, col));
+                        }
+                    }
+
+                    if (!vals.isEmpty()) {
+                        cal.setTime(cDate);
+                        int dayInYear = cal.get(Calendar.DAY_OF_YEAR);
+
+                        strBuilder.append(dayInYear).append(',').append(taskId).append(',')
+                            .append(StatUtils.mean(
+                                ArrayUtils.toPrimitive(vals.toArray(new Double[vals.size()]))))
+                            .append(',').append(stats[dayInYear].getMean()).append(',')
+                            .append(stats[dayInYear].getStandardDeviation()).append('\n');
+                    }
+                } else {
+                    cal.setTime(cDate);
+                    int dayInYear = cal.get(Calendar.DAY_OF_YEAR);
+                    if (stats[dayInYear] == null) {
+                        stats[dayInYear] = new DescriptiveStatistics();
+                    }
+
+                    List<Double> vals = new ArrayList<Double>();
+                    for (int row = rowIndx; row < rowIndx + regionHeight; row++) {
+                        for (int col = colIndx; col < colIndx + regionWeight; col++) {
+                            if (Double.isNaN(dMatrix.getVal(row, col))) {
+                                continue;
+                            }
+                            vals.add(dMatrix.getVal(row, col));
+                        }
+                    }
+                    if (!vals.isEmpty()) {
+                        stats[dayInYear].addValue(StatUtils
+                            .mean(ArrayUtils.toPrimitive(vals.toArray(new Double[vals.size()]))));
+                    }
+                }
+
+            }
+
+            FileUtil.write(rootDir + "Anomaly/MAT", strBuilder.toString());
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "");
+        }
+
+    }
+
+    protected static void case3(int rowIndx, int colIndx) {
+        // thread setting
+        int regionHeight = 8;
+        int regionWeight = 8;
+
+        // read objects
+        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+        String freqId = "n19v";
+
+        try {
+            Date sDate = DateUtil.parse("19920101", DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse("20100101", DateUtil.SHORT_FORMAT);
+
+            // compute parameter
+            DescriptiveStatistics[] stats = new DescriptiveStatistics[367];
+            cmpMean(stats, sDate, eDate, rootDir, freqId, regionHeight, regionWeight, rowIndx,
+                colIndx);
+
+            // draw 
+            Calendar cal = Calendar.getInstance();
+            DatasetProc dProc = new SSMIFileDtProc();
+
+            StringBuilder strBuilder = new StringBuilder();
+            Date cDate = new Date(sDate.getTime());
+            while (!cDate.after(eDate)) {
+                String taskId = DateUtil.format(cDate, DateUtil.SHORT_FORMAT);
+                String fileName = BinFileConvntnUtil.fileSSMI(rootDir, taskId, freqId);
+                DenseMatrix dMatrix = dProc.read(fileName);
+
+                cDate.setTime(cDate.getTime() + 24 * 60 * 60 * 1000);
+                if (dMatrix == null) {
+                    continue;
+                } else {
+                    LoggerUtil.info(logger, taskId);
+                    List<Double> vals = new ArrayList<Double>();
+                    for (int row = rowIndx; row < rowIndx + regionHeight; row++) {
+                        for (int col = colIndx; col < colIndx + regionWeight; col++) {
+                            if (Double.isNaN(dMatrix.getVal(row, col))) {
+                                continue;
+                            }
+                            vals.add(dMatrix.getVal(row, col));
+                        }
+                    }
+
+                    if (!vals.isEmpty()) {
+                        cal.setTime(cDate);
+                        int dayInYear = cal.get(Calendar.DAY_OF_YEAR);
+
+                        strBuilder.append(dayInYear).append(',').append(taskId).append(',')
+                            .append(StatUtils.mean(
+                                ArrayUtils.toPrimitive(vals.toArray(new Double[vals.size()]))))
+                            .append(',').append(stats[dayInYear].getMean()).append(',')
+                            .append(stats[dayInYear].getStandardDeviation()).append('\n');
+                    }
+                }
+            }
+            FileUtil.write(rootDir + "Anomaly/MAT2", strBuilder.toString());
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "");
+        }
+
+    }
+
+    protected static void cmpMean(DescriptiveStatistics[] stats, final Date sDate, final Date eDate,
+                                  String rootDir, String freqId, int regionHeight, int regionWeight,
+                                  int rowIndx, int colIndx) {
+        DatasetProc dProc = new SSMIFileDtProc();
+        Calendar cal = Calendar.getInstance();
+
+        Date cDate = new Date(sDate.getTime());
+        while (!cDate.after(eDate)) {
+            String taskId = DateUtil.format(cDate, DateUtil.SHORT_FORMAT);
+            String fileName = BinFileConvntnUtil.fileSSMI(rootDir, taskId, freqId);
+            DenseMatrix dMatrix = dProc.read(fileName);
+
+            cDate.setTime(cDate.getTime() + 24 * 60 * 60 * 1000);
+            if (dMatrix == null) {
+                continue;
+            } else {
+                cal.setTime(cDate);
+                int dayInYear = cal.get(Calendar.DAY_OF_YEAR);
+                if (stats[dayInYear] == null) {
+                    stats[dayInYear] = new DescriptiveStatistics();
+                }
+
+                List<Double> vals = new ArrayList<Double>();
+                for (int row = rowIndx; row < rowIndx + regionHeight; row++) {
+                    for (int col = colIndx; col < colIndx + regionWeight; col++) {
+                        if (Double.isNaN(dMatrix.getVal(row, col))) {
+                            continue;
+                        }
+                        vals.add(dMatrix.getVal(row, col));
+                    }
+                }
+                if (!vals.isEmpty()) {
+                    stats[dayInYear].addValue(StatUtils
+                        .mean(ArrayUtils.toPrimitive(vals.toArray(new Double[vals.size()]))));
+                }
+            }
+
+        }
     }
 
     protected static void case1() {

@@ -1,6 +1,6 @@
 package cdb.dal.dao;
 
-import cdb.dal.model.Regiondesc;
+import cdb.dal.model.RegionDescBean;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import java.sql.SQLException;
 
@@ -31,7 +31,7 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
     public int deleteByPrimaryKey(Integer id) throws SQLException {
-        Regiondesc key = new Regiondesc();
+        RegionDescBean key = new RegionDescBean();
         key.setId(id);
         int rows = sqlMapClient.delete("regiondesc.ibatorgenerated_deleteByPrimaryKey", key);
         return rows;
@@ -43,7 +43,7 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public void insert(Regiondesc record) throws SQLException {
+    public void insert(RegionDescBean record) throws SQLException {
         sqlMapClient.insert("regiondesc.ibatorgenerated_insert", record);
     }
 
@@ -53,7 +53,7 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public void insertSelective(Regiondesc record) throws SQLException {
+    public void insertSelective(RegionDescBean record) throws SQLException {
         sqlMapClient.insert("regiondesc.ibatorgenerated_insertSelective", record);
     }
 
@@ -63,10 +63,10 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public Regiondesc selectByPrimaryKey(Integer id) throws SQLException {
-        Regiondesc key = new Regiondesc();
+    public RegionDescBean selectByPrimaryKey(Integer id) throws SQLException {
+        RegionDescBean key = new RegionDescBean();
         key.setId(id);
-        Regiondesc record = (Regiondesc) sqlMapClient
+        RegionDescBean record = (RegionDescBean) sqlMapClient
             .queryForObject("regiondesc.ibatorgenerated_selectByPrimaryKey", key);
         return record;
     }
@@ -77,7 +77,7 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public int updateByPrimaryKeySelective(Regiondesc record) throws SQLException {
+    public int updateByPrimaryKeySelective(RegionDescBean record) throws SQLException {
         int rows = sqlMapClient.update("regiondesc.ibatorgenerated_updateByPrimaryKeySelective",
             record);
         return rows;
@@ -89,7 +89,7 @@ public class RegiondescDAOImpl implements RegiondescDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public int updateByPrimaryKey(Regiondesc record) throws SQLException {
+    public int updateByPrimaryKey(RegionDescBean record) throws SQLException {
         int rows = sqlMapClient.update("regiondesc.ibatorgenerated_updateByPrimaryKey", record);
         return rows;
     }

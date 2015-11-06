@@ -1,6 +1,6 @@
 package cdb.dal.dao;
 
-import cdb.dal.model.Anomalyinfo;
+import cdb.dal.model.AnomalyInfoBean;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import java.sql.SQLException;
 
@@ -31,7 +31,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
     public int deleteByPrimaryKey(Integer id) throws SQLException {
-        Anomalyinfo key = new Anomalyinfo();
+        AnomalyInfoBean key = new AnomalyInfoBean();
         key.setId(id);
         int rows = sqlMapClient.delete("anomalyinfo.ibatorgenerated_deleteByPrimaryKey", key);
         return rows;
@@ -43,7 +43,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public void insert(Anomalyinfo record) throws SQLException {
+    public void insert(AnomalyInfoBean record) throws SQLException {
         sqlMapClient.insert("anomalyinfo.ibatorgenerated_insert", record);
     }
 
@@ -53,7 +53,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public void insertSelective(Anomalyinfo record) throws SQLException {
+    public void insertSelective(AnomalyInfoBean record) throws SQLException {
         sqlMapClient.insert("anomalyinfo.ibatorgenerated_insertSelective", record);
     }
 
@@ -63,10 +63,10 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public Anomalyinfo selectByPrimaryKey(Integer id) throws SQLException {
-        Anomalyinfo key = new Anomalyinfo();
+    public AnomalyInfoBean selectByPrimaryKey(Integer id) throws SQLException {
+        AnomalyInfoBean key = new AnomalyInfoBean();
         key.setId(id);
-        Anomalyinfo record = (Anomalyinfo) sqlMapClient
+        AnomalyInfoBean record = (AnomalyInfoBean) sqlMapClient
             .queryForObject("anomalyinfo.ibatorgenerated_selectByPrimaryKey", key);
         return record;
     }
@@ -77,7 +77,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public int updateByPrimaryKeySelective(Anomalyinfo record) throws SQLException {
+    public int updateByPrimaryKeySelective(AnomalyInfoBean record) throws SQLException {
         int rows = sqlMapClient.update("anomalyinfo.ibatorgenerated_updateByPrimaryKeySelective",
             record);
         return rows;
@@ -89,7 +89,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public int updateByPrimaryKeyWithBLOBs(Anomalyinfo record) throws SQLException {
+    public int updateByPrimaryKeyWithBLOBs(AnomalyInfoBean record) throws SQLException {
         int rows = sqlMapClient.update("anomalyinfo.ibatorgenerated_updateByPrimaryKeyWithBLOBs",
             record);
         return rows;
@@ -101,7 +101,7 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      *
      * @ibatorgenerated Thu Nov 05 16:46:02 MST 2015
      */
-    public int updateByPrimaryKeyWithoutBLOBs(Anomalyinfo record) throws SQLException {
+    public int updateByPrimaryKeyWithoutBLOBs(AnomalyInfoBean record) throws SQLException {
         int rows = sqlMapClient.update("anomalyinfo.ibatorgenerated_updateByPrimaryKey", record);
         return rows;
     }

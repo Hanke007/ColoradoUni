@@ -1,0 +1,15 @@
+{
+	"type": "FeatureCollection", "features": [
+		{"geometry": {"type": "Point", "coordinates": [-135, -41.45]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-225, -41.45]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-317.76, -39.23]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-42.24, -39.23]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}},
+		{"geometry": {"type": "Point", "coordinates": [0, -51.32]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}},
+		
+		{"geometry": {"type": "Point", "coordinates": [-135, -90]}, "type": "Feature", "properties": {"name": "Mount Fridtjof Nansen", "osm_id": 2012913001}}, 
+		{"geometry": {"type": "Point", "coordinates": [-135, -80]}, "type": "Feature", "properties": {"name": "Steventon Island", "osm_id": 2202177851}},
+		{"geometry": {"type": "Point", "coordinates": [-135, -70]}, "type": "Feature", "properties": {"name": "Steventon Island", "osm_id": 2202177851}}, 
+		{"geometry": {"type": "Point", "coordinates": [-135, -60]}, "type": "Feature", "properties": {"name": "Franklin Island", "osm_id": 25291825}},
+		{"geometry": {"type": "Point", "coordinates": [-135, -50]}, "type": "Feature", "properties": {"name": "Coulman Island", "osm_id": 210571977}}
+	]
+}

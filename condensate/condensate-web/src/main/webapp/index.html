@@ -1,373 +1,55 @@
 <!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
 <html>
+<!--<![endif]-->
 <head>
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <title>AGU2015</title>
 <meta name="description" content="">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/js/jquery-2.1.4.min.js"></script>
-<script src="/js/jquery-confirm.min.js"></script>
-<script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="http://code.highcharts.com/maps/highmaps.js"></script>
-<!--<script src="js/proj4.js"></script>-->
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-<link rel="stylesheet" href="/css/style.css" />
-<link rel="stylesheet" href="/css/jquery-confirm.min.css" />
-<link rel="stylesheet"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<meta name="viewport" content="width=device-width">
+
+<script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+
+<script type="text/javascript">
+	function sendJson() {
+		var loctnArray = Array();
+		loctnArray[0] = {
+			"longitude" : 100,
+			"latitude" : 100
+		}
+		loctnArray[1] = {
+			"longitude" : 200,
+			"latitude" : 200
+		}
+		var anomlyRequest = {
+			"dsName" : "SSMI",
+			"dsFreq" : "s19h",
+			"sDate" : "20120101",
+			"eDate" : "20120120",
+			"locations" : loctnArray
+		}
+		var ajaxHandle = $.ajax({
+			type : "POST",
+			contentType : "application/json; charset=utf-8",
+			url : "/anomaly/ajaxImutation.do",
+			data : JSON.stringify(anomlyRequest),
+			dataType : 'jsonp',
+			async : false,
+			success : function(response) {
+				$("#expDiv").html("Hi")
+			}
+		});
+		$("#expDiv").html(ajaxHandle.responseText)
+	}
+</script>
 </head>
 
-<body id="index" class="home">
-	<header class='container' id='header'> </header>
-	<nav class='container roundEdge' id='nav'>
-		<h1 id='project' class='center'>NSIDC - Condensing Massive
-			Satellite Datasets For Rapid Interactive Analysis</h1>
-	</nav>
-	<section class='container' id='main'>
-		<div id='content'>
-			<div id='map'>
-				<script>
-					/*User Request Configuration*/
-					var sendString = "", dataSet = "SSMI", frequency = "19", polarization = "h", startDate = "2012-08-08", endDate = "2012-08-10";
-
-					var loctnArray = Array();
-
-					/*user request function*/
-					var anomalyRequest = {
-						"dsName" : dataSet,
-						"dsFreq" : 's' + frequency + polarization,
-						"dsPolar" : polarization,
-						"sDate" : startDate,
-						"eDate" : endDate,
-						"locations" : loctnArray
-					};
-
-					function updateDate() {
-						startDate = ""
-								+ document.getElementById('startDate').value;
-						endDate = "" + document.getElementById('endDate').value;
-						anomalyRequest["sDate"] = startDate;
-						anomalyRequest["eDate"] = endDate;
-					}
-
-					function changeDataSet(ds) {
-						dataSet = ds;
-						updateDate();
-						//update dataSet
-						anomalyRequest["dsName"] = ds;
-					};
-
-					function changeFrequency(freq) {
-						frequency = freq;
-						updateDate();
-						//update Frequency
-						anomalyRequest["dsFreq"] = freq;
-					};
-
-					function changePolarization(pol) {
-						polarization = pol;
-						updateDate();
-						anomalyRequest["dsPolar"] = pol;
-					}
-
-					//function updatePolyArea(pa) { polyArea = pa; }
-					function enablePolygonSearch() {
-					};
-
-					function sendRequest(anomalyRequest) {
-						updateDate();
-						var ajaxHandle = $
-								.ajax({
-									type : "POST",
-									contentType : "application/json; charset=utf-8",
-									url : "anomaly/ajaxRetrvImage.do",
-									data : JSON.stringify(anomalyRequest),
-									dataType : 'jsonp',
-									async : false,
-									success : function(response) {
-										var win = window.open("anomaly.html",
-												'_blank');
-										win.focus();
-									}
-								});
-						var w = window.open("anomaly/ajaxRetrvImage.do");
-						w.document.write(ajaxHandle.responseText);
-						w.document.close();
-					};
-				</script>
-				<script>
-					$(function() {
-						/*Initialize variables*/
-						var $report = $('#report');
-						var rectangle;
-						var H = Highcharts, map = H.maps['custom/antarctica'];
-						var chart;
-
-						//pass in anomaly data layer
-						var data_anomaly = [ {
-							name : 'Anomaly 1',
-							lat : -83.12,
-							lon : 43.41
-						} ];
-
-						var data_hc = [ {
-							"hc-key" : "aq-3638",
-							"value" : 0
-						}, {
-							"hc-key" : "aq-3639",
-							"value" : 1
-						}, ];
-
-						// Initiate the MAP
-						$('#map')
-								.highcharts(
-										'Map',
-										{
-											chart : {
-												renderTo : 'map',
-												events : {
-													selection : function(event) {
-														if (event.xAxis) {
-															$report
-																	.html('X: '
-																			+ (event.xAxis[0].min / 1000 * 632)
-																					.toFixed(0)
-																			+ ', '
-																			+ (event.xAxis[0].max / 1000 * 632)
-																					.toFixed(0)
-																			+ ', Y: '
-																			+ ((1000 + event.yAxis[0].max) / 1000 * 664)
-																					.toFixed(0)
-																			+ ', '
-																			+ ((1000 + event.yAxis[0].min) / 1000 * 664)
-																					.toFixed(0));
-
-															var xMin = (event.xAxis[0].min / 1000 * 632)
-																	.toFixed(0), //chart.xAxis[0].translate((event.xAxis[0] || chart.xAxis[0]).min),
-															xMax = (event.xAxis[0].max / 1000 * 632)
-																	.toFixed(0), //chart.xAxis[0].translate((event.xAxis[0] || chart.xAxis[0]).max),
-															yMin = ((1000 + event.yAxis[0].min) / 1000 * 664)
-																	.toFixed(0), //chart.yAxis[0].translate((event.yAxis[0] || chart.yAxis[0]).min),
-															yMax = ((1000 + event.yAxis[0].max) / 1000 * 664)
-																	.toFixed(0);//chart.yAxis[0].translate((event.yAxis[0] || chart.yAxis[0]).max);
-
-															if ((frequency != "91")
-																	&& (frequency != "85")) {
-																xMin = Math
-																		.floor(xMin / 2);
-																xMax = Math
-																		.floor(xMax / 2);
-																yMin = Math
-																		.floor(yMin / 2);
-																yMax = Math
-																		.floor(yMax / 2);
-															}
-															;
-
-															//update rectangle coordination to request
-															loctnArray[0] = {
-																"longitude" : yMin,
-																"latitude" : xMin
-															}
-															loctnArray[1] = {
-																"longitude" : yMax,
-																"latitude" : xMax
-															}
-
-															// fix this!
-															rectangle
-																	.attr({
-																		x : xMin
-																				+ chart.plotLeft,
-																		y : chart.plotHeight
-																				+ chart.plotTop
-																				- yMax,
-																		width : Math
-																				.abs(xMax
-																						- xMin),
-																		height : Math
-																				.abs(yMax
-																						- yMin)
-																	});
-
-															/*User Decision to make request*/
-															$
-																	.confirm({
-																		title : 'Proceed?',
-																		content : 'Proceed with selected region?',
-																		columnClass : 'col-md-4 col-md-offset-4',
-																		confirm : function() {
-																			console
-																					.log(anomalyRequest);
-																			sendRequest(anomalyRequest); /*To Chao's server*/
-																		},
-																		cancel : function() {
-																			//To-Do reset the rectangle
-																		}
-																	});
-
-															return false;
-														}
-													}
-												},
-												zoomType : 'xy'
-											},
-
-											xAxis : {},
-
-											title : {
-												text : 'Antarctica'
-											},
-
-											subtitle : {
-												text : 'click rectangle to select region...'
-											},
-											mapNavigation : {
-												enabled : true,
-												buttonOptions : {
-													verticalAlign : 'bottom'
-												}
-											},
-
-											colorAxis : {
-												min : 0
-											},
-
-											series : [ {
-												"type" : "map",
-												'name' : "Antarctica",
-												"data" : [
-														{
-															"name" : "Antarctica",
-															"path" : "M0,-1000,0,0,1000,0,1000,-1000z"
-														},
-														{
-															"name" : "Antarctica",
-															"path" : "M307,-611,320,-600,344,-605,361,-608,360,-620,376,-641,405,-643,426,-665,447,-676,442,-693,454,-701,441,-708,459,-711,459,-738,467,-728,473,-731,470,-742,480,-745,479,-736,489,-738,500,-736,502,-722,512,-739,533,-745,546,-747,556,-740,567,-748,579,-742,582,-751,586,-738,595,-738,590,-731,603,-730,609,-736,610,-725,616,-731,619,-715,649,-716,669,-731,674,-725,668,-720,673,-715,664,-710,675,-707,677,-700,683,-701,687,-715,698,-708,698,-715,730,-714,748,-707,753,-694,763,-698,779,-678,781,-660,775,-658,782,-639,791,-633,790,-621,787,-617,790,-605,786,-597,776,-601,765,-600,756,-605,756,-596,760,-590,738,-588,734,-582,756,-580,770,-581,774,-571,789,-561,799,-561,810,-546,813,-534,823,-533,820,-527,823,-513,836,-505,829,-500,832,-479,862,-468,861,-459,834,-440,823,-425,815,-414,804,-407,801,-402,794,-402,805,-393,813,-395,812,-385,801,-381,781,-382,787,-373,777,-364,761,-350,776,-351,775,-341,766,-341,772,-331,767,-327,757,-331,743,-325,747,-317,743,-311,747,-299,742,-295,736,-303,730,-299,734,-293,726,-294,730,-287,718,-287,721,-278,712,-285,700,-285,701,-280,697,-280,683,-290,693,-276,694,-264,699,-254,680,-245,640,-248,641,-263,627,-268,621,-259,618,-251,610,-258,600,-261,569,-262,560,-251,562,-267,549,-277,544,-292,546,-302,547,-317,555,-332,545,-352,512,-350,494,-354,492,-359,482,-359,479,-349,475,-349,460,-354,446,-323,435,-317,395,-329,360,-341,348,-372,337,-382,328,-391,327,-382,319,-380,318,-392,324,-399,319,-398,315,-394,309,-410,310,-414,304,-417,312,-423,301,-424,305,-432,320,-440,310,-444,310,-456,305,-464,305,-470,293,-471,289,-461,283,-459,283,-472,278,-471,278,-457,270,-455,258,-463,258,-487,269,-500,260,-503,267,-514,271,-520,280,-525,281,-532,285,-538,277,-536,273,-542,281,-549,265,-546,265,-553,275,-559,282,-567,282,-584,274,-590,272,-597,265,-591,267,-582,265,-576,267,-559,258,-565,254,-578,250,-580,251,-567,252,-555,243,-543,243,-556,235,-562,227,-577,232,-580,229,-589,229,-595,236,-598,232,-610,226,-615,214,-614,218,-608,217,-604,208,-608,203,-619,210,-621,202,-633,203,-640,195,-648,191,-666,188,-680,192,-690,198,-689,200,-679,207,-685,205,-671,213,-672,209,-660,215,-652,230,-649,242,-641,258,-639,267,-626,281,-625,287,-619,302,-619z"
-														} ],
-												showInLegend : false,
-												states : {
-													hover : {
-														color : '#BADA55'
-													}
-												},
-												dataLabels : {
-													enabled : true,
-													format : '{point.name}'
-												}
-											} ]
-										});
-
-						// draw rectangle to the chart
-						chart = $('#map').highcharts();
-
-						rectangle = chart.renderer.rect(0, 0, 0, 0, 0).css({
-							stroke : 'black',
-							strokeWidth : '.5',
-							fill : 'black',
-							fillOpacity : '.1'
-						}).add();
-
-						// Display custom label with lat/lon next to crosshairs
-						$('#map')
-								.mousemove(
-										function(e) {
-											var position;
-
-											if (chart) {
-												if (!chart.lab) {
-													chart.lab = chart.renderer
-															.text('', 0, 0)
-															.attr({
-																zIndex : 5
-															})
-															.css(
-																	{
-																		color : '#505050'
-																	}).add();
-												}
-												//convert from point coordination to lat/lon location 
-												e = chart.pointer.normalize(e);
-
-														// this gets the coordinates of the x and y values
-														offsetX = typeof (e.offsetX) === 'undefined' ? e.clientX
-																: e.offsetX,
-														offsetY = typeof (e.offsetY) === 'undefined' ? e.clientY
-																: e.offsetY;
-
-												position = chart
-														.fromPointToLatLon({
-															x : chart.xAxis[0]
-																	.toValue(e.chartX),
-															y : chart.yAxis[0]
-																	.toValue(e.chartY)
-														});
-
-												chart.lab.attr({
-													x : e.chartX + 5, //offset for printing the numbers to upper-right of cursor
-													y : e.chartY + 22,
-													//text: 'X: ' + (e.chartX.xAxis[0].min/1000*664).toFixed(0) + '<br>Y: ' + offsetY.toFixed(2)
-													//text: 'X: ' + offsetX.toFixed(0) + '<br>Y: ' + offsetY.toFixed(0)
-													text : 'X: '
-															+ offsetX
-																	.toFixed(0)
-															+ '<br>Y: '
-															+ offsetY
-																	.toFixed(0) //+ '<br>Z: 'e.offsetX.toFixed(2)
-												});
-											}
-										});
-
-						$('#map').mouseout(function() {
-							if (chart && chart.lab) {
-								chart.lab.destroy();
-								chart.lab = null;
-							}
-						});
-					});
-				</script>
-			</div>
-		</div>
-		<aside id='sidebar' class='roundEdge'>
-			<br> <br> <span id="datasetName"><font color="Black">Data
-					Set</font></span> <br>
-			<button id="dataset1" class="myButton"
-				onclick="changeDataSet('AVHRR')">AVHRR</button>
-			<button id="dataset2" class="myButton"
-				onclick="changeDataSet('SSMI')">SSMI</button>
-			<br> <br> <br> <span id="datasetFrequency"><font
-				color="Black">Frequency [ SSMI ]</font></span> <br>
-			<button class="myButton" onclick="changeFrequency('91')">91.7</button>
-			<button class="myButton" onclick="changeFrequency('85')">85.5</button>
-			<button class="myButton" onclick="changeFrequency('37')">37.0</button>
-			<button class="myButton" onclick="changeFrequency('22')">22.2</button>
-			<button class="myButton" onclick="changeFrequency('19')">19.3</button>
-			<br> <br> <br> <span id="datasetFrequency"><font
-				color="Black">Polarization [ SSMI ]</font></span> <br>
-			<button id="vertical" class="myButton"
-				onclick="changePolarization('v')">vertical</button>
-			<button id="horizontal" class="myButton"
-				onclick="changePolarization('h')">horizontal</button>
-			<br> <br> <br> <span id="datasetField"><font
-				color="Black">Start Date</font></span> <br> <input id="startDate"
-				name="startDate" value="2012-08-08" type="date" min="1987-01-01"
-				max="2014-12-31" onclick="updateDate()" /> <br> <br> <br>
-			<span id="datasetField"><font color="Black">End Date</font></span> <br>
-			<input id="endDate" name="endDate" value="2012-08-20" type="date"
-				min="1987-01-01" max="2014-12-31" onclick="updateDate()" /> <br>
-			<br> <br> <span id="datasetField"><font
-				color="Black">Search Polygon Location</font></span> <br>
-			<button id="searchButtonToggle" class="myButton"
-				onclick="enablePolygonSearch()">Enable</button>
-		</aside>
-	</section>
-	<footer class='container' id='footer'>
-		<p>© 2015 NSIDC amp University of Colorado at Boulder</p>
-	</footer>
+<body>
+	<button class="button" onclick="sendJson()">Send</button>
+	<div id="expDiv"></div>
 </body>
-
 </html>

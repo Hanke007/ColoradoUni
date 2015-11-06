@@ -17,14 +17,24 @@
 		<property name="password" value="${jdbc.password}" />
 	</bean>
 
-	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
-		<property name="configLocation" value="sqlmap-config.xml" />
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:sqlmap-config.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- Dao -->
+	<bean id="regiondescDAO" class="cdb.dal.dao.RegiondescDAOImpl">
+		<constructor-arg ref="sqlMapClient" />
+	</bean>
+
+
 	<!-- **************************** Outter Setting Connector ************************************************ -->
-	<bean id="
-			configProperties "
+	<bean id="configProperties"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 		<property name="locations">
 			<list>

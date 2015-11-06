@@ -8,6 +8,12 @@
         <dependent-module archiveName="condensate-algorithm-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/condensate-algorithm/condensate-algorithm">
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="condensate-dal-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/condensate-dal/condensate-dal">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="condensate-lang-1.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/condensate-lang/condensate-lang">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="condensate-web"/>
         <property name="java-output-path" value="/condensate-web/target/classes"/>
     </wb-module>

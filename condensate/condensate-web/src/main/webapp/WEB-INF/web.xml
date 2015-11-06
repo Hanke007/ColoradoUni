@@ -37,9 +37,8 @@
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>classpath:WEB-INF/config/log4j.properties</param-value>
 	</context-param>
-	<listener>
-		<listener-class>org.h2.server.web.DbStarter</listener-class>
-	</listener>
+	<!-- <listener> <listener-class>org.h2.server.web.DbStarter</listener-class> 
+		</listener> -->
 
 	<!-- Spring Dispatcher -->
 	<servlet>

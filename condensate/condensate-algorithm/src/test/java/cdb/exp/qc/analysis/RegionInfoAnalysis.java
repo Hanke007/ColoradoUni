@@ -33,10 +33,10 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception {
-        gui();
+        //        gui();
         //        SSMI();
         //        trackValCheckByDate(312, 152);
-        //        e2();
+        e2();
     }
 
     public static void gui() {
@@ -61,10 +61,10 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
     }
 
     public static void e2() {
-        Location[] locs = { new Location(312, 152) };
+        Location[] locs = { new Location(160, 24) };
         ImageWUtil.drawRects(
             "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/1990to1995/19980101_n19v.bmp",
-            "C:/Users/chench/Desktop/SIDS/SSMI/1.bmp", locs, 8, 8, ImageWUtil.BMP_FORMAT);
+            "C:/Users/chench/Desktop/SIDS/SSMI/1.png", locs, 8, 8, ImageWUtil.PNG_FORMMAT);
     }
 
     public static void SSMI() {
