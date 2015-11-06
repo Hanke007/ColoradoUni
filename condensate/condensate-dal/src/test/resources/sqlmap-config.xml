@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sqlMapConfig>
+	<settings useStatementNamespaces="true" />
+	<sqlMap resource="com / bookStore / dbMaps / author_SqlMap.xml" />
+	<sqlMap resource="com / bookStore / dbMaps / book_SqlMap.xml " />
+</sqlMapConfig>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE ibatorConfiguration PUBLIC "-//Apache Software Foundation//DTD Apache iBATIS Ibator Configuration 1.0//EN" "http://ibatis.apache.org/dtd/ibator-config_1_0.dtd" >
+<ibatorConfiguration>
+	<classPathEntry
+		location="C:/Program Files/apache-maven-2.2.1/.m2/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar" />
+	<ibatorContext id="
+		regionAnamolyRep ">
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost:3306/regionanomalyrep" userId="chench"
+			password="123456" />
+		<javaModelGenerator targetPackage="cdb.dal.model"
+			targetProject="condensate-dal" />
+		<sqlMapGenerator targetPackage="cdb.dal.sqlMap"
+			targetProject="condensate-dal" />
+		<daoGenerator targetPackage="cdb.dal.dao" targetProject="condensate-dal"
+			type="GENERIC-CI" />
+		<table schema="regionanomalyrep" tableName="anomalyinfo" />
+		<table schema="regionanomalyrep" tableName="regiondesc" />
+	</ibatorContext>
+</ibatorConfiguration>
