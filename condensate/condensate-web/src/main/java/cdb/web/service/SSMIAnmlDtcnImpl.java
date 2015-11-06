@@ -21,13 +21,13 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.SparseMatrix;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Point;
+import cdb.common.model.SparseMatrix;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.SimpleAnomalyDetecion;
-import cdb.ml.clustering.Point;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
 import cdb.web.bean.Location2D;
 import cdb.web.vo.AnomalyVO;
 
@@ -92,9 +92,9 @@ public class SSMIAnmlDtcnImpl extends AbstractAnmlDtcnService {
                     DenseMatrix binImage = dProc.read(binName);
                     //  b) render image file
                     String psiName = servltContext.getRealPath("/tempImage") + "/" + imageNum
-                                     + ".jpg";
-                    ImageWUtil.plotGrayImage(binImage, psiName, ImageWUtil.JPG_FORMMAT);
-                    urlArr.add("/tempImage/" + imageNum + ".jpg");
+                                     + ".bmp";
+                    ImageWUtil.plotGrayImage(binImage, psiName, ImageWUtil.BMP_FORMAT);
+                    urlArr.add("/tempImage/" + imageNum + ".bmp");
                     break;
                 }
             }

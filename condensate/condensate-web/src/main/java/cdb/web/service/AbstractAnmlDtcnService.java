@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.service.dataset.DatasetProc;
+import cdb.dal.file.DatasetProc;
 import cdb.web.bean.Location2D;
 import cdb.web.vo.AnomalyVO;
 

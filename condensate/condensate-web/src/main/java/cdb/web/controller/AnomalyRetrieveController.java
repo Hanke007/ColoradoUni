@@ -1,6 +1,7 @@
 package cdb.web.controller;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -55,6 +56,46 @@ public class AnomalyRetrieveController {
             return anomalyService.retrvAnomaly(sDate, eDate,
                 anomlyRequest.getLocations().toArray(new Location2D[loctnNum]),
                 anomlyRequest.getDsFreq());
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "Check date format.");
+        }
+        return null;
+    }
+
+    /**
+     * 
+     * <a href="http://www.leveluplunch.com/java/tutorials/014-post-json-to-spring-rest-webservice/">Json with multiple object</a>
+     *  
+     * @param anomlyRequest     Request object
+     * @return
+     */
+    @RequestMapping(value = "/anomaly/ajaxImutation")
+    @ResponseBody
+    public List<AnomalyVO> ajaxImutation(@RequestBody AnomalyRequest anomlyRequest) {
+        try {
+            List<AnomalyVO> arr = new ArrayList<AnomalyVO>();
+            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
+            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
+
+            Date cDate = sDate;
+            while (!cDate.after(eDate)) {
+                int num = (int) (Math.random() * 50);
+                for (int i = 0; i < num; i++) {
+                    int row = (int) (Math.random() * 200 + 100);
+                    int col = (int) (Math.random() * 200 + 50);
+
+                    AnomalyVO one = new AnomalyVO();
+                    one.setDate(new Date(cDate.getTime()));
+                    one.setLati(row);
+                    one.setLongi(col);
+                    one.setVal(0);
+                    arr.add(one);
+                }
+
+                cDate.setTime(cDate.getTime() + 24 * 60 * 60 * 1000);
+            }
+
+            return arr;
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
         }
