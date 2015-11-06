@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import cdb.common.lang.ExceptionUtil;
-import cdb.dal.vo.RegionAnomalyInfoVO;
+import cdb.common.model.RegionAnomalyInfoVO;
 
 /**
  * 

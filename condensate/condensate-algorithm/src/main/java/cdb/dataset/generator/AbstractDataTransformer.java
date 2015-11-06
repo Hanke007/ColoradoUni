@@ -2,7 +2,7 @@ package cdb.dataset.generator;
 
 import java.util.List;
 
-import cdb.service.dataset.DatasetProc;
+import cdb.dal.file.DatasetProc;
 
 /**
  * 

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import javax.swing.JLabel;
 
-import cdb.dal.vo.RegionAnomalyInfoVO;
+import cdb.common.model.RegionAnomalyInfoVO;
 
 /**
  * 

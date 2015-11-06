@@ -5,10 +5,10 @@ import java.util.List;
 
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.StatisticParamUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.ImageInfoVO;
-import cdb.ml.clustering.Point;
-import cdb.service.dataset.DatasetProc;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.ImageInfoVO;
+import cdb.common.model.Point;
+import cdb.dal.file.DatasetProc;
 
 /**
  * 
@@ -41,7 +41,7 @@ public class ImageInfoVOTransformerImpl extends AbstractDataTransformer {
     }
 
     /** 
-     * @see cdb.dataset.generator.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.service.dataset.DatasetProc)
+     * @see cdb.dataset.generator.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.dal.file.DatasetProc)
      */
     @Override
     public void transform(String rootDir, String freqId, List<String> tDataDump,

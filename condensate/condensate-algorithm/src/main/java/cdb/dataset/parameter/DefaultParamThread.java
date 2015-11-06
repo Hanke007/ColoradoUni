@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.service.dataset.DatasetProc;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.DatasetProc;
 
 /**
  * 

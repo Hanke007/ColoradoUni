@@ -20,15 +20,15 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
-import cdb.dal.vo.SparseMatrix;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Point;
+import cdb.common.model.SparseMatrix;
+import cdb.dal.file.AVHRFileDtProc;
+import cdb.dal.file.DatasetProc;
 import cdb.exp.main.ssmi.D1ParameterCmp.CmpThread;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.SimpleAnomalyDetecion;
-import cdb.ml.clustering.Point;
-import cdb.service.dataset.AVHRFileDtProc;
-import cdb.service.dataset.DatasetProc;
 
 /**
  * 

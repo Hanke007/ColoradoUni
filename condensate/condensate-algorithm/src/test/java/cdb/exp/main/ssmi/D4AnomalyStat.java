@@ -11,10 +11,10 @@ import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.SparseMatrix;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.SparseMatrix;
 
 /**
  * 

@@ -22,9 +22,9 @@ import org.springframework.util.StopWatch;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.dal.vo.RegionInfoVO;
+import cdb.common.model.RegionInfoVO;
+import cdb.dal.file.SSMIFileDtProc;
 import cdb.ml.qc.DefaultQualityControllThread;
-import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 
@@ -51,13 +51,15 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         int regionWeight = 8;
 
         // read objects
-        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
         String freqId = "n19v";
+        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+        String regnInfoDir = rootDir + "ClassificationDataset/" + freqId + '_' + regionHeight + '_'
+                             + regionWeight + "_ORG/";
 
         LoggerUtil.info(logger, "1. check and read region value-object.");
-        checkAndReadRegionInfoVO(rootDir, freqId, regionHeight, regionWeight);
+        checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);
         LoggerUtil.info(logger, "2. make multiple thread tasks.");
-        configureMultiThreadJobs(rootDir, freqId, regionHeight, regionWeight);
+        configureMultiThreadJobs(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);
 
         // detect anomaly
         LoggerUtil.info(logger, "3. detect potential errors.");
@@ -87,13 +89,12 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         }
     }
 
-    protected static void configureMultiThreadJobs(String rootDir, String freqId, int regionHeight,
+    protected static void configureMultiThreadJobs(String rootDir, String regnInfoDir,
+                                                   String freqId, int regionHeight,
                                                    int regionWeight) {
         int[] dimens = (new SSMIFileDtProc()).dimensions(freqId);
         String resultFile = rootDir + "Anomaly/REG_" + freqId + '_' + regionHeight + '_'
                             + regionWeight;
-        String regnTargetDir = rootDir + "ClassificationDataset/" + freqId + '_' + regionHeight
-                               + '_' + regionWeight + '/';
 
         // Entry: resultFile - sourceFile
         Queue<Entry<String, List<String>>> multiThreadTasks = new LinkedList<Entry<String, List<String>>>();
@@ -101,7 +102,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             for (int cRIndx = 0; cRIndx < dimens[1] / regionWeight; cRIndx++) {
                 String key = resultFile;
                 List<String> val = new ArrayList<String>();
-                val.add(regnTargetDir + rRIndx + '_' + cRIndx);
+                val.add(regnInfoDir + rRIndx + '_' + cRIndx);
 
                 Entry<String, List<String>> newOne = new AbstractMap.SimpleEntry<String, List<String>>(
                     key, val);
@@ -111,17 +112,13 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         DefaultQualityControllThread.tasks = multiThreadTasks;
     }
 
-    protected static void checkAndReadRegionInfoVO(String rootDir, String freqId, int regionHeight,
+    protected static void checkAndReadRegionInfoVO(String rootDir, String regnInfoDir,
+                                                   String freqId, int regionHeight,
                                                    int regionWeight) {
-        String regnInfoDir = rootDir + "ClassificationDataset/" + freqId + '_' + regionHeight + '_'
-                             + regionWeight + '/';
-
         if (!FileUtil.exists(regnInfoDir)) {
-            String regnTargetDir = rootDir + "ClassificationDataset/" + freqId + '_' + regionHeight
-                                   + '_' + regionWeight + '/';
             String regnSourceFile = rootDir + "ClassificationDataset/REG_" + freqId + '_'
                                     + regionHeight + '_' + regionWeight;
-            readAndDistributeRegionInfoVO(regnTargetDir, regnSourceFile);
+            readAndDistributeRegionInfoVO(regnInfoDir, regnSourceFile);
         }
     }
 

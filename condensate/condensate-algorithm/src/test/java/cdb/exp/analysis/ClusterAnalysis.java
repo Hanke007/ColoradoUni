@@ -5,10 +5,10 @@ import java.util.List;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.NetCDFDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.NetCDFDtProc;
 
 /**
  * 

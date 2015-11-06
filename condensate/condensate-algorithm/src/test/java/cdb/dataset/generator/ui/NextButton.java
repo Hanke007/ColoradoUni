@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.util.Deque;
 
 import cdb.common.lang.FileUtil;
-import cdb.dal.vo.AnomalyInfoVO;
+import cdb.common.model.AnomalyInfoVO;
 
 /**
  * 

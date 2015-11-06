@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import cdb.common.lang.FileUtil;
-import cdb.dal.vo.AnomalyInfoVO;
+import cdb.common.model.AnomalyInfoVO;
 
 /**
  * 

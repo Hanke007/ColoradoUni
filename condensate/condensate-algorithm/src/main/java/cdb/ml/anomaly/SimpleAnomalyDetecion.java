@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import cdb.ml.clustering.Point;
+import cdb.common.model.Point;
 
 /**
  * Statistics-based method
@@ -43,7 +43,7 @@ public class SimpleAnomalyDetecion implements AnomalyDetection {
     }
 
     /** 
-     * @see cdb.ml.anomaly.AnomalyDetection#detect(cdb.ml.clustering.Point[], int, int)
+     * @see cdb.ml.anomaly.AnomalyDetection#detect(cdb.common.model.Point[], int, int)
      */
     @Override
     public int[] detect(Point[] domains, int neighNum, int anomalyNum) {

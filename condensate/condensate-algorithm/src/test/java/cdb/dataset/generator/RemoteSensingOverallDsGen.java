@@ -20,7 +20,9 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.vo.DenseMatrix;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.AVHRFileDtProc;
+import cdb.dal.file.SSMIFileDtProc;
 import cdb.dataset.generator.AVHRSourceDumpImpl;
 import cdb.dataset.generator.AnomalyInfoVOTransformerImpl;
 import cdb.dataset.generator.ImageInfoVOTransformerImpl;
@@ -28,8 +30,6 @@ import cdb.dataset.generator.RemoteSensingGen;
 import cdb.dataset.generator.SSMISourceDumpImpl;
 import cdb.dataset.generator.ui.DsGenFrame;
 import cdb.dataset.parameter.DefaultParamThread;
-import cdb.service.dataset.AVHRFileDtProc;
-import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 

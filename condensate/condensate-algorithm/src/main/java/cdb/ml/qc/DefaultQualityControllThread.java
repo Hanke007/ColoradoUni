@@ -19,12 +19,13 @@ import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.dal.vo.RegionAnomalyInfoVO;
-import cdb.dal.vo.RegionInfoVO;
-import cdb.ml.clustering.Cluster;
+import cdb.common.lang.StringUtil;
+import cdb.common.model.Cluster;
+import cdb.common.model.Point;
+import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.common.model.RegionInfoVO;
+import cdb.common.model.Samples;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
-import cdb.ml.clustering.Point;
-import cdb.ml.clustering.Samples;
 
 /**
  * 
@@ -138,6 +139,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         List<String> regnDateStr = new ArrayList<String>();
         tranformRegionVO(regnList, dataSample, regnDateStr);
         normalization(dataSample);
+        //        save(fileName, dataSample, regnDateStr);
 
         // clustering 
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
@@ -179,6 +181,9 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         int dSeq = 0;
         RegionInfoVO one = null;
         while ((one = regnList.poll()) != null) {
+            if (Integer.valueOf(one.getDateStr()) < 19920101) {
+                continue;
+            }
             Point point = RegionInfoVOHelper.make12Features(one);
             dataSample.setPoint(dSeq, point);
             regnDateStr.add(one.getDateStr());
@@ -269,5 +274,24 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
                 }
             }
         }
+    }
+
+    protected void save(String fileName, Samples dataSample, List<String> regnDateStr) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int dSize = dataSample.length()[0];
+        for (int dIndx = 0; dIndx < dSize; dIndx++) {
+            Point p = dataSample.getPointRef(dIndx);
+            String dataStr = regnDateStr.get(dIndx);
+            stringBuilder.append(p.toString()).append("#").append(dataStr).append('\n');
+        }
+
+        // replace freqId_rWidth_rHeight_ORG to freqId_rWidth_rHeight
+        int lSlant = fileName.lastIndexOf('/');
+        int lSecSlant = fileName.substring(0, lSlant).lastIndexOf('/');
+        String lDirName = fileName.substring(lSecSlant + 1, lSlant);
+        String sFileName = StringUtil.replace(fileName, lDirName,
+            lDirName.substring(0, lDirName.length() - 4));
+        FileUtil.existDirAndMakeDir(sFileName);
+        FileUtil.write(sFileName, stringBuilder.toString());
     }
 }

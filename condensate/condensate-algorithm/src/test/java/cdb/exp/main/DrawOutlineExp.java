@@ -5,11 +5,11 @@ import java.util.List;
 
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Point;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.NearestNeighborOutlierDetection;
-import cdb.ml.clustering.Point;
 
 /**
  * 

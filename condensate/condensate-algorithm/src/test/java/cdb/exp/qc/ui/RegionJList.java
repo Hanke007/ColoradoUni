@@ -21,9 +21,10 @@ import org.jfree.ui.RefineryUtilities;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
-import cdb.dal.vo.RegionAnomalyInfoVO;
-import cdb.dal.vo.RegionInfoVO;
-import cdb.ml.clustering.Point;
+import cdb.common.lang.StringUtil;
+import cdb.common.model.Point;
+import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.common.model.RegionInfoVO;
 import cdb.ml.qc.RegionInfoVOHelper;
 
 /**
@@ -93,13 +94,20 @@ public class RegionJList extends JList<String> {
                 RegionAnomalyInfoVO one = regnAnmlInfoArrs.get(selectedIndx);
                 int rRIndx = one.getX() / one.getWidth();
                 int cRIndx = one.getY() / one.getHeight();
-                collectXYSeries(rRIndx, cRIndx);
+
+                Date anmlDate = DateUtil.parse(one.getDateStr(), DateUtil.SHORT_FORMAT);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(anmlDate);
+                int sYear = cal.get(Calendar.YEAR);
+                int sDayInYear = cal.get(Calendar.DAY_OF_YEAR);
+                collectXYSeries(rRIndx, cRIndx, sYear, sDayInYear);
             } catch (ParseException e1) {
                 ExceptionUtil.caught(e1, "Date format error.");
             }
         }
 
-        private void collectXYSeries(int rRIndx, int cRIndx) throws ParseException {
+        private void collectXYSeries(int rRIndx, int cRIndx, int sYear,
+                                     int sDayInYear) throws ParseException {
             String fileName = "" + rRIndx + '_' + cRIndx;
             String[] lines = FileUtil.readLines(regnInfoRootDir + fileName);
 
@@ -109,10 +117,19 @@ public class RegionJList extends JList<String> {
             Map<Integer, XYSeries> fRep3 = new HashMap<Integer, XYSeries>();
             Calendar cal = Calendar.getInstance();
             for (String line : lines) {
-                RegionInfoVO regnVO = RegionInfoVO.parseOf(line);
-                Point point = RegionInfoVOHelper.make12Features(regnVO);
+                Point point = null;
+                Date date = null;
+                if (StringUtil.isEmpty(line)) {
+                    // ignore
+                    RegionInfoVO regnVO = RegionInfoVO.parseOf(line);
+                    point = RegionInfoVOHelper.make12Features(regnVO);
+                    date = DateUtil.parse(regnVO.getDateStr(), DateUtil.SHORT_FORMAT);
+                } else {
+                    point = Point.parseOf(line);
+                    date = DateUtil.parse(String.valueOf((int) point.getValue(12)),
+                        DateUtil.SHORT_FORMAT);
+                }
 
-                Date date = DateUtil.parse(regnVO.getDateStr(), DateUtil.SHORT_FORMAT);
                 cal.setTime(date);
                 int year = cal.get(Calendar.YEAR);
                 int daysInYear = cal.get(Calendar.DAY_OF_YEAR);
@@ -123,14 +140,14 @@ public class RegionJList extends JList<String> {
             }
 
             // transform to matrix
-            XYSeriesCollection fData1 = fillDataset(fRep1);
-            XYSeriesCollection fData2 = fillDataset(fRep2);
-            XYSeriesCollection fData3 = fillDataset(fRep3);
+            XYSeriesCollection fData1 = fillDataset(fRep1, true, sYear);
+            XYSeriesCollection fData2 = fillDataset(fRep2, true, sYear);
+            XYSeriesCollection fData3 = fillDataset(fRep3, true, sYear);
             XYSeriesCollection[] fDatas = { fData1, fData2, fData3 };
             String[] titles = { labels[fIndices[0]], labels[fIndices[1]], labels[fIndices[2]] };
 
             RegionChartFrame regnChartFrame = new RegionChartFrame("Analysis Result", fDatas,
-                titles);
+                titles, sDayInYear);
             RefineryUtilities.centerFrameOnScreen(regnChartFrame);
             regnChartFrame.setSize(1000, 600);
             regnChartFrame.setVisible(true);
@@ -148,10 +165,15 @@ public class RegionJList extends JList<String> {
             fXYSer.add(daysInYear, point.getValue(field));
         }
 
-        private XYSeriesCollection fillDataset(Map<Integer, XYSeries> fRep) {
+        private XYSeriesCollection fillDataset(Map<Integer, XYSeries> fRep, boolean isSpecificYear,
+                                               int sYear) {
             XYSeriesCollection fData = new XYSeriesCollection();
-            for (XYSeries xySer : fRep.values()) {
-                fData.addSeries(xySer);
+            if (isSpecificYear) {
+                fData.addSeries(fRep.get(sYear));
+            } else {
+                for (XYSeries xySer : fRep.values()) {
+                    fData.addSeries(xySer);
+                }
             }
             return fData;
         }

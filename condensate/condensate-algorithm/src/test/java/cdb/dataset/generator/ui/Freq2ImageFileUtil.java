@@ -1,6 +1,6 @@
 package cdb.dataset.generator.ui;
 
-import cdb.dal.vo.AnomalyInfoVO;
+import cdb.common.model.AnomalyInfoVO;
 
 /**
  * 

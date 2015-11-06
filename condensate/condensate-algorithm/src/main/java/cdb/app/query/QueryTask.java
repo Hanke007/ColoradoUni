@@ -3,7 +3,7 @@ package cdb.app.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import cdb.dal.vo.DenseMatrix;
+import cdb.common.model.DenseMatrix;
 
 /**
  * 
@@ -13,9 +13,9 @@ import cdb.dal.vo.DenseMatrix;
 public class QueryTask {
 
     /** the domain to query*/
-    private List<Position2D>     queryDomain;
+    private List<Position2D>  queryDomain;
     /** the domain contains the partial results position*/
-    private List<Position2D>     completeDomain;
+    private List<Position2D>  completeDomain;
     /** the context need to query*/
     private List<DenseMatrix> queryContext;
 

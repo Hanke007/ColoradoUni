@@ -10,16 +10,16 @@ import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.ImageInfoVO;
+import cdb.dal.file.AVHRFileDtProc;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.common.model.Cluster;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.ImageInfoVO;
+import cdb.common.model.Point;
+import cdb.common.model.Samples;
 import cdb.dataset.generator.BinFileConvntnUtil;
-import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
-import cdb.ml.clustering.Point;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.AVHRFileDtProc;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 

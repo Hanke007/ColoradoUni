@@ -3,7 +3,7 @@ package cdb.dataset.generator.ui;
 import java.awt.event.ActionEvent;
 import java.util.Deque;
 
-import cdb.dal.vo.AnomalyInfoVO;
+import cdb.common.model.AnomalyInfoVO;
 
 /**
  * 

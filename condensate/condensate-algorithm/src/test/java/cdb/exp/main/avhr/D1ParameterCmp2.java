@@ -17,10 +17,10 @@ import org.springframework.util.StopWatch;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.service.dataset.AVHRFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.AVHRFileDtProc;
+import cdb.dal.util.MatrixFileUtil;
 
 /**
  * 

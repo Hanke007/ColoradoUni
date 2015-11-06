@@ -1,7 +1,7 @@
 package cdb.ml.qc;
 
-import cdb.dal.vo.RegionInfoVO;
-import cdb.ml.clustering.Point;
+import cdb.common.model.Point;
+import cdb.common.model.RegionInfoVO;
 
 /**
  * 
@@ -40,9 +40,13 @@ public final class RegionInfoVOHelper {
         //            for (double tGradConVal : one.gettGradCon()) {
         //                dataSample.setValue(dSeq, pSeq++, tGradConVal);
         //            }
-        p.setValue(pSeq++, one.gettGradCon().getValue(2)); // dffMean[-1]
+
+        p.setValue(pSeq++, 0.0d);
+        //        p.setValue(pSeq++, one.gettGradCon().getValue(2)); // dffMean[-1]
         p.setValue(pSeq++, one.gettGradCon().getValue(3)); // dffMean[+1]
-        p.setValue(pSeq++, one.gettGradCon().getValue(4)); // dffSd[-1]
+
+        p.setValue(pSeq++, 0.0d);
+        //        p.setValue(pSeq++, one.gettGradCon().getValue(4)); // dffSd[-1]
         p.setValue(pSeq++, one.gettGradCon().getValue(5)); // dffSd[+1]
 
         // Contextual: spatial correlations
@@ -65,8 +69,11 @@ public final class RegionInfoVOHelper {
         //            dataSample.setValue(dSeq, pSeq++, one.getGradMean());
         p.setValue(pSeq++, one.getMean());
         p.setValue(pSeq++, one.getSd());
-        p.setValue(pSeq++, one.getrIndx());
-        p.setValue(pSeq++, one.getcIndx());
+
+        p.setValue(pSeq++, 0.0d);
+        //                p.setValue(pSeq++, one.getrIndx());
+        p.setValue(pSeq++, 0.0d);
+        //                p.setValue(pSeq++, one.getcIndx());
 
         return p;
     }

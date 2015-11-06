@@ -1,6 +1,6 @@
 package cdb.ml.anomaly;
 
-import cdb.ml.clustering.Point;
+import cdb.common.model.Point;
 
 /**
  * 

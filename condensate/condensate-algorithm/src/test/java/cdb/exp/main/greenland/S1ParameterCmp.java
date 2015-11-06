@@ -11,12 +11,12 @@ import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.ml.clustering.Cluster;
+import cdb.common.model.Cluster;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Samples;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.NetCDFDtProc;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.NetCDFDtProc;
 
 /**
  * 

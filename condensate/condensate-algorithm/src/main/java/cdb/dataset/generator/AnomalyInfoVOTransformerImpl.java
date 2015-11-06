@@ -18,13 +18,13 @@ import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
 import cdb.common.lang.SerializeUtil;
-import cdb.dal.vo.AnomalyInfoVO;
-import cdb.dal.vo.SparseMatrix;
-import cdb.ml.clustering.Cluster;
+import cdb.common.model.AnomalyInfoVO;
+import cdb.common.model.Cluster;
+import cdb.common.model.Point;
+import cdb.common.model.Samples;
+import cdb.common.model.SparseMatrix;
+import cdb.dal.file.DatasetProc;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
-import cdb.ml.clustering.Point;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.DatasetProc;
 
 /**
  * 
@@ -50,7 +50,7 @@ public class AnomalyInfoVOTransformerImpl extends AbstractDataTransformer {
     }
 
     /** 
-     * @see cdb.dataset.generator.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.service.dataset.DatasetProc)
+     * @see cdb.dataset.generator.AbstractDataTransformer#transform(java.lang.String, java.lang.String, java.util.List, java.util.List, cdb.dal.file.DatasetProc)
      */
     @Override
     public void transform(String rootDir, String freqId, List<String> tDataDump,

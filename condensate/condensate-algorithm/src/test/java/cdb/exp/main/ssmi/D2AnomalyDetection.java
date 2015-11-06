@@ -15,13 +15,13 @@ import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Point;
 import cdb.ml.anomaly.AnomalyDetection;
 import cdb.ml.anomaly.SimpleAnomalyDetecion;
-import cdb.ml.clustering.Point;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 

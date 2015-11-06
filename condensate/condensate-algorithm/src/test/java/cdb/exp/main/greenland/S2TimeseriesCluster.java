@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cdb.common.lang.ClusterHelper;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
-import cdb.ml.clustering.Cluster;
+import cdb.common.model.Cluster;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Samples;
+import cdb.dal.file.NetCDFDtProc;
+import cdb.dal.util.MatrixFileUtil;
 import cdb.ml.clustering.HierarchicalClustering;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.NetCDFDtProc;
 
 /**
  * 
@@ -31,20 +31,19 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
     }
 
     public static void case1() {
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
         List<String> fileAssigmnt = new ArrayList<String>();
@@ -58,14 +57,13 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
     }
 
     public static void case2() {
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
         List<String> fileAssigmnt = new ArrayList<String>();
@@ -75,14 +73,13 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
         List<Location> oneCluster = loadingSpatialClusterResulting(clstFile, 1);
 
         Cluster[] resultSet = clusterTimeseries(seralData, oneCluster, 25);
-        ClusterHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(),
-            1);
+        ClusterHelper.saveLoc(resultSet, ROOT_DIR + "Clustering/Hierarchy_5", seralData.size(), 1);
 
         // computer statistical parameters
         double[] means = StatisticParamUtil.meanSeqTimeseries(seralData);
 
-        VisualizationUtil
-            .gnuLPWithMultipleFile(means, resultSet, ROOT_DIR + "Statistcs/Automatic/");
+        VisualizationUtil.gnuLPWithMultipleFile(means, resultSet,
+            ROOT_DIR + "Statistcs/Automatic/");
     }
 
     public static void loadingdataset(String[] filePatternSets, List<DenseMatrix> seralData,
@@ -105,7 +102,8 @@ public class S2TimeseriesCluster extends AbstractGreenLandAnalysis {
         return locSet.get(oneSeq);
     }
 
-    public static void cmpingParamWithCluster(List<DenseMatrix> seralData, List<Location> oneCluster) {
+    public static void cmpingParamWithCluster(List<DenseMatrix> seralData,
+                                              List<Location> oneCluster) {
         // save data in specific cluster
         int mNum = seralData.size();
         for (int i = 0; i < mNum; i++) {

@@ -7,6 +7,9 @@ import org.apache.log4j.Logger;
 
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
+import cdb.common.model.Cluster;
+import cdb.common.model.Point;
+import cdb.common.model.Samples;
 
 /**
  * 
@@ -16,15 +19,14 @@ import cdb.common.lang.log4j.LoggerDefineConstant;
 public class HierarchicalClustering {
 
     /** square error*/
-    public final static int     SQUARE_EUCLIDEAN_DISTANCE    = 202;
+    public final static int SQUARE_EUCLIDEAN_DISTANCE    = 202;
     /** pearson correlation*/
-    public final static int     PEARSON_CORRELATION_DISTANCE = 203;
+    public final static int PEARSON_CORRELATION_DISTANCE = 203;
     /** KL divergence*/
-    public final static int     KL_DISTANCE                  = 204;
+    public final static int KL_DISTANCE                  = 204;
 
     /** logger */
-    private final static Logger logger                       = Logger
-                                                                 .getLogger(LoggerDefineConstant.SERVICE_THREAD);
+    private final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_THREAD);
 
     /**
      * forbidden construction
@@ -67,8 +69,8 @@ public class HierarchicalClustering {
             updateCenters(points, resultSet, centroids, invlvdIndices);
 
             // update errors between adjacent clusters
-            curErr = updateAdjacentError(points, resultSet, centroids, adjErrorTable,
-                invlvdIndices, type);
+            curErr = updateAdjacentError(points, resultSet, centroids, adjErrorTable, invlvdIndices,
+                type);
 
             // check stopping condition
             round++;
@@ -103,9 +105,8 @@ public class HierarchicalClustering {
         return returnSet;
     }
 
-    protected static void initialize(Samples points, List<Cluster> resultSet,
-                                     List<Point> centroids, List<Double> adjErrorTable,
-                                     final int type) {
+    protected static void initialize(Samples points, List<Cluster> resultSet, List<Point> centroids,
+                                     List<Double> adjErrorTable, final int type) {
         // every point is a cluster
         int pIndex = 0;
         for (Point point : points) {

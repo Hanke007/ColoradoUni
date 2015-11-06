@@ -12,7 +12,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JLabel;
 
 import cdb.common.lang.StatisticParamUtil;
-import cdb.dal.vo.RegionAnomalyInfoVO;
+import cdb.common.model.RegionAnomalyInfoVO;
 
 /**
  * 

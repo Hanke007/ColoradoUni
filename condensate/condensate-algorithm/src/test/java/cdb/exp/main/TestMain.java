@@ -3,12 +3,12 @@ package cdb.exp.main;
 import java.io.File;
 
 import cdb.common.lang.ImageWUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.service.dataset.AVHRFileDtProc;
-import cdb.service.dataset.DMSPFileDtProc;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.NetCDFDtProc;
-import cdb.service.dataset.SSMIFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.AVHRFileDtProc;
+import cdb.dal.file.DMSPFileDtProc;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.NetCDFDtProc;
+import cdb.dal.file.SSMIFileDtProc;
 
 /**
  * 

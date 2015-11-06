@@ -17,12 +17,12 @@ import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.vo.DenseMatrix;
-import cdb.ml.clustering.Cluster;
+import cdb.common.model.Cluster;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Samples;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
 
 /**
  * 

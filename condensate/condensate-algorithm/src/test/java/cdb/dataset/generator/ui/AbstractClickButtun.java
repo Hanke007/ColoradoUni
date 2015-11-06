@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import cdb.common.lang.FileUtil;
-import cdb.dal.vo.AnomalyInfoVO;
+import cdb.common.model.AnomalyInfoVO;
 
 /**
  * 

@@ -12,11 +12,11 @@ import org.springframework.util.StopWatch;
 
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.StatisticParamUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.service.dataset.SSMIFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.dal.util.MatrixFileUtil;
 
 /**
  * 

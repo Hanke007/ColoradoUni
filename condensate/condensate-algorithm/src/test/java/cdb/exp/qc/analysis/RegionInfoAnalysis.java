@@ -10,26 +10,22 @@ import java.util.Map;
 import java.util.Queue;
 
 import org.apache.commons.math3.stat.StatUtils;
-import org.apache.log4j.Logger;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
-import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.vo.Location;
-import cdb.dal.vo.RegionAnomalyInfoVO;
-import cdb.dal.vo.RegionInfoVO;
+import cdb.common.model.Location;
+import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.common.model.RegionInfoVO;
+import cdb.common.model.Samples;
 import cdb.exp.qc.ui.RegionJFrame;
-import cdb.ml.clustering.Samples;
 
 /**
  * 
  * @author Chao Chen
  * @version $Id: RegionInfoAnalysis.java, v 0.1 Oct 27, 2015 3:55:09 PM chench Exp $
  */
-public class RegionInfoAnalysis {
-    /** logger */
-    protected final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_NORMAL);
+public class RegionInfoAnalysis extends AbstractQcAnalysis {
 
     /**
      * 
@@ -50,7 +46,7 @@ public class RegionInfoAnalysis {
         String freqId = "n19v";
 
         RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,
-            3);
+            3, 2010);
         frame.pack();
         frame.setLocation(300, 20);
         frame.setSize(520, 700);

@@ -13,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import cdb.common.lang.FileUtil;
-import cdb.dal.vo.RegionAnomalyInfoVO;
+import cdb.common.model.RegionAnomalyInfoVO;
 
 /**
  * 
@@ -42,8 +42,9 @@ public class RegionJFrame extends JFrame {
      * @param fContriNum        the number of field making the top contributions
      */
     public RegionJFrame(String imgRootDir, String regnInfoRootDir, String regnAnmInfoFile,
-                        String freqId, int fContriNum) {
-        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = parseAnomalyInfoVO(regnAnmInfoFile);
+                        String freqId, int fContriNum, int sYear) {
+        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = parseAnomalyInfoVO(regnAnmInfoFile,
+            sYear);
         List<String> keys = new ArrayList<String>(regnAnmlRep.keySet());
         Collections.sort(keys);
 
@@ -54,13 +55,19 @@ public class RegionJFrame extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    protected Map<String, List<RegionAnomalyInfoVO>> parseAnomalyInfoVO(String regnAnmInfoFile) {
+    protected Map<String, List<RegionAnomalyInfoVO>> parseAnomalyInfoVO(String regnAnmInfoFile,
+                                                                        int sYear) {
         Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = new HashMap<String, List<RegionAnomalyInfoVO>>();
         String[] lines = FileUtil.readLines(regnAnmInfoFile);
         for (String line : lines) {
             RegionAnomalyInfoVO one = RegionAnomalyInfoVO.parseOf(line);
 
             String dateStr = one.getDateStr();
+            int curYear = Integer.valueOf(dateStr) / 10000;
+            if (curYear < sYear) {
+                continue;
+            }
+
             List<RegionAnomalyInfoVO> anmArr = regnAnmlRep.get(dateStr);
             if (anmArr == null) {
                 anmArr = new ArrayList<RegionAnomalyInfoVO>();

@@ -6,9 +6,9 @@ import java.util.List;
 
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.service.dataset.DatasetProc;
-import cdb.service.dataset.SSMIFileDtProc;
+import cdb.common.model.DenseMatrix;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
 
 /**
  * 
@@ -39,14 +39,16 @@ public class StatisticAnalysis {
         }
 
         // compute statistics
-        DenseMatrix EX = new DenseMatrix(seralData.get(0).getRowNum(), seralData.get(0).getColNum());
+        DenseMatrix EX = new DenseMatrix(seralData.get(0).getRowNum(),
+            seralData.get(0).getColNum());
         cmpEX(seralData, EX);
 
-        DenseMatrix EXX = new DenseMatrix(seralData.get(0).getRowNum(), seralData.get(0)
-            .getColNum());
+        DenseMatrix EXX = new DenseMatrix(seralData.get(0).getRowNum(),
+            seralData.get(0).getColNum());
         cmpEXX(seralData, EXX);
 
-        DenseMatrix SD = new DenseMatrix(seralData.get(0).getRowNum(), seralData.get(0).getColNum());
+        DenseMatrix SD = new DenseMatrix(seralData.get(0).getRowNum(),
+            seralData.get(0).getColNum());
         cmpSD(EX, EXX, SD);
 
         VisualizationUtil.gnuHeatmap(EX, "C:/Users/chench/Desktop/SIDS/mean_201412");
@@ -63,7 +65,8 @@ public class StatisticAnalysis {
         }
 
         // compute statistics
-        DenseMatrix EX = new DenseMatrix(seralData.get(0).getRowNum(), seralData.get(0).getColNum());
+        DenseMatrix EX = new DenseMatrix(seralData.get(0).getRowNum(),
+            seralData.get(0).getColNum());
         cmpEX(seralData, EX);
 
         //compute the hierarchical information 

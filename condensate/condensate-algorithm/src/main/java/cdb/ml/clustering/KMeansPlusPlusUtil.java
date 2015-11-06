@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
+import cdb.common.model.Cluster;
+import cdb.common.model.Point;
+import cdb.common.model.Samples;
 
 /**
  * This is a class implementing K-means++.

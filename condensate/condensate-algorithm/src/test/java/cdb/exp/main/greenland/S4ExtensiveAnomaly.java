@@ -7,14 +7,14 @@ import java.util.Map;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Point;
+import cdb.dal.file.NetCDFDtProc;
+import cdb.dal.util.MatrixFileUtil;
 import cdb.ml.anomaly.NearestNeighborOutlierDetection;
-import cdb.ml.clustering.Point;
-import cdb.service.dataset.NetCDFDtProc;
 
 /**
  * 
@@ -25,7 +25,7 @@ public class S4ExtensiveAnomaly extends AbstractGreenLandAnalysis {
 
     public final static int NEAREST_NEIGHBOR_NUM = 5;
 
-    public final static int ANOMALY_NUM          = 1;
+    public final static int ANOMALY_NUM = 1;
 
     /**
      * 
@@ -36,20 +36,19 @@ public class S4ExtensiveAnomaly extends AbstractGreenLandAnalysis {
     }
 
     public static void case1() {
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. loading dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();

@@ -6,17 +6,17 @@ import java.util.List;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.MatrixFileUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.VisualizationUtil;
-import cdb.dal.vo.DenseMatrix;
-import cdb.dal.vo.Location;
+import cdb.common.model.Cluster;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.Location;
+import cdb.common.model.Point;
+import cdb.common.model.Samples;
+import cdb.dal.file.NetCDFDtProc;
+import cdb.dal.util.MatrixFileUtil;
 import cdb.ml.anomaly.NearestNeighborOutlierDetection;
-import cdb.ml.clustering.Cluster;
 import cdb.ml.clustering.HierarchicalClustering;
-import cdb.ml.clustering.Point;
-import cdb.ml.clustering.Samples;
-import cdb.service.dataset.NetCDFDtProc;
 
 /**
  * 
@@ -27,9 +27,9 @@ public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
 
     public final static int NEAREST_NEIGHBOR_NUM = 8;
 
-    public final static int ANOMALY_NUM          = 20;
+    public final static int ANOMALY_NUM = 20;
 
-    public final static int MAX_CLUSTER_NUM      = 200;
+    public final static int MAX_CLUSTER_NUM = 200;
 
     /**
      * 
@@ -40,30 +40,29 @@ public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
     }
 
     public static void case1() {
-        String[] filePatternSets = {
-                "C:/Users/chench/Desktop/SIDS/1990/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1991/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1992/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1993/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1994/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1995/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1996/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1997/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1998/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/1999/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
-                "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
+        String[] filePatternSets = { "C:/Users/chench/Desktop/SIDS/1990/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1991/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1992/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1993/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1994/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1995/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1996/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1997/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1998/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/1999/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2000/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2001/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2002/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2003/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2004/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2005/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2006/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2007/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2008/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2009/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2010/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2011/GLSMD25E2_\\d{8}_v01r01.nc",
+                                     "C:/Users/chench/Desktop/SIDS/2012/GLSMD25E2_\\d{8}_v01r01.nc" };
 
         LoggerUtil.info(logger, "1. loading dataset.");
         List<DenseMatrix> seralData = new ArrayList<DenseMatrix>();
@@ -126,8 +125,8 @@ public class S3ParameterAnomaly extends AbstractGreenLandAnalysis {
         }
         Cluster[] resultSet = HierarchicalClustering.cluster(dataSample, maxK,
             HierarchicalClustering.SQUARE_EUCLIDEAN_DISTANCE);
-        VisualizationUtil
-            .gnuLPWithMultipleFile(means, resultSet, ROOT_DIR + "Statistcs/Automatic/");
+        VisualizationUtil.gnuLPWithMultipleFile(means, resultSet,
+            ROOT_DIR + "Statistcs/Automatic/");
 
         // out-lier detection 
         LoggerUtil.info(logger, "5. detecting outliers.");
