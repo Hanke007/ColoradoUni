@@ -22,7 +22,10 @@ public class DalTest {
         try {
             ctx = new ClassPathXmlApplicationContext("springContext.xml");
             RegiondescDAO dao = (RegiondescDAO) ctx.getBean("regiondescDAO");
-            RegionDescBean bean = dao.selectByPrimaryKey(0);
+            RegionDescBean bean = new RegionDescBean();
+            bean.setRheight(8);
+            bean.setRwidth(8);
+            dao.insert(bean);
             System.out.println(bean.getRheight());
         } catch (Exception e) {
             ExceptionUtil.caught(e, "It goes wrong.");
