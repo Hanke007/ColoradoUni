@@ -28,10 +28,10 @@
 	</bean>
 
 	<!-- Dao -->
-	<bean id="regiondescDAO" class="cdb.dal.dao.RegiondescDAOImpl">
+	<bean id="regiondescDAO" class="cdb.dal.dao.RegionDescDAOImpl">
 		<constructor-arg ref="sqlMapClient" />
 	</bean>
-	<bean id="anomalyinfoDAOImpl" class="cdb.dal.dao.AnomalyinfoDAOImpl">
+	<bean id="anomalyinfoDAOImpl" class="cdb.dal.dao.AnomalyInfoDAOImpl">
 		<constructor-arg ref="sqlMapClient" />
 	</bean>
 

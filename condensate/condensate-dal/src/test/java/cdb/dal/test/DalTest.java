@@ -9,8 +9,9 @@ import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.model.RegionAnomalyInfoVO;
-import cdb.dal.dao.AnomalyinfoDAOImpl;
+import cdb.dal.dao.AnomalyInfoDAOImpl;
 import cdb.dal.model.AnomalyInfoBean;
+import cdb.dal.util.DBUtil;
 
 /**
  * 
@@ -24,11 +25,19 @@ public class DalTest {
      * @param args
      */
     public static void main(String[] args) {
+        String sql = "SELECT anomalyinfo.x, anomalyinfo.y, anomalyinfo.date, anomalyinfo.desc "
+                     + "FROM anomalyinfo " + "WHERE x > 100 AND x < 200 "
+                     + "AND y > 100 AND y < 200 " + "AND date > 20100203 " + "AND date < 20150203 "
+                     + "ORDER BY anomalyinfo.date ASC";
+        DBUtil.excuteSQLWithReturnList(sql);
+    }
+
+    public static void case1() {
         ClassPathXmlApplicationContext ctx = null;
         try {
             List<AnomalyInfoBean> records = new ArrayList<AnomalyInfoBean>();
-            String[] lines = FileUtil.readLines(
-                "/Users/chench/git/ColoradoUni/condensate/condensate-dal/src/test/resources/REG_n19v_8_8");
+            String[] lines = FileUtil
+                .readLines("C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/REG_n19v_8_8");
             for (String line : lines) {
                 RegionAnomalyInfoVO bean = RegionAnomalyInfoVO.parseOf(line);
 
@@ -42,7 +51,7 @@ public class DalTest {
             }
 
             ctx = new ClassPathXmlApplicationContext("springContext.xml");
-            AnomalyinfoDAOImpl dao = (AnomalyinfoDAOImpl) ctx.getBean("anomalyinfoDAOImpl");
+            AnomalyInfoDAOImpl dao = (AnomalyInfoDAOImpl) ctx.getBean("anomalyinfoDAOImpl");
             dao.insertSelectiveArr(records);
 
         } catch (Exception e) {

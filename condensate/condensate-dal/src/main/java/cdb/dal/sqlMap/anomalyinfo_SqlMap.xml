@@ -129,7 +129,7 @@
 		</dynamic>
 	</insert>
 	<insert id="ibatorgenerated_insertSelectiveArr" parameterClass="java.util.List">
-		insert all into anomalyinfo (x, y, date, rId, anomalyinfo.desc)
+		insert into anomalyinfo (x, y, date, rId, anomalyinfo.desc)
 		values
 		<iterate conjunction=",">
 			(

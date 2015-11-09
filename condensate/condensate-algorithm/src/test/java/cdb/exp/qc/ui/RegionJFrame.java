@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 
 import cdb.common.lang.FileUtil;
 import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.dal.util.DBUtil;
 
 /**
  * 
@@ -42,9 +43,9 @@ public class RegionJFrame extends JFrame {
      * @param fContriNum        the number of field making the top contributions
      */
     public RegionJFrame(String imgRootDir, String regnInfoRootDir, String regnAnmInfoFile,
-                        String freqId, int fContriNum, int sYear) {
-        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = parseAnomalyInfoVO(regnAnmInfoFile,
-            sYear);
+                        String freqId, int fContriNum, int sYear, boolean usedDB, String sql) {
+        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = usedDB ? parseDBResultSet(sql)
+            : parseAnomalyInfoVO(regnAnmInfoFile, sYear);
         List<String> keys = new ArrayList<String>(regnAnmlRep.keySet());
         Collections.sort(keys);
 
@@ -53,6 +54,24 @@ public class RegionJFrame extends JFrame {
 
         // basic action listener
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+
+    protected Map<String, List<RegionAnomalyInfoVO>> parseDBResultSet(String sql) {
+        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = new HashMap<String, List<RegionAnomalyInfoVO>>();
+        List<RegionAnomalyInfoVO> resultSet = DBUtil.excuteSQLWithReturnList(sql);
+        if (resultSet != null) {
+            for (RegionAnomalyInfoVO one : resultSet) {
+                String dateStr = one.getDateStr();
+
+                List<RegionAnomalyInfoVO> anmArr = regnAnmlRep.get(dateStr);
+                if (anmArr == null) {
+                    anmArr = new ArrayList<RegionAnomalyInfoVO>();
+                    regnAnmlRep.put(dateStr, anmArr);
+                }
+                anmArr.add(one);
+            }
+        }
+        return regnAnmlRep;
     }
 
     protected Map<String, List<RegionAnomalyInfoVO>> parseAnomalyInfoVO(String regnAnmInfoFile,

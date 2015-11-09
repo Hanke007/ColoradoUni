@@ -33,10 +33,10 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception {
-        //        gui();
+        gui();
         //        SSMI();
         //        trackValCheckByDate(312, 152);
-        e2();
+        //        e2();
     }
 
     public static void gui() {
@@ -45,8 +45,14 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
         String regnAnmInfoFile = "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/REG_n19v_8_8";
         String freqId = "n19v";
 
+        String sql = "SELECT anomalyinfo.x, anomalyinfo.y, anomalyinfo.date, anomalyinfo.desc, regiondesc.rWidth, regiondesc.rHeight "
+                     + "FROM anomalyinfo JOIN regiondesc on anomalyinfo.rId = regiondesc.id "
+                     + "WHERE x > 100 AND x < 200 " + "AND y > 100 AND y < 200 "
+                     + "AND date > 20110203 " + "AND date < 20150203 "
+                     + "ORDER BY anomalyinfo.date ASC";
+
         RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,
-            3, 2010);
+            3, 2010, true, sql);
         frame.pack();
         frame.setLocation(300, 20);
         frame.setSize(520, 700);
