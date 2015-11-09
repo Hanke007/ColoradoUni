@@ -31,6 +31,9 @@
 	<bean id="regiondescDAO" class="cdb.dal.dao.RegiondescDAOImpl">
 		<constructor-arg ref="sqlMapClient" />
 	</bean>
+	<bean id="anomalyinfoDAOImpl" class="cdb.dal.dao.AnomalyinfoDAOImpl">
+		<constructor-arg ref="sqlMapClient" />
+	</bean>
 
 
 	<!-- **************************** Outter Setting Connector ************************************************ -->

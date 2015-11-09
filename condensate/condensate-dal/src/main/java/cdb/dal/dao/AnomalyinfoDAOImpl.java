@@ -3,6 +3,7 @@ package cdb.dal.dao;
 import cdb.dal.model.AnomalyInfoBean;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import java.sql.SQLException;
+import java.util.List;
 
 public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
     /**
@@ -55,6 +56,14 @@ public class AnomalyinfoDAOImpl implements AnomalyinfoDAO {
      */
     public void insertSelective(AnomalyInfoBean record) throws SQLException {
         sqlMapClient.insert("anomalyinfo.ibatorgenerated_insertSelective", record);
+    }
+
+    /** 
+     * @see cdb.dal.dao.AnomalyinfoDAO#insertSelectiveArr(java.util.List)
+     */
+    @Override
+    public void insertSelectiveArr(List<AnomalyInfoBean> records) throws SQLException {
+        sqlMapClient.insert("anomalyinfo.ibatorgenerated_insertSelectiveArr", records);
     }
 
     /**
