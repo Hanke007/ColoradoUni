@@ -1,0 +1,132 @@
+package cdb.web.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import cdb.common.lang.ExceptionUtil;
+import cdb.common.lang.LoggerUtil;
+import cdb.dal.util.DatabaseFactory;
+import cdb.web.bean.Location2D;
+import cdb.web.envelope.AnomalyEnvelope;
+import cdb.web.vo.AnomalyVO;
+
+/**
+ * 
+ * @author Chao Chen
+ * @version $Id: H2BasedAnomalyInfoWDAOImpl.java, v 0.1 Nov 9, 2015 2:56:26 PM chench Exp $
+ */
+@Repository
+public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
+
+    /** 
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestApproximatedLocation(double, double)
+     */
+    @Override
+    public Location2D selectNearestApproximatedLocation(double longi, double lati,
+                                                        AnomalyEnvelope reqContext) {
+        Location2D result = null;
+        Connection conn = null;
+        try {
+            String dbId = "H2_" + reqContext.getDsName()
+                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
+            conn = DatabaseFactory.getConnection(dbId);
+            PreparedStatement stmt = conn.prepareStatement(NEAREST_APPROXIMATED);
+            stmt.setDouble(1, longi);
+            stmt.setDouble(2, longi);
+            stmt.setDouble(3, lati);
+            stmt.setDouble(4, lati);
+
+            double minLon = Math.floor(longi);
+            stmt.setDouble(5, minLon);
+            double maxLon = Math.ceil(longi);
+            stmt.setDouble(6, maxLon);
+
+            double minLat = Math.floor(lati);
+            stmt.setDouble(7, minLat);
+            double maxLat = Math.ceil(lati);
+            stmt.setDouble(8, maxLat);
+
+            ResultSet rs = stmt.executeQuery();
+            result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, reqContext);
+        } catch (ClassNotFoundException e) {
+            ExceptionUtil.caught(e, "DB Driver Not Found");
+        } finally {
+            LoggerUtil.info(logger,
+                "Finished Nearest Approximation: " + (result == null ? "NULL" : result.toString()));
+        }
+
+        if (conn != null) {
+            try {
+
+                conn.close();
+
+            } catch (SQLException e) {
+                ExceptionUtil.caught(e, "Connection Closed.");
+            }
+        }
+        return result;
+    }
+
+    /** 
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectInBoxWithinTimeRange(cdb.web.bean.Location2D, cdb.web.bean.Location2D, cdb.web.bean.AnomalyRequest)
+     */
+    @Override
+    public List<AnomalyVO> selectInBoxWithinTimeRange(Location2D leftUperCorner,
+                                                      Location2D rightDownCorner,
+                                                      AnomalyEnvelope reqContext) {
+        List<AnomalyVO> resultSet = new ArrayList<AnomalyVO>();
+        Connection conn = null;
+        try {
+            String dbId = "H2_" + reqContext.getDsName() + reqContext.getDsFreq();
+            conn = DatabaseFactory.getConnection(dbId);
+            PreparedStatement stmt = conn.prepareStatement(ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL);
+
+            long daysOfStartDate = reqContext.getsDate().getTime() / (24 * 60 * 60 * 1000);
+            stmt.setLong(1, daysOfStartDate);
+            long daysOfEndDate = reqContext.geteDate().getTime() / (24 * 60 * 60 * 1000);
+            stmt.setLong(2, daysOfEndDate);
+            stmt.setInt(3, leftUperCorner.getRow());
+            stmt.setInt(4, rightDownCorner.getRow());
+            stmt.setInt(5, leftUperCorner.getColumn());
+            stmt.setInt(6, rightDownCorner.getColumn());
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                AnomalyVO bean = new AnomalyVO();
+                bean.setLongi(rs.getDouble(1));
+                bean.setLati(rs.getDouble(2));
+                bean.setDate(new Date(rs.getLong(3) * 24 * 60 * 60 * 1000));
+                resultSet.add(bean);
+            }
+            conn.close();
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, reqContext);
+        } catch (ClassNotFoundException e) {
+            ExceptionUtil.caught(e, "DB Driver Not Found");
+        } finally {
+            LoggerUtil.info(logger, "Finished AnomalyQuery: " + resultSet.size() + "\t Query: "
+                                    + reqContext.toString());
+        }
+
+        if (conn != null) {
+            try {
+
+                conn.close();
+
+            } catch (SQLException e) {
+                ExceptionUtil.caught(e, "Connection Closed.");
+            }
+        }
+        return resultSet;
+    }
+
+}
