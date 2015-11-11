@@ -10,6 +10,9 @@
 
 	<!-- Annotation Config & Jackson -->
 	<context:component-scan base-package="cdb.web.controller" />
+	<context:component-scan base-package="cdb.web.service" />
+	<context:component-scan base-package="cdb.web.dao" />
+
 	<mvc:annotation-driven>
 		<mvc:message-converters>
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter" />

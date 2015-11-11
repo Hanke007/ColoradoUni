@@ -7,9 +7,9 @@ package cdb.web.bean;
  */
 public class Location2D {
     /** longitude of some position*/
-    private int longitude;
+    private int row;
     /** latitude of some position*/
-    private int latitude;
+    private int column;
 
     /**
      * construction
@@ -24,46 +24,46 @@ public class Location2D {
      * @param longitude
      * @param latitude
      */
-    public Location2D(int longitude, int latitude) {
+    public Location2D(int row, int column) {
         super();
-        this.longitude = longitude;
-        this.latitude = latitude;
+        this.row = row;
+        this.column = column;
     }
 
     /**
-     * Getter method for property <tt>longitude</tt>.
+     * Getter method for property <tt>row</tt>.
      * 
-     * @return property value of longitude
+     * @return property value of row
      */
-    public int getLongitude() {
-        return longitude;
+    public int getRow() {
+        return row;
     }
 
     /**
-     * Setter method for property <tt>longitude</tt>.
+     * Setter method for property <tt>row</tt>.
      * 
-     * @param longitude value to be assigned to property longitude
+     * @param row value to be assigned to property row
      */
-    public void setLongitude(int longitude) {
-        this.longitude = longitude;
+    public void setRow(int row) {
+        this.row = row;
     }
 
     /**
-     * Getter method for property <tt>latitude</tt>.
+     * Getter method for property <tt>column</tt>.
      * 
-     * @return property value of latitude
+     * @return property value of column
      */
-    public int getLatitude() {
-        return latitude;
+    public int getColumn() {
+        return column;
     }
 
     /**
-     * Setter method for property <tt>latitude</tt>.
+     * Setter method for property <tt>column</tt>.
      * 
-     * @param latitude value to be assigned to property latitude
+     * @param column value to be assigned to property column
      */
-    public void setLatitude(int latitude) {
-        this.latitude = latitude;
+    public void setColumn(int column) {
+        this.column = column;
     }
 
 }

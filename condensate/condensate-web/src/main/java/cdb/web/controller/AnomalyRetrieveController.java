@@ -3,11 +3,7 @@ package cdb.web.controller;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
+import cdb.common.lang.LoggerUtil;
 import cdb.web.bean.AnomalyRequest;
-import cdb.web.bean.Location2D;
+import cdb.web.bean.GeoLocation;
+import cdb.web.envelope.AnomalyEnvelope;
 import cdb.web.service.AbstractAnmlDtcnService;
 import cdb.web.vo.AnomalyVO;
 
@@ -31,13 +28,11 @@ import cdb.web.vo.AnomalyVO;
  * @version $Id: AnomalyRetrieveController.java, v 0.1 Sep 26, 2015 4:14:18 PM chench Exp $
  */
 @Controller
-public class AnomalyRetrieveController {
+public class AnomalyRetrieveController extends AbstractController {
 
+    @Autowired
     /** Anomaly detection service*/
-    @Autowired
     private AbstractAnmlDtcnService anomalyService;
-    @Autowired
-    protected ServletContext        servltContext;
 
     /**
      * 
@@ -50,16 +45,28 @@ public class AnomalyRetrieveController {
     @ResponseBody
     public List<AnomalyVO> ajaxRetrieveAnomalies(@RequestBody AnomalyRequest anomlyRequest) {
         try {
-            int loctnNum = anomlyRequest.getLocations().size();
+            LoggerUtil.info(logger, "Request: " + anomlyRequest);
+
+            AnomalyEnvelope reqContext = new AnomalyEnvelope();
             Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.SHORT_FORMAT);
+            reqContext.setsDate(sDate);
             Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.SHORT_FORMAT);
-            return anomalyService.retrvAnomaly(sDate, eDate,
-                anomlyRequest.getLocations().toArray(new Location2D[loctnNum]),
-                anomlyRequest.getDsFreq());
+            reqContext.seteDate(eDate);
+            reqContext.setDsFreq(anomlyRequest.getDsFreq());
+            reqContext.setDsName(anomlyRequest.getDsName());
+
+            GeoLocation leftUperCorner = anomlyRequest.getLocations().get(0);
+            GeoLocation rightDownCorner = anomlyRequest.getLocations().get(1);
+
+            return anomalyService.retrvAnomaly(leftUperCorner, rightDownCorner, reqContext);
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
+        } catch (Exception e) {
+            ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvAnomaly failed.");
+        } finally {
+
         }
-        return null;
+        return new ArrayList<AnomalyVO>();
     }
 
     /**
@@ -100,28 +107,6 @@ public class AnomalyRetrieveController {
             ExceptionUtil.caught(e, "Check date format.");
         }
         return null;
-    }
-
-    @RequestMapping(value = "/anomaly/ajaxRetrvImage", method = RequestMethod.POST)
-    public ModelAndView ajaxDrawImage(@RequestBody AnomalyRequest anomlyRequest) {
-        try {
-            int loctnNum = anomlyRequest.getLocations().size();
-            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
-            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
-            List<String> imageUrl = anomalyService.retrvImageUrl(sDate, eDate,
-                anomlyRequest.getLocations().toArray(new Location2D[loctnNum]),
-                anomlyRequest.getDsFreq());
-
-            ModelAndView respnse = new ModelAndView("anomaly");
-            Map<String, Object> vcContxt = new HashMap<String, Object>();
-            vcContxt.put("imageUrl", imageUrl);
-            respnse.addObject("context", vcContxt);
-            return respnse;
-        } catch (ParseException e) {
-            ExceptionUtil.caught(e, "Check date format.");
-        }
-
-        return new ModelAndView("welcome");
     }
 
 }

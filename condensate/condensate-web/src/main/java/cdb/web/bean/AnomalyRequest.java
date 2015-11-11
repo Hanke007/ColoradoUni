@@ -10,15 +10,15 @@ import java.util.List;
 public class AnomalyRequest {
 
     /** the name of the date set*/
-    private String           dsName;
+    private String            dsName;
     /** the frequency of date set*/
-    private String           dsFreq;
+    private String            dsFreq;
     /** the date to start*/
-    private String           sDate;
+    private String            sDate;
     /** the date to end*/
-    private String           eDate;
+    private String            eDate;
     /** the locations of the target pixel*/
-    private List<Location2D> locations;
+    private List<GeoLocation> locations;
 
     /**
      * Getter method for property <tt>dsName</tt>.
@@ -97,7 +97,7 @@ public class AnomalyRequest {
      * 
      * @return property value of locations
      */
-    public List<Location2D> getLocations() {
+    public List<GeoLocation> getLocations() {
         return locations;
     }
 
@@ -106,8 +106,17 @@ public class AnomalyRequest {
      * 
      * @param locations value to be assigned to property locations
      */
-    public void setLocations(List<Location2D> locations) {
+    public void setLocations(List<GeoLocation> locations) {
         this.locations = locations;
+    }
+
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "AnomalyRequest [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sDate=" + sDate
+               + ", eDate=" + eDate + ", locations=" + locations + "]";
     }
 
 }

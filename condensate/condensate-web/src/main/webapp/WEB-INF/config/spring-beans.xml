@@ -9,16 +9,6 @@
 	http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-4.0.xsd">
 
 
-	<bean class="cdb.web.service.SSMIAnmlDtcnImpl">
-		<property name="dProc" ref="SSMIFileDtProc" />
-	</bean>
-
-	<bean id="DMSPFileDtProc" class="cdb.service.dataset.DMSPFileDtProc" />
-	<bean id="NetCDFDtProc" class="cdb.service.dataset.NetCDFDtProc" />
-	<bean id="SSMIFileDtProc" class="cdb.service.dataset.SSMIFileDtProc" />
-
-
-
 	<!-- **************************** Outter Setting Connector ************************************************ -->
 	<bean id="configProperties"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">

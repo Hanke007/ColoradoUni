@@ -1,55 +1,636 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!-->
 <html>
-<!--<![endif]-->
 <head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<title>AGU2015</title>
-<meta name="description" content="">
-<meta name="viewport" content="width=device-width">
+	<meta charset="utf-8">
+	<title>Anomaly Detection</title>
 
-<script src="http://code.jquery.com/jquery-2.0.0.js"></script>
+	<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+	<script src="js/jquery-ui-slider-pips.js"></script>
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+	<link rel="stylesheet" href="css/jquery-ui-slider-pips.css">
+	<link rel="stylesheet" href="css/style.css">
+	
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">	
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jquery-confirm.min.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	
 
-<script type="text/javascript">
-	function sendJson() {
-		var loctnArray = Array();
-		loctnArray[0] = {
-			"longitude" : 100,
-			"latitude" : 100
+	<!-- openlayers needs to compile sooner or error is raised -->
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/1.1.0/proj4js-compressed.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
+	
+	<style type="text/css">
+		#wrapper {
+			height: 97vh;
+			width: 97vw;
+			margin-left: auto;
+			margin-right: auto;
 		}
-		loctnArray[1] = {
-			"longitude" : 200,
-			"latitude" : 200
+		#content {
+			height: 80vh;
+		}		
+		#sidebar {
+			height: 80vh;
 		}
-		var anomlyRequest = {
-			"dsName" : "SSMI",
-			"dsFreq" : "s19h",
-			"sDate" : "20120101",
-			"eDate" : "20120120",
-			"locations" : loctnArray
+		/* start css for maps */
+		#map {
+			height: 100%;
+			width: 100%;
+			margin: 0px;
+			padding: 0px;
+			background: #b4c8c8;
 		}
-		var ajaxHandle = $.ajax({
-			type : "POST",
-			contentType : "application/json; charset=utf-8",
-			url : "/anomaly/ajaxImutation.do",
-			data : JSON.stringify(anomlyRequest),
-			dataType : 'jsonp',
-			async : false,
-			success : function(response) {
-				$("#expDiv").html("Hi")
+		.olImageLoadError {
+			display: none !important;
+		}
+		#map .olControlAttribution {
+			right: 2px;
+			bottom: 2px;
+			color: #dcddd8;
+			font-family: arial;
+		}
+		#map .olControlAttribution a {
+			color: #ffc;
+		}
+		/* end css for maps */
+		
+		/* controls box */
+		#mapdiv { height:10px; }
+		div.olControlAttribution { bottom:3px; }    
+		#bbox_drag_instruction { height:1.5em; }
+		#bbox_adjust_instruction { height:1.5em; display:none;  }
+		/* end controls box */
+		#prevNext {
+			float: left;
+			margin: auto;
+		}
+		#slider {
+			color: #000;
+		}
+	</style>
+	
+<!-- ///////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<script>
+		// function for box
+		var vectors;
+		var box;
+		var transform;
+		var maxOpacity = 1.0;
+		var minOpacity = 0.0;
+
+		Proj4js.defs["EPSG:4326"] = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
+		Proj4js.defs["EPSG:3031"] = "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
+		Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
+		
+		// alter the opacity of the climatology image
+		function changeOpacity( byOpacity ) {
+			var newOpacity = (parseFloat(OpenLayers.Util.getElement('opacity').value) + byOpacity).toFixed(1);
+			newOpacity = Math.min(maxOpacity, Math.max(minOpacity, newOpacity));
+			OpenLayers.Util.getElement('opacity').value = newOpacity;
+			graphic.setOpacity(newOpacity);
+       	}
+		function changeOpacityMarker( byOpacity ){
+			var newOpacity = (parseFloat(OpenLayers.Util.getElement('opacityMarker').value) + byOpacity).toFixed(1);
+			newOpacity = Math.min(maxOpacity, Math.max(minOpacity, newOpacity));
+			OpenLayers.Util.getElement('opacityMarker').value = newOpacity;
+			markers3.setOpacity(newOpacity);
+		}
+
+		function endDrag( bbox ){
+			var bounds = bbox.getBounds();
+			setBounds(bounds);
+			drawBox(bounds);
+			box.deactivate();
+			document.getElementById("bbox_drag_instruction").style.display = 'none';
+			document.getElementById("bbox_adjust_instruction").style.display = 'block';        
+		}
+
+		function dragNewBox(){
+			box.activate();
+			transform.deactivate(); //The remove the box with handles
+			vectors.destroyFeatures();
+			document.getElementById("bbox_drag_instruction").style.display = 'block';
+			document.getElementById("bbox_adjust_instruction").style.display = 'none';
+			setBounds(null);
+		}
+
+		function boxResize( event ){
+			setBounds(event.feature.geometry.bounds);
+		}
+
+		function drawBox( bounds ){
+			var feature = new OpenLayers.Feature.Vector(bounds.toGeometry());
+			vectors.addFeatures(feature);
+			transform.setFeature(feature);
+		}
+
+		function toPrecision( zoom, value ){
+			var decimals = Math.pow(10, Math.floor(zoom/3));
+			return Math.round(value * decimals) / decimals;
+		}
+		
+		function setBounds( bounds ){
+			if( bounds == null ){
+				document.getElementById("bbox_result").innerHTML = "";		  
+			} else {
+
+				b = bounds.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"))
+				minlon = toPrecision(map.getZoom(), b.left);
+				minlat = toPrecision(map.getZoom(), b.bottom);
+				maxlon = toPrecision(map.getZoom(), b.right);
+				maxlat = toPrecision(map.getZoom(), b.top);
+
+				console.log("values: " + minlon + ", " + maxlon + ", " + minlat + ", " + maxlat);
+				document.getElementById("bbox_result").innerHTML =
+				"<br>minlon: " + minlon + ", " +
+				"maxlon: " + maxlon + ",<br>" +
+				"minlat: " + minlat + ", " +
+				"maxlat: " + maxlat;
+
+				/*
+				anomalyRequest["locat"] = minlat;
+				anomalyRequest["minlon"] = minlon;
+				anomalyRequest["maxlat"] = maxlat;
+				anomalyRequest["maxlon"] = maxlon;
+				*/
+				
+				//loctnArray = [minlat,minlon,maxlat,maxlon]; // update the coordinates
+				loctnArray = Array();
+/*				loctnArray[0]={"longitude": maxlon, "latitude": maxlat};
+				loctnArray[1]={"longitude": minlon, "latitude": minlat};
+*/
+				loctnArray[0]={"longitude": 317, "latitude": -38};
+				loctnArray[1]={"longitude": 135, "latitude": -40};
+	
+				anomalyRequest["locations"] = loctnArray;
 			}
-		});
-		$("#expDiv").html(ajaxHandle.responseText)
-	}
-</script>
+		}
+	
+		function setupmap() {
+
+			map = new OpenLayers.Map('map', {
+				projection: "EPSG:3031",
+				displayProjection: "EPSG:4326"
+			});
+
+			var lonlat = new OpenLayers.LonLat(0, 0).transform(
+				new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+				new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator
+			);
+
+			vectors = new OpenLayers.Layer.Vector("Vector Layer", {
+				displayInLayerSwitcher: false
+			});
+
+			var tiles = new OpenLayers.Layer.XYZ(
+				'Polar XYZ',
+				'http://polar.openstreetmap.de/tiles/${z}/${x}/${y}.png',
+				{
+					projection: 'EPSG:3031',
+					maxExtent: [-3000000,-3000000,3000000,3000000],
+					//	attribution: '© <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+					numZoomLevels: 20,
+					transitionEffect: 'resize'
+				}
+			)
+			map.addLayer(tiles);
+		
+			// for overlaying the climatology image on top of the map
+			graphic = new OpenLayers.Layer.Image(
+				'SSMI Image	',
+				'images/mar.png',
+				new OpenLayers.Bounds(-3929786, -3929786, 3923000, 4323674), // not sure why last number is 43...
+				new OpenLayers.Size(1, 1),
+				{isBaseLayer: false, opacity: 0.5}
+			);
+			map.addLayer(graphic);
+			
+			
+			// markers that designate the corners of the climatology image
+			var markers = new OpenLayers.Layer.Vector("Markers", {
+				projection: 'EPSG:4326',
+				/* // don't need to plot the markers
+				strategies: [new OpenLayers.Strategy.Fixed()],
+					protocol: new OpenLayers.Protocol.HTTP({
+					url: "interesting.json",
+					format: new OpenLayers.Format.GeoJSON()
+				})
+				*/
+			});
+			map.addLayer(markers);
+			
+				
+			var featctl = new OpenLayers.Control.SelectFeature(markers);
+			map.addControl(featctl);
+			featctl.activate();
+			
+
+			featctl.events.register('featurehighlighted', this, function(e) {
+				var pt = e.feature.geometry, ll = new OpenLayers.LonLat(pt.x, pt.y);
+				map.setCenter(0, 0);
+			});
+
+			map.events.register('zoomend', this, function() {
+				markers.setVisibility(map.zoom < 8);
+			});
+
+			if( !map.getCenter() ){
+				map.setCenter(new OpenLayers.LonLat(0, 0), 1); // despite the class name, these are in EPSG:3031, so 0/0 is actually the pole 
+			}
+
+			// begin draw box
+			var zoom = 1;
+			
+			vectors = new OpenLayers.Layer.Vector("Vector Layer", {
+				displayInLayerSwitcher: false
+			});
+			map.addLayer(vectors);
+
+			box = new OpenLayers.Control.DrawFeature(vectors, OpenLayers.Handler.RegularPolygon, {
+				handlerOptions: {
+					sides: 4,
+					snapAngle: 90,
+					irregular: true,
+					persist: true
+				}
+			});
+			box.handler.callbacks.done = endDrag;
+			map.addControl(box);
+			
+			transform = new OpenLayers.Control.TransformFeature(vectors, {
+				rotate: false,
+				irregular: true
+			});
+			
+			transform.events.register("transformcomplete", transform, boxResize);
+			
+			map.addControl(transform);
+			map.addControl(box);
+			
+			box.activate();
+			map.setCenter(lonlat, zoom);
+			
+			markers3 = new OpenLayers.Layer.Markers("anomalies");
+			map.addLayer(markers3);
+
+			// end draw box
+		}
+		</script>
+
+<!-- ///////////////////////////////////////////////////////////////////////////////////////// -->
+	<script>
+		/*User Request Configuration*/
+		var sendString = "",
+			dataSet = "SSMI",
+			frequency = "19",
+			polarization = "h",
+			startDate = "2010-12-12",
+			endDate = "2010-12-20";
+
+		loctnArray = Array();
+
+		/*user request function*/
+		var anomalyRequest = {
+			"dsName": dataSet,
+			"dsFreq": frequency,
+			"dsPolar": polarization,
+			"sDate": startDate,
+			"eDate": endDate,
+			"locations": loctnArray
+		};
+
+		function updateDate() {
+			startDate = "" + document.getElementById('startDate').value;
+			endDate = "" + document.getElementById('endDate').value;
+			anomalyRequest["sDate"] = startDate;
+			anomalyRequest["eDate"] = endDate;
+		}
+
+		function changeDataSet(ds) {
+			dataSet = ds;
+			updateDate();
+			anomalyRequest["dsName"] = ds;
+		};
+
+		function changeVariableSelection(variable, selectionList){
+			updateDate();
+			
+		}
+		
+		function changeFrequency(freq) {
+			frequency = freq;
+			updateDate();
+			//update Frequency
+			anomalyRequest["dsFreq"] = freq;
+
+			if (freq == '91') {
+				document.getElementById("freq91").style.color = "black";
+				document.getElementById("freq85").style.color = "#B6B6B4";
+				document.getElementById("freq37").style.color = "#B6B6B4";
+				document.getElementById("freq22").style.color = "#B6B6B4";
+				document.getElementById("freq19").style.color = "#B6B6B4";
+			} else if (freq == '85') {
+
+				document.getElementById("freq91").style.color = "#B6B6B4";
+				document.getElementById("freq85").style.color = "black";
+				document.getElementById("freq37").style.color = "#B6B6B4";
+				document.getElementById("freq22").style.color = "#B6B6B4";
+				document.getElementById("freq19").style.color = "#B6B6B4";
+			} else if (freq == '37') {
+				document.getElementById("freq91").style.color = "#B6B6B4";
+				document.getElementById("freq85").style.color = "#B6B6B4";
+				document.getElementById("freq37").style.color = "black";
+				document.getElementById("freq22").style.color = "#B6B6B4";
+				document.getElementById("freq19").style.color = "#B6B6B4";
+			} else if (freq == '22') {
+				document.getElementById("freq91").style.color = "#B6B6B4";
+				document.getElementById("freq85").style.color = "#B6B6B4";
+				document.getElementById("freq37").style.color = "#B6B6B4";
+				document.getElementById("freq22").style.color = "black";
+				document.getElementById("freq19").style.color = "#B6B6B4";
+			} else {
+				document.getElementById("freq91").style.color = "#B6B6B4";
+				document.getElementById("freq85").style.color = "#B6B6B4";
+				document.getElementById("freq37").style.color = "#B6B6B4";
+				document.getElementById("freq22").style.color = "#B6B6B4";
+				document.getElementById("freq19").style.color = "black";
+			}
+		};
+
+		function changePolarization(pol) {
+			polarization = pol;
+			updateDate();
+			anomalyRequest["dsPolar"] = pol;
+
+			if (pol == 'v') {
+				document.getElementById("vertical").style.color = "black";
+				document.getElementById("horizontal").style.color = "#B6B6B4";
+			} else {
+				document.getElementById("horizontal").style.color = "black";
+				document.getElementById("vertical").style.color = "#B6B6B4";
+			}
+		}
+
+		//function updatePolyArea(pa) { polyArea = pa; }
+		function enablePolygonSearch() {};
+
+		//pass full request to a new page, in localStorage
+		function sendRequest(anomalyRequest) {
+			updateDate();
+
+			anomalyRequest["dsFreq"] = "s" + frequency + polarization;
+			localStorage['userQuery'] = JSON.stringify(anomalyRequest);
+			//var win = window.open("anomaly.html",'_blank');
+			//win.focus();
+			parseRequest();
+
+			updateDateValues();
+			changeDateRange(0);
+			updatePixels();
+			
+			updateDate();
+		};
+	</script>
 </head>
 
-<body>
-	<button class="button" onclick="sendJson()">Send</button>
-	<div id="expDiv"></div>
+<!-- ///////////////////////////////////////////////////////////////////////////////////////// -->
+<body onload="setupmap()">
+<div id="wrapper">
+    <header class='container' id='header'></header>
+
+	<nav class='container roundEdge' id='nav'>
+		<center><h1 id='project'>Condensing Massive Satellite Data For Rapid Interactive Analysis</h1></center>
+	</nav>
+	
+	<section class='container' id='main'>
+		<div id='content'>
+			<div id='map'>
+				<div class="time"></div>
+			</div>
+		</div>
+			
+		<aside id='sidebar' class='roundEdge'>
+			<br>
+			<img src="images/logoNSIDC.png" alt="logo" style="width:100px;height:100px;">
+			<img src="images/logoCU.jpg" alt="logo" style="width:100px;height:100px;"><br>
+			
+			<span id="datasetName"><font color="Black">Data Set</font></span><br>
+			<button id="dataset2" class="myButton" onclick="changeDataSet('SSMI')">SSMI</button><br>
+		
+			<span id="datasetFrequency"><font color="Black">Frequency [ SSMI ]</font></span><br>
+			<button id="freq19" class="myButton" onclick="changeFrequency('19')">19.3</button>
+			<button id="freq22" class="myButton" onclick="changeFrequency('22')">22.2</button>
+			<button id="freq37" class="myButton" onclick="changeFrequency('37')">37.0</button><br>
+			<button id="freq85" class="myButton" onclick="changeFrequency('85')">85.5</button>
+			<button id="freq91" class="myButton" onclick="changeFrequency('91')">91.7</button><br>
+			
+			<span id="datasetPolarization"><font color="Black">Polarization [ SSMI ]</font></span><br>
+			<button id="vertical" class="myButton" onclick="changePolarization('v')">vertical</button>
+			<button id="horizontal" class="myButton" onclick="changePolarization('h')">horizontal</button><br>
+		
+			<span id="datasetField"><font color="Black">Start Date</font></span><br>
+			<input id="startDate" name="startDate" value="2010-12-12" type="date" min="1987-01-01" max="2014-12-31" onclick="updateDate()" /><br><br>
+			<span id="datasetField"><font color="Black">End Date</font></span><br>
+			<input id="endDate" name="endDate" value="2010-12-20" type="date" min="1987-01-01" max="2014-12-31" onclick="updateDate()" /><br>
+
+			<input class="myButton" value="Submit Query" onclick="sendRequest(anomalyRequest);" type="button">
+
+			<div id="bbox_drag_instruction">Click to drag a box:</div>
+			<div id="bbox_adjust_instruction">Adjust the box<br> <input type="button" value="drag new box" onclick="dragNewBox();"></div>
+			<div id="mapdiv"></div>
+			<p id="bbox_result"></p>
+
+			<p>Opacity of Layer:
+			<a title="decrease opacity" href="javascript: changeOpacity(-0.1);">&lt;&lt;</a>
+			<input id="opacity" type="text" value="0.5" size="3" disabled="true" />
+			<a title="increase opacity" href="javascript: changeOpacity(0.1);">&gt;&gt;</a>
+			</p>
+
+			<p>Opacity of Markers:
+			<a title="decrease opacity" href="javascript: changeOpacityMarker(-0.1);">&lt;&lt;</a>
+			<input id="opacityMarker" type="text" value="0.5" size="3" disabled="true" />
+			<a title="increase opacity" href="javascript: changeOpacityMarker(0.1);">&gt;&gt;</a>
+			</p>
+
+			
+		</aside>
+	</section>
+
+	<div id="slider" class="slider"></div>
+
+	<div id="changeDateButtons">
+		<center><br><br><br>
+		<input class="myButton" value="Query Previous 10 Days" onclick="changeDateRange(-10);" type="button">
+		<input class="myButton" value="Query Next 10 Days" onclick="changeDateRange(10);" type="button"><br>
+		</center>
+	</div>
+
+	<footer class='container' id='footer'>
+		<center><p>© 2015 NSIDC & University of Colorado at Boulder</p></center>
+	</footer>
+	
+<!-- ///////////////////////////////////////////////////////////////////////////////////////// -->
+	<script>
+		requestReturned = 0;
+		function parseRequest(e) {
+			console.log("making request....");
+
+			ajaxHandle = $.ajax({
+				type : "POST",
+				contentType : "application/json; charset=utf-8",
+				url : "./anomaly/ajaxRetrvAnomaly.do",
+				data : localStorage["userQuery"],
+				dataType : 'json',
+				async : true,
+				success : function(response) {
+					console.log("________________ajax success!_________________");
+					console.log("respones: " + response);
+					anomalyRequest = response;
+					requestReturned = 1;
+					updatePixels();
+				}
+			});
+		}
+	</script>
+
+	<script>
+		var months = [ "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec" ];
+		var activeMonth = new Date().getMonth();
+		var save = 0;
+		
+		function updateDateValues(){
+			sDate = JSON.parse(localStorage.userQuery)["sDate"];
+			eDate = JSON.parse(localStorage.userQuery)["eDate"];
+
+			console.log("sDate: " + sDate + ", " + "eDate: " + eDate);
+			startDate = new Date(sDate);
+			slideDate = startDate;
+			cDateNum = startDate;
+			arrDates = GetDates(startDate, 10);
+		}
+		updateDateValues();
+
+		function changeDateRange(num) {
+			var currentDate = new Date(slideDate.getDate());
+			currentDate.setDate;
+			slideDate.setDate(currentDate.getTime() + num);
+			arrDates = GetDates(slideDate, 10); // next 10 days
+
+			$(".slider").slider({
+				min : 0,
+				max : 9,
+				value : 0
+			}).slider("pips", {
+				rest : "label",
+				labels : arrDates
+			})
+		}
+
+
+		// find the next set of days
+		function GetDates(startDate, daysToAdd) {
+			var arrDates = [];
+			for (var i = 1; i <= daysToAdd; i++) {
+				var currentDate = new Date(startDate);
+				currentDate.setDate(startDate.getDate() + i);
+				arrDates.push(currentDate.getDate() + " "
+						+ months[currentDate.getMonth()] + " "
+						+ currentDate.getFullYear());
+			}
+			return arrDates;
+		}
+
+		$(".slider").slider({
+			min : 0,
+			max : 9,
+			value : 0
+		}).slider("pips", {
+			rest : "label",
+			labels : arrDates
+		}).on("slidechange", function(e, ui) {
+			//$("#labels-months-output").text("You selected " + months[ui.value] + " (" + ui.value + ")");
+			$("#image").attr("src", "images/" + months[ui.value] + ".png");
+			$( console.log("currentDay: " + arrDates[ui.value]) );
+			$( updatePixels() );
+		});
+
+	</script>
+
+	<script>
+		function updatePixels() {
+			var k, j = 0;
+			var foo = [];
+			
+			var sliderValue = 0;
+
+			// wait for ajax response
+			if( requestReturned == 1 ){
+				sliderValue = $(".slider").slider("value"); // which selection is highlighted
+				timeSeconds = (slideDate.getTime()+sliderValue*24*60*60*1000);
+				
+				slDate = new Date(0);
+				slDate.setUTCSeconds( (slideDate.getTime()+(sliderValue+1)*24*60*60*1000) / 1000 );
+				aReq = new Date(0);
+				aReq.setUTCSeconds(anomalyRequest[1]["date"]/1000);
+				
+				console.log("slideDate: " + slDate.getDate() + " "+ (slDate.getMonth()+1) + " " + slDate.getFullYear());
+				console.log("requestDate: " + aReq.getDate() + " "+ (aReq.getMonth()+1) + " " + aReq.getFullYear());
+
+				markers3.clearMarkers();
+				
+				for (k = 0; k < anomalyRequest.length; k++) {
+					foo = anomalyRequest[k];
+					num = foo["date"] / 1000;
+					d = new Date(0); // set date to epoch
+					d.setUTCSeconds(num);
+	
+					// if the slider day matches any of the json anomalies
+					if( d.getDate() == slDate.getDate() 
+						&& d.getMonth() == slDate.getMonth()
+						&& d.getFullYear() == slDate.getFullYear() ){
+			
+						longi = foo["longi"];
+						lati = foo["lati"];
+
+						// //////delete this!
+						//longi = -135 + 50*longi/300;
+						//lati = -85 + 10*lati/300;
+						// ////// delete this!
+						
+						//console.log("x: " + lati + ", y:" + longi + " k: " + k);						
+
+						var location = new OpenLayers.LonLat(longi, lati).transform(
+							new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+							new OpenLayers.Projection("EPSG:3031") // to Spherical Mercator
+						);
+						var size = new OpenLayers.Size(10, 10);
+						var offset = new OpenLayers.Pixel(-size.w/2, -size.h/2);
+						var icon = new OpenLayers.Icon('images/markerSquare.jpg', size, offset);
+						markers3.addMarker(new OpenLayers.Marker(location, icon.clone()));
+						
+					}
+				} // end loop through anomalyRequest json
+			} // if request returned is 1
+		}
+
+	</script>
+
+</div><!-- end wrapper -->
 </body>
 </html>
+
+<!-- ///////////////////////////////////////////////////////////////////////////////////////// -->
+<!--
+Resources:
+
+	SSMI Page:
+	<http://nsidc.org/data/docs/daac/nsidc0001_ssmi_tbs.gd.html>
+
+	<http://dev.openlayers.org/examples/draw-feature.html>
+	<http://harrywood.co.uk/maps/examples/openlayers/bbox-selector.view.html>
+
+-->

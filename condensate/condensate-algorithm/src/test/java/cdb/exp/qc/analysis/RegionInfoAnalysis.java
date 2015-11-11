@@ -47,8 +47,8 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
 
         String sql = "SELECT anomalyinfo.x, anomalyinfo.y, anomalyinfo.date, anomalyinfo.desc, regiondesc.rWidth, regiondesc.rHeight "
                      + "FROM anomalyinfo JOIN regiondesc on anomalyinfo.rId = regiondesc.id "
-                     + "WHERE x > 100 AND x < 200 " + "AND y > 100 AND y < 200 "
-                     + "AND date > 20110203 " + "AND date < 20150203 "
+                     + "WHERE x > 100 AND x < 200 " + "AND y > 100 AND y < 300 "
+                     + "AND date > 20100203 " + "AND date < 20150203 "
                      + "ORDER BY anomalyinfo.date ASC";
 
         RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,

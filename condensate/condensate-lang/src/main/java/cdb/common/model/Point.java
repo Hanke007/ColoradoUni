@@ -31,6 +31,14 @@ public class Point implements Iterable<Double> {
         data = new double[dimention];
     }
 
+    public Point(double val1, double val2) {
+        super();
+        this.dataDimnsn = 2;
+        data = new double[2];
+        data[0] = val1;
+        data[1] = val2;
+    }
+
     public Point(double... args) {
         super();
         this.dataDimnsn = args.length;

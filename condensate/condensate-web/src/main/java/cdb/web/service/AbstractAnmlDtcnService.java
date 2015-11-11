@@ -1,14 +1,13 @@
 package cdb.web.service;
 
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.dal.file.DatasetProc;
-import cdb.web.bean.Location2D;
+import cdb.web.bean.GeoLocation;
+import cdb.web.envelope.AnomalyEnvelope;
 import cdb.web.vo.AnomalyVO;
 
 /**
@@ -20,8 +19,6 @@ import cdb.web.vo.AnomalyVO;
 public abstract class AbstractAnmlDtcnService {
     /** logger */
     protected final static Logger logger = Logger.getLogger(LoggerDefineConstant.SERVICE_NORMAL);
-    /** the data processor to parse the binary data*/
-    protected DatasetProc         dProc;
 
     /**
      * detect anomalies in SSIM-dataset given start and end dates
@@ -32,36 +29,8 @@ public abstract class AbstractAnmlDtcnService {
      * @return          the list of the anomalies
      * @throws ParseException  Date parse exception
      */
-    public abstract List<AnomalyVO> retrvAnomaly(Date sDate, Date eDate, Location2D[] locals,
-                                                 String freqId);
+    public abstract List<AnomalyVO> retrvAnomaly(GeoLocation leftUperCorner,
+                                                 GeoLocation rightDownCorner,
+                                                 AnomalyEnvelope reqContext);
 
-    /**
-     * query the anomalies in Repository
-     * 
-     * @param sDate     start date
-     * @param eDate     end date
-     * @param locals    the target locations to check
-     * @return          the list of the anomalies
-     * @throws ParseException  Date parse exception
-     */
-    public abstract List<String> retrvImageUrl(Date sDate, Date eDate, Location2D[] locals,
-                                               String freqId);
-
-    /**
-     * Getter method for property <tt>dProc</tt>.
-     * 
-     * @return property value of dProc
-     */
-    public DatasetProc getdProc() {
-        return dProc;
-    }
-
-    /**
-     * Setter method for property <tt>dProc</tt>.
-     * 
-     * @param dProc value to be assigned to property dProc
-     */
-    public void setdProc(DatasetProc dProc) {
-        this.dProc = dProc;
-    }
 }
