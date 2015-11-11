@@ -51,7 +51,8 @@ public class AnomalyRetrieveController extends AbstractController {
             Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
             reqContext.setsDate(sDate);
             Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
-            reqContext.seteDate(eDate);
+            Date eDefault = new Date(sDate.getTime() + 10 * 24 * 60 * 60 * 1000);
+            reqContext.seteDate(eDate.after(eDefault) ? eDefault : eDate);
             reqContext.setDsFreq(anomlyRequest.getDsFreq());
             reqContext.setDsName(anomlyRequest.getDsName());
 

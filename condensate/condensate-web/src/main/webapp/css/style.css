@@ -1,11 +1,19 @@
-html, body {
+/*Style Sheet for index.html*/
+
+
+/*Framework Style*/
+html,
+body {
     margin: 0px;
     padding: 0px;
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
-header, footer, section, nav {
+header,
+footer,
+section,
+nav {
     display: blocks;
 }
 
@@ -16,7 +24,7 @@ body {
 .container {
     margin: auto;
     width: auto;
-	height: auto;
+    height: auto;
     font-family: arial;
 }
 
@@ -28,16 +36,6 @@ h2 {
     padding-bottom: 5px;
     text-shadow: 0 1px 0 #FFF;
     font-size: 25px;
-}
-
-h1 {
-    font-family: 'Big Caslon', 'Book Antiqua', 'Palatino Linotype', Georgia, serif;
-    font-size: 28px;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: bold;
-    line-height: 25px;
-    color: #F5F9FB;
 }
 
 h2 a {
@@ -57,7 +55,9 @@ h2 a:hover {
     -webkit-border-radius: 6px;
 }
 
-#main, #header, #nav {
+#main,
+#header,
+#nav {
     overflow: auto;
 }
 
@@ -92,10 +92,10 @@ h2 a:hover {
 #sidebar {
     float: right;
     width: 20%;
-	height: 100%;
+    height: 100%;
     background-color: #fefefe;
     min-height: 600px;
-    max-height:auto;
+    max-height: auto;
     text-align: center;
     opacity: .95;
 }
@@ -135,17 +135,10 @@ h2 a:hover {
     margin: 10px;
 }
 
-
 .center {
     margin: auto;
     width: 76%;
     padding: 10px;
-}
-
-#map {
-    min-height: 600px;
-    width: 100%;
-    margin: 0 auto;
 }
 
 .loading {
@@ -174,6 +167,7 @@ h2 a:hover {
 }
 
 /*side bar options*/
+
 .myButton {
     background-color: AliceBlue;
     -moz-border-radius: 7px;
@@ -197,3 +191,81 @@ h2 a:hover {
     position: relative;
     top: 1px;
 }
+/*Framework Style*/
+
+
+/*Core Style*/
+
+#wrapper {
+    height: 90vh;
+    width: 97vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1 {
+    font-family: Syncopate;
+    font-size: 24px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    line-height: 26.4px;
+}
+
+#content {
+    height: 80vh;
+}
+
+#sidebar {
+    height: 80vh;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    background: #b4c8c8;
+}
+
+.olImageLoadError {
+    display: none !important;
+}
+
+#map .olControlAttribution {
+    right: 2px;
+    bottom: 2px;
+    color: #dcddd8;
+    font-family: arial;
+}
+
+#map .olControlAttribution a {
+    color: #ffc;
+}
+
+#mapdiv {
+    height: 10px;
+}
+
+div.olControlAttribution {
+    bottom: 3px;
+}
+
+#bbox_drag_instruction {
+    height: 1.5em;
+}
+
+#bbox_adjust_instruction {
+    height: 1.5em;
+    display: none;
+}
+
+#prevNext {
+    float: left;
+    margin: auto;
+}
+
+#slider {
+    color: #000;
+}
+/*end of core style*/
