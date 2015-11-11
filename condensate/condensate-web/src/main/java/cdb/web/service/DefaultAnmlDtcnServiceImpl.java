@@ -1,6 +1,5 @@
 package cdb.web.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +30,12 @@ public class DefaultAnmlDtcnServiceImpl extends AbstractAnmlDtcnService {
     @Override
     public List<AnomalyVO> retrvAnomaly(GeoLocation leftUperCorner, GeoLocation rightDownCorner,
                                         AnomalyEnvelope reqContext) {
-        Location2D leftUpCorn = anomalyInfoWDAO.selectNearestApproximatedLocation(
-            leftUperCorner.getLongitude(), leftUperCorner.getLatitude(), reqContext);
-        Location2D rightDownCorn = anomalyInfoWDAO.selectNearestApproximatedLocation(
+        Location2D leftUpCorn = anomalyInfoWDAO.selectNearestLeftUp(leftUperCorner.getLongitude(),
+            leftUperCorner.getLatitude(), reqContext);
+        Location2D rightDownCorn = anomalyInfoWDAO.selectNearestRightDown(
             rightDownCorner.getLongitude(), rightDownCorner.getLatitude(), reqContext);
 
-        if (leftUpCorn == null | rightDownCorn == null) {
-            return new ArrayList<AnomalyVO>();
-        } else {
-            return anomalyInfoWDAO.selectInBoxWithinTimeRange(leftUpCorn, rightDownCorn,
-                reqContext);
-        }
+        return anomalyInfoWDAO.selectInBoxWithinTimeRange(leftUpCorn, rightDownCorn, reqContext);
     }
 
 }

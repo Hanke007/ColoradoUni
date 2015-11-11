@@ -1,12 +1,13 @@
 package cdb.dal.util;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.h2.jdbcx.JdbcConnectionPool;
 
 import cdb.common.lang.StringUtil;
 
@@ -16,8 +17,10 @@ import cdb.common.lang.StringUtil;
  * @version $Id: DatabaseFactory.java, v 0.1 Nov 9, 2015 3:02:30 PM chench Exp $
  */
 public final class DatabaseFactory {
-    /** the repository of the data sbase connections*/
-    private final static Map<String, Connection> dbRep = new HashMap<String, Connection>();
+    /** the repository of the data base connections*/
+    private final static Map<String, Connection>         dbRep = new HashMap<String, Connection>();
+    /** the repository of the h2 database connections*/
+    private final static Map<String, JdbcConnectionPool> h2Rep = new HashMap<String, JdbcConnectionPool>();;
 
     /**
      * forbidden construction
@@ -40,10 +43,16 @@ public final class DatabaseFactory {
         if (StringUtil.isBlank(dbId)) {
             return null;
         } else if (dbId.startsWith("H2")) {
-            Class.forName("org.h2.Driver");
-            String freq = StringUtil.toLowerCase(dbId.substring(dbId.lastIndexOf('_') + 1));
-            conn = DriverManager.getConnection(
-                "jdbc:h2:~/" + freq + "19902014;SCHEMA=" + freq + "19902014", "", "");
+            JdbcConnectionPool connPoolH2 = h2Rep.get(dbId);
+            if (connPoolH2 == null) {
+                String freqId = StringUtil.toLowerCase(dbId.substring(dbId.lastIndexOf('_') + 1));
+                connPoolH2 = JdbcConnectionPool
+                    .create("jdbc:h2:tcp://localhost/~/" + freqId + "19902014a2;SCHEMA=" + freqId
+                            + "19902014a2;AUTO_SERVER=true;CACHE_SIZE=1048576;MULTI_THREADED=1",
+                        "", "");
+                h2Rep.put(dbId, connPoolH2);
+            }
+            conn = connPoolH2.getConnection();
         } else if (dbId.startsWith("MYSQL")) {
 
         }

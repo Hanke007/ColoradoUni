@@ -66,4 +66,12 @@ public class Location2D {
         this.column = column;
     }
 
+    /** 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "Location2D [row=" + row + ", column=" + column + "]";
+    }
+
 }

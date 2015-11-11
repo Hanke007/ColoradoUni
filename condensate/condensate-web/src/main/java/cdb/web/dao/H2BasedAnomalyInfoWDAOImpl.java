@@ -24,13 +24,14 @@ import cdb.web.vo.AnomalyVO;
  */
 @Repository
 public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
+    /** the default value of the right down corner */
+    private Location2D defaultRightDownVal;
 
     /** 
-     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestApproximatedLocation(double, double)
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestLeftUp(double, double, cdb.web.envelope.AnomalyEnvelope)
      */
     @Override
-    public Location2D selectNearestApproximatedLocation(double longi, double lati,
-                                                        AnomalyEnvelope reqContext) {
+    public Location2D selectNearestLeftUp(double longi, double lati, AnomalyEnvelope reqContext) {
         Location2D result = null;
         Connection conn = null;
         try {
@@ -43,18 +44,18 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             stmt.setDouble(3, lati);
             stmt.setDouble(4, lati);
 
-            double minLon = Math.floor(longi);
+            double minLon = Math.floor(longi) - 1;
             stmt.setDouble(5, minLon);
             double maxLon = Math.ceil(longi);
             stmt.setDouble(6, maxLon);
 
-            double minLat = Math.floor(lati);
+            double minLat = Math.floor(lati) - 1;
             stmt.setDouble(7, minLat);
             double maxLat = Math.ceil(lati);
             stmt.setDouble(8, maxLat);
 
             ResultSet rs = stmt.executeQuery();
-            result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
+            result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : new Location2D(0, 0);
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
         } catch (ClassNotFoundException e) {
@@ -77,6 +78,100 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
     }
 
     /** 
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestRightDown(double, double, cdb.web.envelope.AnomalyEnvelope)
+     */
+    @Override
+    public Location2D selectNearestRightDown(double longi, double lati,
+                                             AnomalyEnvelope reqContext) {
+        Location2D result = null;
+        Connection conn = null;
+        try {
+            String dbId = "H2_" + reqContext.getDsName()
+                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
+            conn = DatabaseFactory.getConnection(dbId);
+            PreparedStatement stmt = conn.prepareStatement(NEAREST_APPROXIMATED);
+            stmt.setDouble(1, longi);
+            stmt.setDouble(2, longi);
+            stmt.setDouble(3, lati);
+            stmt.setDouble(4, lati);
+
+            double minLon = Math.floor(longi) - 1;
+            stmt.setDouble(5, minLon);
+            double maxLon = Math.ceil(longi);
+            stmt.setDouble(6, maxLon);
+
+            double minLat = Math.floor(lati) - 1;
+            stmt.setDouble(7, minLat);
+            double maxLat = Math.ceil(lati);
+            stmt.setDouble(8, maxLat);
+
+            ResultSet rs = stmt.executeQuery();
+            result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2))
+                : selectDefaultRightDown(reqContext);
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, reqContext);
+        } catch (ClassNotFoundException e) {
+            ExceptionUtil.caught(e, "DB Driver Not Found");
+        } finally {
+            LoggerUtil.info(logger,
+                "Finished Nearest Approximation: " + (result == null ? "NULL" : result.toString()));
+        }
+
+        if (conn != null) {
+            try {
+
+                conn.close();
+
+            } catch (SQLException e) {
+                ExceptionUtil.caught(e, "Connection Closed.");
+            }
+        }
+        return result;
+    }
+
+    /** 
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectDefaultRightDown()
+     */
+    @Override
+    public Location2D selectDefaultRightDown(AnomalyEnvelope reqContext) {
+        if (defaultRightDownVal != null) {
+            return defaultRightDownVal;
+        } else {
+            Location2D result = null;
+            Connection conn = null;
+            try {
+                String dbId = "H2_" + reqContext.getDsName() + reqContext.getDsFreq().substring(1,
+                    reqContext.getDsFreq().length());
+                conn = DatabaseFactory.getConnection(dbId);
+                PreparedStatement stmt = conn.prepareStatement(DEFAULT_RIGHT_DOWN);
+
+                ResultSet rs = stmt.executeQuery();
+                result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
+            } catch (SQLException e) {
+                ExceptionUtil.caught(e, reqContext);
+            } catch (ClassNotFoundException e) {
+                ExceptionUtil.caught(e, "DB Driver Not Found");
+            } finally {
+                LoggerUtil.info(logger,
+                    "Find  DefaultRightDown" + (result == null ? "NULL" : result.toString()));
+            }
+
+            if (conn != null) {
+                try {
+
+                    conn.close();
+
+                } catch (SQLException e) {
+                    ExceptionUtil.caught(e, "Connection Closed.");
+                }
+            }
+
+            defaultRightDownVal = result;
+            return result;
+        }
+    }
+
+    /** 
      * @see cdb.web.dao.AnomalyInfoWDAO#selectInBoxWithinTimeRange(cdb.web.bean.Location2D, cdb.web.bean.Location2D, cdb.web.bean.AnomalyRequest)
      */
     @Override
@@ -86,7 +181,8 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
         List<AnomalyVO> resultSet = new ArrayList<AnomalyVO>();
         Connection conn = null;
         try {
-            String dbId = "H2_" + reqContext.getDsName() + reqContext.getDsFreq();
+            String dbId = "H2_" + reqContext.getDsName()
+                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn.prepareStatement(ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL);
 
@@ -94,6 +190,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             stmt.setLong(1, daysOfStartDate);
             long daysOfEndDate = reqContext.geteDate().getTime() / (24 * 60 * 60 * 1000);
             stmt.setLong(2, daysOfEndDate);
+
             stmt.setInt(3, leftUperCorner.getRow());
             stmt.setInt(4, rightDownCorner.getRow());
             stmt.setInt(5, leftUperCorner.getColumn());

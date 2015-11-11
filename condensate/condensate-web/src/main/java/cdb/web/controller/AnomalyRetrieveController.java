@@ -48,9 +48,9 @@ public class AnomalyRetrieveController extends AbstractController {
             LoggerUtil.info(logger, "Request: " + anomlyRequest);
 
             AnomalyEnvelope reqContext = new AnomalyEnvelope();
-            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.SHORT_FORMAT);
+            Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
             reqContext.setsDate(sDate);
-            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.SHORT_FORMAT);
+            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
             reqContext.seteDate(eDate);
             reqContext.setDsFreq(anomlyRequest.getDsFreq());
             reqContext.setDsName(anomlyRequest.getDsName());
