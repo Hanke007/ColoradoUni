@@ -81,6 +81,10 @@ public class RegionAnomalyListJPanel extends JPanel {
         for (RegionAnomalyInfoVO regnAnmlInfo : regnAnmlInfoArrs) {
             StringBuilder labelList = new StringBuilder();
 
+            // add position information
+            labelList.append('(').append(regnAnmlInfo.getX()).append(',')
+                .append(regnAnmlInfo.getY()).append("):  ");
+
             int fIndx = 0;
             double[] fVals = new double[LABELS.length];
             for (double dVal : regnAnmlInfo.getdPoint()) {
