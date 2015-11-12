@@ -112,6 +112,14 @@ public class NetCDFDtProc implements DatasetProc {
     }
 
     /** 
+     * @see cdb.dal.file.DatasetProc#mask(java.lang.String)
+     */
+    @Override
+    public DenseMatrix mask(String fileName) {
+        throw new RuntimeException("Unsupported method");
+    }
+
+    /** 
      * @see cdb.dal.file.DatasetProc#dimensions(java.lang.String)
      */
     @Override

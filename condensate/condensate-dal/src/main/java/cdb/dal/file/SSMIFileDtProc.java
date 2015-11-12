@@ -38,7 +38,7 @@ public class SSMIFileDtProc implements DatasetProc {
         int[] dimension = dimensions(fileName);
 
         DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
-        boolean isSuccess = readInner(fileName, result);
+        boolean isSuccess = readInner(fileName, result, 2, false);
         return isSuccess ? result : null;
     }
 
@@ -49,13 +49,34 @@ public class SSMIFileDtProc implements DatasetProc {
         throw new RuntimeException("Unsupported method");
     }
 
+    /** 
+     * @see cdb.dal.file.DatasetProc#mask(java.lang.String)
+     */
+    @Override
+    public DenseMatrix mask(String fileName) {
+        // check validation
+        if (StringUtil.isBlank(fileName)) {
+            return null;
+        } else if (!FileUtil.exists(fileName)) {
+            return null;
+        }
+
+        // initialize the dimension w.r.t pattern of file name
+        int[] dimension = dimensions(fileName);
+
+        DenseMatrix result = new DenseMatrix(dimension[0], dimension[1]);
+        boolean isSuccess = readInner(fileName, result, 2, true);
+        return isSuccess ? result : null;
+    }
+
     /**
      * read data from given file path
      * 
      * @param fileName      the file contains data
      * @param geoEntity     the Object to store data
      */
-    protected boolean readInner(String fileName, DenseMatrix geoEntity) {
+    protected boolean readInner(String fileName, DenseMatrix geoEntity, int byteNum,
+                                boolean isGEO) {
 
         DataInputStream inStream = null;
         try {
@@ -63,14 +84,14 @@ public class SSMIFileDtProc implements DatasetProc {
 
             int rowNum = geoEntity.getRowNum();
             int colNum = geoEntity.getColNum();
-            byte[] buffer = new byte[2 * colNum];
+            byte[] buffer = new byte[byteNum * colNum];
             for (int i = 0; i < rowNum; i++) {
                 //read all bytes in i-th row
                 inStream.read(buffer);
 
                 for (int j = 0; j < colNum; j++) {
-                    int val = Byte2NumUtil.byte2int(buffer, j * 2, 2);
-                    geoEntity.setVal(i, j, calibretion(val));
+                    int val = Byte2NumUtil.byte2int(buffer, j * byteNum, byteNum);
+                    geoEntity.setVal(i, j, isGEO ? calibrateGEO(val) : calibrateVal(val));
                 }
             }
 
@@ -92,7 +113,7 @@ public class SSMIFileDtProc implements DatasetProc {
      * @param val
      * @return
      */
-    private double calibretion(double val) {
+    private double calibrateVal(double val) {
         if (val == 0 | val > 5000) {
             val = Double.NaN;
         } else {
@@ -100,6 +121,16 @@ public class SSMIFileDtProc implements DatasetProc {
         }
 
         return val;
+    }
+
+    /**
+     * transform original data to label data
+     * 
+     * @param val
+     * @return
+     */
+    private double calibrateGEO(double val) {
+        return val / 1000.0;
     }
 
     /**

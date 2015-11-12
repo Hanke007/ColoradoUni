@@ -29,6 +29,14 @@ public interface DatasetProc {
     public DenseMatrix read(String fileName, int[] rowIncluded, int[] colIncluded);
 
     /**
+     * read the maskes in the given file path.
+     * 
+     * @param fileName  the file storing the data
+     * @return          a general GeoEntity given the file name 
+     */
+    public DenseMatrix mask(String fileName);
+
+    /**
      * get the dimensions given the frequency identification
      *      
      * @param freqId    frequency id
