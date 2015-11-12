@@ -6,4 +6,5 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 	<settings useStatementNamespaces="true" />
 	<sqlMap resource="cdb/dal/sqlMap/anomalyinfo_SqlMap.xml" />
 	<sqlMap resource="cdb/dal/sqlMap/regiondesc_SqlMap.xml" />
+	<sqlMap resource="cdb/dal/sqlMap/maskdesc_SqlMap.xml" />
 </sqlMapConfig>

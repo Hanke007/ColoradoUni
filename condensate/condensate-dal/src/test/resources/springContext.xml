@@ -34,6 +34,9 @@
 	<bean id="anomalyinfoDAOImpl" class="cdb.dal.dao.AnomalyInfoDAOImpl">
 		<constructor-arg ref="sqlMapClient" />
 	</bean>
+	<bean id="maskDescDAOImpl" class="cdb.dal.dao.MaskDescDAOImpl">
+		<constructor-arg ref="sqlMapClient" />
+	</bean>
 
 
 	<!-- **************************** Outter Setting Connector ************************************************ -->

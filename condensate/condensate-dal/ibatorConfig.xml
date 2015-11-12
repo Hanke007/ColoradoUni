@@ -14,7 +14,8 @@
 			targetProject="condensate-dal" />
 		<daoGenerator targetPackage="cdb.dal.dao" targetProject="condensate-dal"
 			type="GENERIC-CI" />
-		<table schema="regionanomalyrep" tableName="anomalyinfo" />
-		<table schema="regionanomalyrep" tableName="regiondesc" />
+	<table schema="regionanomalyrep" tableName="anomalyinfo" />
+	<table schema="regionanomalyrep" tableName="regiondesc" />
+		<table schema="regionanomalyrep" tableName="maskdesc" />
 	</ibatorContext>
 </ibatorConfiguration>

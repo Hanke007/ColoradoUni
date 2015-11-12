@@ -1,17 +1,24 @@
 package cdb.dal.test;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.h2.jdbcx.JdbcConnectionPool;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.dal.dao.AnomalyInfoDAOImpl;
+import cdb.dal.dao.MaskDescDAO;
 import cdb.dal.model.AnomalyInfoBean;
-import cdb.dal.util.DBUtil;
+import cdb.dal.model.MaskDescBean;
 
 /**
  * 
@@ -25,14 +32,10 @@ public class DalTest {
      * @param args
      */
     public static void main(String[] args) {
-        String sql = "SELECT anomalyinfo.x, anomalyinfo.y, anomalyinfo.date, anomalyinfo.desc "
-                     + "FROM anomalyinfo " + "WHERE x > 100 AND x < 200 "
-                     + "AND y > 100 AND y < 200 " + "AND date > 20100203 " + "AND date < 20150203 "
-                     + "ORDER BY anomalyinfo.date ASC";
-        DBUtil.excuteSQLWithReturnList(sql);
+        loadAnomalyResult();
     }
 
-    public static void case1() {
+    public static void loadAnomalyResult() {
         ClassPathXmlApplicationContext ctx = null;
         try {
             List<AnomalyInfoBean> records = new ArrayList<AnomalyInfoBean>();
@@ -61,6 +64,60 @@ public class DalTest {
                 ctx.close();
             }
         }
+    }
+
+    public static void loadMaskResult() {
+        final String SELECT_ALL = "SELECT ROW, COL, LON, LAT FROM LOCATIONS";
+        List<Point> locs = new ArrayList<Point>();
+        try {
+            // achieve data
+            JdbcConnectionPool connPoolH2 = JdbcConnectionPool.create(
+                "jdbc:h2:tcp://localhost/~/ssmi37v19902014;SCHEMA=ssmi37v19902014;AUTO_SERVER=true;MULTI_THREADED=1",
+                "", "");
+            Connection conn = connPoolH2.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(SELECT_ALL);
+
+            while (rs.next()) {
+                //ID, LON, LAT
+                Point point = new Point(rs.getInt(1), rs.getInt(2), rs.getDouble(3),
+                    rs.getDouble(4));
+                locs.add(point);
+            }
+            conn.close();
+            connPoolH2.dispose();
+
+            // write data
+
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, "");
+        }
+
+        ClassPathXmlApplicationContext ctx = null;
+        try {
+            List<MaskDescBean> records = new ArrayList<MaskDescBean>();
+
+            for (Point point : locs) {
+                MaskDescBean model = new MaskDescBean();
+                model.setX(Double.valueOf(point.getValue(0)).intValue());
+                model.setY(Double.valueOf(point.getValue(1)).intValue());
+                model.setLon(point.getValue(2));
+                model.setLat(point.getValue(3));
+                model.setCategory(1);
+            }
+
+            ctx = new ClassPathXmlApplicationContext("springContext.xml");
+            MaskDescDAO dao = (MaskDescDAO) ctx.getBean("maskDescDAOImpl");
+            dao.insertSelectiveArr(records);
+
+        } catch (Exception e) {
+            ExceptionUtil.caught(e, "It goes wrong.");
+        } finally {
+            if (ctx != null) {
+                ctx.close();
+            }
+        }
+
     }
 
 }
