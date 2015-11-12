@@ -14,6 +14,7 @@ import org.apache.commons.math3.stat.StatUtils;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.ImageWUtil;
+import cdb.common.lang.StringUtil;
 import cdb.common.model.Location;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
@@ -45,11 +46,16 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
         String regnAnmInfoFile = "C:/Users/chench/Desktop/SIDS/SSMI/Anomaly/REG_n19v_8_8";
         String freqId = "n19v";
 
-        String sql = "SELECT anomalyinfo.x, anomalyinfo.y, anomalyinfo.date, anomalyinfo.desc, regiondesc.rWidth, regiondesc.rHeight "
-                     + "FROM anomalyinfo JOIN regiondesc on anomalyinfo.rId = regiondesc.id "
-                     + "WHERE x > 100 AND x < 200 " + "AND y > 100 AND y < 300 "
-                     + "AND date > 20100203 " + "AND date < 20150203 "
-                     + "ORDER BY anomalyinfo.date ASC";
+        String[] lines = FileUtil.readLines("src/test/resources/sqlDump.properties");
+        StringBuilder sqlCon = new StringBuilder();
+        for (String line : lines) {
+            if (StringUtil.isBlank(line) | line.startsWith("#")) {
+                // filtering footnotes
+                continue;
+            }
+            sqlCon.append(line).append('\t');
+        }
+        String sql = new String(sqlCon);
 
         RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,
             3, 2010, true, sql);
