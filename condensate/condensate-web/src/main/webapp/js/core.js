@@ -96,6 +96,9 @@ function changePolarization(pol) {
 
 //pass full request to a new page, in localStorage
 function sendRequest(anomalyRequest, mode) {
+    //remove the current box
+    dragNewBox();
+    //
     if (mode === 0) {
         updateDate(); //update start/end date based on query
     }
