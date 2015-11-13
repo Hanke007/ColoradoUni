@@ -47,7 +47,7 @@ public final class DatabaseFactory {
             if (connPoolH2 == null) {
                 String freqId = StringUtil.toLowerCase(dbId.substring(dbId.lastIndexOf('_') + 1));
                 connPoolH2 = JdbcConnectionPool
-                    .create("jdbc:h2:~/" + freqId + "19902014a2;SCHEMA=" + freqId
+                    .create("jdbc:h2:/h2database/" + freqId + "19902014a2;SCHEMA=" + freqId
                             + "19902014a2;AUTO_SERVER=true;CACHE_SIZE=1048576;MULTI_THREADED=1",
                         "", "");
                 h2Rep.put(dbId, connPoolH2);
