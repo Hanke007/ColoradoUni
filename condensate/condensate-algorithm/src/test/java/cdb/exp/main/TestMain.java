@@ -7,7 +7,6 @@ import cdb.common.model.DenseMatrix;
 import cdb.dal.file.AVHRFileDtProc;
 import cdb.dal.file.DMSPFileDtProc;
 import cdb.dal.file.DatasetProc;
-import cdb.dal.file.NetCDFDtProc;
 import cdb.dal.file.SSMIFileDtProc;
 
 /**
@@ -45,37 +44,6 @@ public class TestMain {
         File file = new File(fileName);
         String fileN = file.getName();
         ImageWUtil.plotGrayImage(matrix,
-            "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
-            ImageWUtil.PNG_FORMMAT);
-    }
-
-    public static void NetCDFileDtProc() {
-        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\2012\\GLSMD25E2_20120101_v01r01.nc";
-        DatasetProc dProc = new NetCDFDtProc();
-        DenseMatrix matrix = dProc.read(fileName);
-
-        File file = new File(fileName);
-        String fileN = file.getName();
-        ImageWUtil.plotImageForMEASURE(matrix,
-            "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
-            ImageWUtil.PNG_FORMMAT);
-    }
-
-    public static void filteringNetCDFileDtProc() {
-        String fileName = "C:\\Users\\chench\\Desktop\\SIDS\\1990\\GLSMD25E2_19900205_v01r01.nc";
-        int[] rowIncluded = new int[100];
-        int[] colIncluded = new int[100];
-        for (int i = 0; i < rowIncluded.length; i++) {
-            rowIncluded[i] = 370 + i;
-            colIncluded[i] = 260 + i;
-        }
-
-        DatasetProc dProc = new NetCDFDtProc();
-        DenseMatrix matrix = dProc.read(fileName, rowIncluded, colIncluded);
-
-        File file = new File(fileName);
-        String fileN = file.getName();
-        ImageWUtil.plotImageForMEASURE(matrix,
             "C:\\Users\\chench\\Desktop\\" + fileN.substring(0, fileN.indexOf('.')) + ".png",
             ImageWUtil.PNG_FORMMAT);
     }
