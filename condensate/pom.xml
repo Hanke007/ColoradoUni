@@ -7,14 +7,6 @@
 	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
-	<repositories>
-		<repository>
-			<id>unidata-releases</id>
-			<name>UNIDATA Releases</name>
-			<url>https://artifacts.unidata.ucar.edu/content/repositories/unidata-releases/</url>
-		</repository>
-	</repositories>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -92,11 +84,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>edu.ucar</groupId>
-			<artifactId>netcdf</artifactId>
-			<version>4.3.22</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
