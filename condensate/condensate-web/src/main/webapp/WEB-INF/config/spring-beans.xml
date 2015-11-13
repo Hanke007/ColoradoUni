@@ -15,8 +15,8 @@
 		<property name="locations">
 			<list>
 				<!-- Multiple invoke methosd：classpath: or file: -->
-				<value>classpath:WEB-INF/config/dataset.properties</value>
-				<value>classpath:WEB-INF/config/jdbc.properties</value>
+				<value>WEB-INF/config/dataset.properties</value>
+				<value>WEB-INF/config/jdbc.properties</value>
 			</list>
 		</property>
 	</bean>
