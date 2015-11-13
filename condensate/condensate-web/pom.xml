@@ -51,6 +51,16 @@
 			<artifactId>condensate-algorithm</artifactId>
 			<version>1.0.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.nsidc.cbd</groupId>
+			<artifactId>condensate-dal</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.nsidc.cbd</groupId>
+			<artifactId>condensate-lang</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 
 </project>
