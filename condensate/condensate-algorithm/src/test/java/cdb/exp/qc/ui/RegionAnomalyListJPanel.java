@@ -55,14 +55,14 @@ public class RegionAnomalyListJPanel extends JPanel {
         regnJList = new RegionJList(labelArr, regnInfoRootDir, LABELS);
         ((DefaultListCellRenderer) regnJList.getCellRenderer())
             .setHorizontalAlignment(JLabel.CENTER);
-        regnJList.setPreferredSize(new Dimension(500, 50));
         regnJList.setRegnAnmlInfoArrs(regnAnmlInfoArrs);
         regnJList.setfIndices(fIndices);
 
-        jScrollPane = new JScrollPane(regnJList);
+        this.setPreferredSize(new Dimension(200, 100));
+        jScrollPane = new JScrollPane();
         jScrollPane.setViewportView(regnJList);
+        jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         this.add(jScrollPane);
-        this.setSize(new Dimension(500, 50));
     }
 
     public void updateContext(List<RegionAnomalyInfoVO> regnAnmlInfoArrs) {
