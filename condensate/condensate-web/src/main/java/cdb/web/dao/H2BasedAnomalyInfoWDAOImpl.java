@@ -34,9 +34,9 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
     public Location2D selectNearestLeftUp(double longi, double lati, AnomalyEnvelope reqContext) {
         Location2D result = null;
         Connection conn = null;
+
+        String dbId = convertDBID(reqContext);
         try {
-            String dbId = "H2_" + reqContext.getDsName()
-                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn.prepareStatement(NEAREST_APPROXIMATED);
             stmt.setDouble(1, longi);
@@ -58,6 +58,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : new Location2D(0, 0);
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
+            DatabaseFactory.removeConnectionCache(dbId);
         } catch (ClassNotFoundException e) {
             ExceptionUtil.caught(e, "DB Driver Not Found");
         } finally {
@@ -85,9 +86,9 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                                              AnomalyEnvelope reqContext) {
         Location2D result = null;
         Connection conn = null;
+
+        String dbId = convertDBID(reqContext);
         try {
-            String dbId = "H2_" + reqContext.getDsName()
-                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn.prepareStatement(NEAREST_APPROXIMATED);
             stmt.setDouble(1, longi);
@@ -110,6 +111,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                 : selectDefaultRightDown(reqContext);
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
+            DatabaseFactory.removeConnectionCache(dbId);
         } catch (ClassNotFoundException e) {
             ExceptionUtil.caught(e, "DB Driver Not Found");
         } finally {
@@ -139,9 +141,9 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
         } else {
             Location2D result = null;
             Connection conn = null;
+
+            String dbId = convertDBID(reqContext);
             try {
-                String dbId = "H2_" + reqContext.getDsName() + reqContext.getDsFreq().substring(1,
-                    reqContext.getDsFreq().length());
                 conn = DatabaseFactory.getConnection(dbId);
                 PreparedStatement stmt = conn.prepareStatement(DEFAULT_RIGHT_DOWN);
 
@@ -149,6 +151,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                 result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
             } catch (SQLException e) {
                 ExceptionUtil.caught(e, reqContext);
+                DatabaseFactory.removeConnectionCache(dbId);
             } catch (ClassNotFoundException e) {
                 ExceptionUtil.caught(e, "DB Driver Not Found");
             } finally {
@@ -180,9 +183,9 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                                                       AnomalyEnvelope reqContext) {
         List<AnomalyVO> resultSet = new ArrayList<AnomalyVO>();
         Connection conn = null;
+
+        String dbId = convertDBID(reqContext);
         try {
-            String dbId = "H2_" + reqContext.getDsName()
-                          + reqContext.getDsFreq().substring(1, reqContext.getDsFreq().length());
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn.prepareStatement(ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL);
 
@@ -207,6 +210,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             conn.close();
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
+            DatabaseFactory.removeConnectionCache(dbId);
         } catch (ClassNotFoundException e) {
             ExceptionUtil.caught(e, "DB Driver Not Found");
         } finally {
@@ -224,6 +228,17 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             }
         }
         return resultSet;
+    }
+
+    /**
+     * convert to Database identity
+     * 
+     * @param reqContext
+     * @return
+     */
+
+    protected String convertDBID(AnomalyEnvelope reqContext) {
+        return "H2_" + reqContext.getDsName() + "_" + reqContext.getDsFreq();
     }
 
 }
