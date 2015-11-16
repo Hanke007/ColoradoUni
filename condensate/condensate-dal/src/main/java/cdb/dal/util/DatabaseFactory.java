@@ -68,10 +68,9 @@ public final class DatabaseFactory {
                         : "19902014a2N";
 
                     String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
-                    connPoolH2 = JdbcConnectionPool
-                        .create("jdbc:h2:/h2database/" + dbName + ";SCHEMA=" + dbName
-                                + ";AUTO_SERVER=true;MULTI_THREADED=1",
-                            "", "");
+                    connPoolH2 = JdbcConnectionPool.create(
+                        "jdbc:h2:/h2database/" + dbName + ";SCHEMA=" + dbName + ";MULTI_THREADED=1",
+                        "", "");
                 }
                 h2Rep.put(dbId, connPoolH2);
             }
