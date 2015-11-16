@@ -287,7 +287,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         for (int dIndx = 0; dIndx < dSize; dIndx++) {
             Point p = dataSample.getPointRef(dIndx);
             String dataStr = regnDateStr.get(dIndx);
-            stringBuilder.append(p.toString()).append("#").append(dataStr).append('\n');
+            stringBuilder.append(p.toString()).append("# ").append(dataStr).append('\n');
         }
 
         // replace freqId_rWidth_rHeight_ORG to freqId_rWidth_rHeight
