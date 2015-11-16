@@ -63,6 +63,10 @@ public final class DBUtil {
         for (String url : urls) {
             try {
                 conn = DriverManager.getConnection(url, "chench", "123456");
+
+                if (conn != null) {
+                    break;
+                }
             } catch (SQLException e) {
                 continue;
             }
