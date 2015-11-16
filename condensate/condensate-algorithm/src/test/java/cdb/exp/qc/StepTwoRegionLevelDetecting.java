@@ -38,10 +38,10 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
      * @param args
      */
     public static void main(String[] args) {
-        SSMI();
+        SSMI(false);
     }
 
-    public static void SSMI() {
+    public static void SSMI(boolean needSaveData) {
         // thread setting
         double alpha = 2.0;
         int maxIter = 5;
@@ -69,13 +69,13 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             stopWatch.start();
             ExecutorService exec = Executors.newCachedThreadPool();
             exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight));
+                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
             exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight));
+                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
             exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight));
+                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
             exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight));
+                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
             exec.shutdown();
             exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
             stopWatch.stop();

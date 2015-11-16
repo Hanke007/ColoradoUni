@@ -34,17 +34,19 @@ import cdb.ml.clustering.KMeansPlusPlusUtil;
  */
 public class DefaultQualityControllThread extends AbstractQualityControllThread {
     /** the tolerance of the merging process*/
-    private double alpha                   = 2.0;
+    private double  alpha                   = 2.0;
     /** the maximum number of iterations in clustering process*/
-    private int    maxIter                 = 20;
+    private int     maxIter                 = 20;
     /** the maximum number of the resulting clusters*/
-    private int    maxClusterNum           = 50;
+    private int     maxClusterNum           = 50;
     /** the potential ratio of the malicious data*/
-    private double potentialMaliciousRatio = 0.15;
+    private double  potentialMaliciousRatio = 0.15;
     /** the row numbers of every region*/
-    private int    regionHeight            = 1;
+    private int     regionHeight            = 1;
     /** the column numbers of every region*/
-    private int    regionWeight            = 1;
+    private int     regionWeight            = 1;
+    /** pivot to indicate whether to save the processed data*/
+    private boolean needSaveData;
 
     /** mutex object*/
     private static Object                    ANOMALY_MUTEX = new Object();
@@ -87,7 +89,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
      */
     public DefaultQualityControllThread(double alpha, int maxIter, int maxClusterNum,
                                         double potentialMaliciousRatio, int regionHeight,
-                                        int regionWeight) {
+                                        int regionWeight, boolean needSaveData) {
         super();
         this.alpha = alpha;
         this.maxIter = maxIter;
@@ -95,6 +97,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         this.potentialMaliciousRatio = potentialMaliciousRatio;
         this.regionHeight = regionHeight;
         this.regionWeight = regionWeight;
+        this.needSaveData = needSaveData;
     }
 
     /** 
@@ -139,7 +142,9 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         List<String> regnDateStr = new ArrayList<String>();
         tranformRegionVO(regnList, dataSample, regnDateStr);
         normalization(dataSample);
-        //        save(fileName, dataSample, regnDateStr);
+        if (needSaveData) {
+            save(fileName, dataSample, regnDateStr);
+        }
 
         // clustering 
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
