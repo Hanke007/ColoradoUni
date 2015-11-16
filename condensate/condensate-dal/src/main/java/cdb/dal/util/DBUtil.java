@@ -29,8 +29,11 @@ public final class DBUtil {
     public static List<RegionAnomalyInfoVO> excuteSQLWithReturnList(String sql) {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            Connection conn = DriverManager
-                .getConnection("jdbc:mysql://localhost:3306/regionanomalyrep", "chench", "123456");
+            Connection conn = getAvailConnection();
+            if (conn == null) {
+                return null;
+            }
+
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
@@ -47,9 +50,24 @@ public final class DBUtil {
             }
             return resultSet;
         } catch (ClassNotFoundException | SQLException e) {
-            ExceptionUtil.caught(e, "");
+            ExceptionUtil.caught(e, "No SQL Connection.");
         }
 
         return null;
+    }
+
+    protected static Connection getAvailConnection() {
+        Connection conn = null;
+        String[] urls = { "jdbc:mysql://128.138.189.106:3306/regionanomalyrep",
+                          "jdbc:mysql://localhost:3306/regionanomalyrep" };
+        for (String url : urls) {
+            try {
+                conn = DriverManager.getConnection(url, "chench", "123456");
+            } catch (SQLException e) {
+                continue;
+            }
+        }
+
+        return conn;
     }
 }

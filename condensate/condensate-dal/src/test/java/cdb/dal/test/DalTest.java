@@ -33,6 +33,7 @@ public class DalTest {
      */
     public static void main(String[] args) {
         loadAnomalyResult();
+        //        loadMaskResult();
     }
 
     public static void loadAnomalyResult() {
@@ -66,13 +67,13 @@ public class DalTest {
         }
     }
 
-    public static void loadMaskResult() {
+    public static void loadMaskResult(int mId) {
         final String SELECT_ALL = "SELECT ROW, COL, LON, LAT FROM LOCATIONS";
         List<Point> locs = new ArrayList<Point>();
         try {
             // achieve data
             JdbcConnectionPool connPoolH2 = JdbcConnectionPool.create(
-                "jdbc:h2:tcp://localhost/~/ssmi37v19902014;SCHEMA=ssmi37v19902014;AUTO_SERVER=true;MULTI_THREADED=1",
+                "jdbc:h2:tcp://localhost/~/ssmi37v19902014a2N;SCHEMA=ssmi37v19902014a2N;AUTO_SERVER=true;MULTI_THREADED=1",
                 "", "");
             Connection conn = connPoolH2.getConnection();
             Statement stmt = conn.createStatement();
@@ -103,12 +104,15 @@ public class DalTest {
                 model.setY(Double.valueOf(point.getValue(1)).intValue());
                 model.setLon(point.getValue(2));
                 model.setLat(point.getValue(3));
-                model.setCategory(1);
+                model.setCategory(mId);
+
+                records.add(model);
             }
 
             ctx = new ClassPathXmlApplicationContext("springContext.xml");
             MaskDescDAO dao = (MaskDescDAO) ctx.getBean("maskDescDAOImpl");
-            dao.insertSelectiveArr(records);
+            dao.insertSelectiveArr(records.subList(0, records.size() / 2));
+            dao.insertSelectiveArr(records.subList(records.size() / 2, records.size()));
 
         } catch (Exception e) {
             ExceptionUtil.caught(e, "It goes wrong.");

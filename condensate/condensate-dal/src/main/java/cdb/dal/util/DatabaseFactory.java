@@ -45,11 +45,31 @@ public final class DatabaseFactory {
         } else if (dbId.startsWith("H2")) {
             JdbcConnectionPool connPoolH2 = h2Rep.get(dbId);
             if (connPoolH2 == null) {
-                String freqId = StringUtil.toLowerCase(dbId.substring(dbId.lastIndexOf('_') + 1));
-                connPoolH2 = JdbcConnectionPool
-                    .create("jdbc:h2:~/" + freqId + "19902014a2;SCHEMA=" + freqId
-                            + "19902014a2;AUTO_SERVER=true;CACHE_SIZE=1048576;MULTI_THREADED=1",
-                        "", "");
+                // H2_ [SSMI, AVHR]_[n, s][19,22,37,85][h, v]
+                // H2_SSMI_n19v
+                String[] elemnts = dbId.split("\\_");
+                String dsName = elemnts[1];
+                String dsFreqInfo = elemnts[2];
+                String dsPolar = dsFreqInfo.substring(0, 1);
+                String dsChannel = dsFreqInfo.substring(1);
+
+                // make jdbc url
+                if (StringUtil.equalsIgnoreCase(dsChannel, "85h")
+                    || StringUtil.equalsIgnoreCase(dsChannel, "85v")) {
+                    String dbSuffix = StringUtil.equalsIgnoreCase(dsPolar, "s") ? "19922009a2"
+                        : "19922009a2N";
+
+                    String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
+                    connPoolH2 = JdbcConnectionPool.create(
+                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";MULTI_THREADED=1", "", "");
+                } else {
+                    String dbSuffix = StringUtil.equalsIgnoreCase(dsPolar, "s") ? "19902014a2"
+                        : "19902014a2N";
+
+                    String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
+                    connPoolH2 = JdbcConnectionPool.create(
+                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";MULTI_THREADED=1", "", "");
+                }
                 h2Rep.put(dbId, connPoolH2);
             }
             conn = connPoolH2.getConnection();
@@ -58,6 +78,11 @@ public final class DatabaseFactory {
         }
 
         return conn;
+    }
+
+    public static void removeConnectionCache(String dbId) {
+        h2Rep.remove(dbId);
+        dbRep.remove(dbId);
     }
 
     /**
