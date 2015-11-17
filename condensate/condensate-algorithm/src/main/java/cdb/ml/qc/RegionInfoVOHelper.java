@@ -42,12 +42,12 @@ public final class RegionInfoVOHelper {
         //            }
 
         p.setValue(pSeq++, 0.0d);
-        //        p.setValue(pSeq++, one.gettGradCon().getValue(2)); // dffMean[-1]
-        p.setValue(pSeq++, one.gettGradCon().getValue(3)); // dffMean[+1]
+        p.setValue(pSeq++, one.gettGradCon().getValue(2)); // dffMean[-1]
+        //p.setValue(pSeq++, one.gettGradCon().getValue(3)); // dffMean[+1]
 
         p.setValue(pSeq++, 0.0d);
-        //        p.setValue(pSeq++, one.gettGradCon().getValue(4)); // dffSd[-1]
-        p.setValue(pSeq++, one.gettGradCon().getValue(5)); // dffSd[+1]
+        p.setValue(pSeq++, one.gettGradCon().getValue(4)); // dffSd[-1]
+        // p.setValue(pSeq++, one.gettGradCon().getValue(5)); // dffSd[+1]
 
         // Contextual: spatial correlations
         double sCorrSum = 0;
