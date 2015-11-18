@@ -76,12 +76,15 @@ public class RegionAnomalyListJPanel extends JPanel {
     protected void fillLabelContext(List<RegionAnomalyInfoVO> regnAnmlInfoArrs,
                                     Vector<String> labelArr) {
         int[] fIndices = new int[fContriNum];
+
+        int regnIndx = 0;
         for (RegionAnomalyInfoVO regnAnmlInfo : regnAnmlInfoArrs) {
             StringBuilder labelList = new StringBuilder();
 
             // add position information
-            labelList.append('(').append(regnAnmlInfo.getX()).append(',')
+            labelList.append("[" + regnIndx + "] (").append(regnAnmlInfo.getX()).append(',')
                 .append(regnAnmlInfo.getY()).append("):  ");
+            regnIndx++;
 
             int fIndx = 0;
             double[] fVals = new double[LABELS.length];
