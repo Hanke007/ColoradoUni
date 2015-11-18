@@ -338,4 +338,31 @@ public final class StatisticParamUtil {
         }
         return pivot;
     }
+
+    public static int[] findTopAbsMaxNum(Point point, int fContriNum, int indxEnd) {
+        int[] fIndices = new int[fContriNum];
+
+        int fIndx = 0;
+        double[] fVals = new double[indxEnd];
+        for (double dVal : point) {
+            if (fIndx >= indxEnd) {
+                break;
+            }
+
+            fVals[fIndx] = dVal;
+            fIndx++;
+        }
+
+        // find the top three maximum field
+        for (int indx = 0; indx < fContriNum; indx++) {
+            int maxIndx = StatisticParamUtil.indexOfAbsMaxNum(fVals);
+            if (maxIndx == -1) {
+                break;
+            }
+            fVals[maxIndx] = 0.0d;
+            fIndices[indx] = maxIndx;
+        }
+
+        return fIndices;
+    }
 }

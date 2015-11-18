@@ -1,7 +1,8 @@
 package cdb.exp.qc.analysis;
 
-import cdb.common.lang.FileUtil;
-import cdb.common.lang.StringUtil;
+import java.util.Properties;
+
+import cdb.common.lang.ConfigureUtil;
 import cdb.exp.qc.ui.RegionJFrame;
 
 /**
@@ -22,35 +23,12 @@ public class RegionInfoAnalysis extends AbstractQcAnalysis {
     }
 
     public static void gui() {
-        String imgRootDir = null;
-        String regnInfoRootDir = null;
-        String regnAnmInfoFile = null;
-        String freqId = null;
-
-        String[] lines = FileUtil.readLines("src/test/resources/sqlDump.properties");
-        StringBuilder sqlCon = new StringBuilder();
-        for (String line : lines) {
-            if (StringUtil.isBlank(line) | line.startsWith("#")) {
-                // filtering footnotes
-                continue;
-            } else if (line.startsWith("$")) {
-                String key = line.substring(1, line.indexOf('='));
-                String val = line.substring(line.indexOf('=') + 1);
-
-                if (StringUtil.equals(key, "IMG_ROOT_DIR")) {
-                    imgRootDir = val;
-                } else if (StringUtil.equals(key, "REGN_INFO_ROOT_DIR")) {
-                    regnInfoRootDir = val;
-                } else if (StringUtil.equals(key, "FREQ_ID")) {
-                    freqId = val;
-                } else if (StringUtil.equals(key, "REGN_ANM_INFO_FILE")) {
-                    regnAnmInfoFile = val;
-                }
-                continue;
-            }
-            sqlCon.append(line).append('\t');
-        }
-        String sql = new String(sqlCon);
+        Properties properties = ConfigureUtil.read("src/test/resources/sqlDump.properties");
+        String imgRootDir = properties.getProperty("IMG_ROOT_DIR");
+        String regnInfoRootDir = properties.getProperty("REGN_INFO_ROOT_DIR");
+        String regnAnmInfoFile = properties.getProperty("REGN_ANM_INFO_FILE");
+        String freqId = properties.getProperty("FREQ_ID");
+        String sql = properties.getProperty("DUMP");
 
         RegionJFrame frame = new RegionJFrame(imgRootDir, regnInfoRootDir, regnAnmInfoFile, freqId,
             3, 2010, true, sql);

@@ -48,15 +48,13 @@ public class RegionAnomalyListJPanel extends JPanel {
                                    String regnInfoRootDir, int fContriNum) {
         this.fContriNum = fContriNum;
 
-        int[] fIndices = new int[fContriNum];
         Vector<String> labelArr = new Vector<String>();
-        cmpTopConstributionField(regnAnmlInfoArrs, labelArr, fIndices);
+        fillLabelContext(regnAnmlInfoArrs, labelArr);
 
-        regnJList = new RegionJList(labelArr, regnInfoRootDir, LABELS);
+        regnJList = new RegionJList(labelArr, regnInfoRootDir, fContriNum, LABELS);
         ((DefaultListCellRenderer) regnJList.getCellRenderer())
             .setHorizontalAlignment(JLabel.CENTER);
         regnJList.setRegnAnmlInfoArrs(regnAnmlInfoArrs);
-        regnJList.setfIndices(fIndices);
 
         this.setPreferredSize(new Dimension(200, 100));
         jScrollPane = new JScrollPane();
@@ -66,18 +64,18 @@ public class RegionAnomalyListJPanel extends JPanel {
     }
 
     public void updateContext(List<RegionAnomalyInfoVO> regnAnmlInfoArrs) {
-        int[] fIndices = new int[fContriNum];
+
         Vector<String> labelArr = new Vector<String>();
-        cmpTopConstributionField(regnAnmlInfoArrs, labelArr, fIndices);
+        fillLabelContext(regnAnmlInfoArrs, labelArr);
 
         ListModel<String> jListModel = new DefaultComboBoxModel<String>(labelArr);
         regnJList.setModel(jListModel);
         regnJList.setRegnAnmlInfoArrs(regnAnmlInfoArrs);
-        regnJList.setfIndices(fIndices);
     }
 
-    protected void cmpTopConstributionField(List<RegionAnomalyInfoVO> regnAnmlInfoArrs,
-                                            Vector<String> labelArr, int[] fIndices) {
+    protected void fillLabelContext(List<RegionAnomalyInfoVO> regnAnmlInfoArrs,
+                                    Vector<String> labelArr) {
+        int[] fIndices = new int[fContriNum];
         for (RegionAnomalyInfoVO regnAnmlInfo : regnAnmlInfoArrs) {
             StringBuilder labelList = new StringBuilder();
 

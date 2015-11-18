@@ -4,12 +4,16 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.stat.StatUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
@@ -19,6 +23,7 @@ import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.dal.file.DatasetProc;
 import cdb.dal.file.SSMIFileDtProc;
+import cdb.dal.util.DBUtil;
 import cdb.dataset.generator.BinFileConvntnUtil;
 
 /**
@@ -33,10 +38,74 @@ public class RegionMatlabPartner extends AbstractQcAnalysis {
      * @param args
      */
     public static void main(String[] args) {
+        convert2MeltRelatedDataset();
         //        case1();
         //        case2(160, 24);
+        //        case3(160, 24);
+    }
 
-        case3(160, 24);
+    protected static void convert2MeltRelatedDataset() {
+        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+
+        Properties properties = ConfigureUtil.read("src/test/resources/sqlDump.properties");
+        String sql = properties.getProperty("DUMP");
+
+        Map<String, List<RegionAnomalyInfoVO>> regnAnmlRep = new HashMap<String, List<RegionAnomalyInfoVO>>();
+        List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);
+        if (dbSet != null) {
+            for (RegionAnomalyInfoVO one : dbSet) {
+                String dateStr = one.getDateStr();
+
+                List<RegionAnomalyInfoVO> anmArr = regnAnmlRep.get(dateStr);
+                if (anmArr == null) {
+                    anmArr = new ArrayList<RegionAnomalyInfoVO>();
+                    regnAnmlRep.put(dateStr, anmArr);
+                }
+                anmArr.add(one);
+            }
+        }
+
+        DatasetProc dProc = new SSMIFileDtProc();
+        StringBuilder conBuff = new StringBuilder();
+        for (String taskId : regnAnmlRep.keySet()) {
+            DenseMatrix m19h = dProc.read(BinFileConvntnUtil.fileSSMI(rootDir, taskId, "n19h"));
+            DenseMatrix m37v = dProc.read(BinFileConvntnUtil.fileSSMI(rootDir, taskId, "n37v"));
+
+            List<RegionAnomalyInfoVO> regnAnmlArr = regnAnmlRep.get(taskId);
+            for (RegionAnomalyInfoVO one : regnAnmlArr) {
+                int rowBegin = one.getX();
+                int rowEnd = rowBegin + one.getHeight();
+                int colBegin = one.getY();
+                int colEnd = colBegin + one.getWidth();
+
+                int rSeq = 0;
+                double[] valArr = new double[one.getHeight() * one.getWidth()];
+                for (int row = rowBegin; row < rowEnd; row++) {
+                    for (int col = colBegin; col < colEnd; col++) {
+                        double v19h = m19h.getVal(row, col);
+                        double v37v = m37v.getVal(row, col);
+
+                        valArr[rSeq++] = (v19h - v37v) / (v19h + v37v);
+                    }
+                }
+
+                double iceIndx = StatUtils.max(valArr);
+                if (Double.isNaN(iceIndx)) {
+                    continue;
+
+                } else if (iceIndx < -0.0158) {
+                    double ran = Math.random();
+                    if (ran > 0.50) {
+                        continue;
+                    }
+                }
+
+                conBuff.append(one.getdPoint()).append("# " + taskId).append("# " + iceIndx)
+                    .append('\n');
+            }
+        }
+
+        FileUtil.write(rootDir + "Anomaly/REG_MAT", conBuff.toString());
     }
 
     protected static void case2(int rowIndx, int colIndx) {

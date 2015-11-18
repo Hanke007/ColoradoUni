@@ -21,6 +21,7 @@ import org.jfree.ui.RefineryUtilities;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
+import cdb.common.lang.StatisticParamUtil;
 import cdb.common.lang.StringUtil;
 import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
@@ -35,25 +36,15 @@ import cdb.ml.qc.RegionInfoVOHelper;
 public class RegionJList extends JList<String> {
     /**  default values*/
     private static final long         serialVersionUID = 1L;
-    /** the suggested indices*/
-    private int[]                     fIndices;
     /** the list of anomalies objects*/
     private List<RegionAnomalyInfoVO> regnAnmlInfoArrs;
 
-    public RegionJList(Vector<String> labelArr, String regnInfoRootDir, String[] labels) {
+    public RegionJList(Vector<String> labelArr, String regnInfoRootDir, int fContriNum,
+                       String[] labels) {
         super(labelArr);
         ((DefaultListCellRenderer) getCellRenderer()).setHorizontalAlignment(JLabel.CENTER);
 
-        this.addMouseListener(new RegionMouseAdapter(regnInfoRootDir, labels));
-    }
-
-    /**
-     * Setter method for property <tt>fIndices</tt>.
-     * 
-     * @param fIndices value to be assigned to property fIndices
-     */
-    public void setfIndices(int[] fIndices) {
-        this.fIndices = fIndices;
+        this.addMouseListener(new RegionMouseAdapter(regnInfoRootDir, fContriNum, labels));
     }
 
     /**
@@ -70,13 +61,16 @@ public class RegionJList extends JList<String> {
         private String   regnInfoRootDir;
         /** the labels of each field*/
         private String[] labels;
+        /** the number of field making the top contributions*/
+        private int      fContriNum;
 
         /**
          * @param regnInfoRootDir
          */
-        public RegionMouseAdapter(String regnInfoRootDir, String[] labels) {
+        public RegionMouseAdapter(String regnInfoRootDir, int fContriNum, String[] labels) {
             super();
             this.regnInfoRootDir = regnInfoRootDir;
+            this.fContriNum = fContriNum;
             this.labels = labels;
         }
 
@@ -100,14 +94,19 @@ public class RegionJList extends JList<String> {
                 cal.setTime(anmlDate);
                 int sYear = cal.get(Calendar.YEAR);
                 int sDayInYear = cal.get(Calendar.DAY_OF_YEAR);
-                collectXYSeries(rRIndx, cRIndx, sYear, sDayInYear);
+
+                // find the top three maximum field
+                int[] fIndices = StatisticParamUtil.findTopAbsMaxNum(one.getdPoint(), fContriNum,
+                    labels.length);
+
+                collectXYSeries(rRIndx, cRIndx, sYear, sDayInYear, fIndices);
             } catch (ParseException e1) {
                 ExceptionUtil.caught(e1, "Date format error.");
             }
         }
 
-        private void collectXYSeries(int rRIndx, int cRIndx, int sYear,
-                                     int sDayInYear) throws ParseException {
+        private void collectXYSeries(int rRIndx, int cRIndx, int sYear, int sDayInYear,
+                                     int[] fIndices) throws ParseException {
             String fileName = "" + rRIndx + '_' + cRIndx;
             String[] lines = FileUtil.readLines(regnInfoRootDir + fileName);
 
@@ -134,9 +133,9 @@ public class RegionJList extends JList<String> {
                 int year = cal.get(Calendar.YEAR);
                 int daysInYear = cal.get(Calendar.DAY_OF_YEAR);
 
-                fillRepInDaysFasion(0, daysInYear, year, point, fRep1);
-                fillRepInDaysFasion(1, daysInYear, year, point, fRep2);
-                fillRepInDaysFasion(2, daysInYear, year, point, fRep3);
+                fillRepInDaysFasion(fIndices[0], daysInYear, year, point, fRep1);
+                fillRepInDaysFasion(fIndices[1], daysInYear, year, point, fRep2);
+                fillRepInDaysFasion(fIndices[2], daysInYear, year, point, fRep3);
             }
 
             // transform to matrix
@@ -153,16 +152,15 @@ public class RegionJList extends JList<String> {
             regnChartFrame.setVisible(true);
         }
 
-        private void fillRepInDaysFasion(int seq, int daysInYear, int year, Point point,
+        private void fillRepInDaysFasion(int fieldIndx, int daysInYear, int year, Point point,
                                          Map<Integer, XYSeries> fRep) {
-            int field = fIndices[seq];
             XYSeries fXYSer = fRep.get(year);
             if (fXYSer == null) {
                 fXYSer = new XYSeries(String.valueOf(year));
                 fRep.put(year, fXYSer);
             }
 
-            fXYSer.add(daysInYear, point.getValue(field));
+            fXYSer.add(daysInYear, point.getValue(fieldIndx));
         }
 
         private XYSeriesCollection fillDataset(Map<Integer, XYSeries> fRep, boolean isSpecificYear,
