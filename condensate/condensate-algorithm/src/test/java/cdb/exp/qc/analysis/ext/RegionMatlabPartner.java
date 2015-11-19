@@ -1,4 +1,4 @@
-package cdb.exp.qc.analysis;
+package cdb.exp.qc.analysis.ext;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ import cdb.dal.file.DatasetProc;
 import cdb.dal.file.SSMIFileDtProc;
 import cdb.dal.util.DBUtil;
 import cdb.dataset.generator.BinFileConvntnUtil;
+import cdb.exp.qc.analysis.AbstractQcAnalysis;
 
 /**
  * 

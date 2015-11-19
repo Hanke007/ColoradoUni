@@ -1,4 +1,4 @@
-package cdb.exp.qc.analysis;
+package cdb.exp.qc.analysis.ext;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +12,7 @@ import cdb.common.lang.StatisticParamUtil;
 import cdb.common.model.Cluster;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.Samples;
+import cdb.exp.qc.analysis.AbstractQcAnalysis;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 
 /**

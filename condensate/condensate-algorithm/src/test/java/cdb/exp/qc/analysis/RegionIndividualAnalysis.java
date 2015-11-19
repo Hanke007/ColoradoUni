@@ -10,7 +10,7 @@ import cdb.exp.qc.ui.RegionJFrame;
  * @author Chao Chen
  * @version $Id: RegionInfoAnalysis.java, v 0.1 Oct 27, 2015 3:55:09 PM chench Exp $
  */
-public class RegionInfoAnalysis extends AbstractQcAnalysis {
+public class RegionIndividualAnalysis extends AbstractQcAnalysis {
 
     /**
      * 
