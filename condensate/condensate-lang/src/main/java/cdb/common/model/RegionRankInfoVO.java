@@ -2,7 +2,9 @@ package cdb.common.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import cdb.common.lang.DateUtil;
 
@@ -14,15 +16,17 @@ import cdb.common.lang.DateUtil;
 public class RegionRankInfoVO {
 
     /**  the x coordinate of the rectangle region*/
-    private int        x;
+    private int         x;
     /**  the y coordinate of the rectangle region*/
-    private int        y;
+    private int         y;
     /** */
-    private Date       dateBegin;
+    private Date        dateBegin;
     /** */
-    private Date       dataEnd;
+    private Date        dataEnd;
     /** */
-    private List<Date> days;
+    private List<Date>  days;
+    /** */
+    private Set<String> locations;
 
     /**
      * construction
@@ -30,6 +34,7 @@ public class RegionRankInfoVO {
     public RegionRankInfoVO() {
         super();
         days = new ArrayList<Date>();
+        locations = new HashSet<String>();
     }
 
     /**
@@ -120,6 +125,24 @@ public class RegionRankInfoVO {
      */
     public void setDays(List<Date> days) {
         this.days = days;
+    }
+
+    /**
+     * Getter method for property <tt>locations</tt>.
+     * 
+     * @return property value of locations
+     */
+    public Set<String> getLocations() {
+        return locations;
+    }
+
+    /**
+     * Setter method for property <tt>locations</tt>.
+     * 
+     * @param locations value to be assigned to property locations
+     */
+    public void setLocations(Set<String> locations) {
+        this.locations = locations;
     }
 
     /** 

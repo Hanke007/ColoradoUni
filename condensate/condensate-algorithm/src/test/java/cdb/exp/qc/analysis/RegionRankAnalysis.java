@@ -45,54 +45,15 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
 
         switch (groupStrategy) {
             case "GROUP_BY_LOCATION": {
-                int numCan = candiates.size();
-                double[] neighbors = new double[numCan];
-                for (int i = 0; i < numCan; i++) {
-                    RegionRankInfoVO one = candiates.get(i);
-                    for (Date date : one.getDays()) {
-                        String key = DateUtil.format(date, DateUtil.SHORT_FORMAT);
-                        neighbors[i] += countByDate.get(key);
-                    }
-                }
-                int[] topIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum,
-                    numCan);
-                for (int indx : topIndx) {
-                    System.out.println(candiates.get(indx));
-                }
+                groupByLocation(rankNum, countByDate, candiates);
                 break;
             }
             case "GROUP_BY_TIMERANGE": {
                 Map<String, List<RegionRankInfoVO>> canByTimeRange = new HashMap<String, List<RegionRankInfoVO>>();
-                for (RegionRankInfoVO one : candiates) {
-                    String key = "[" + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT)
-                                 + ", " + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT)
-                                 + "]";
-                    List<RegionRankInfoVO> arr = canByTimeRange.get(key);
-                    if (arr == null) {
-                        arr = new ArrayList<RegionRankInfoVO>();
-                        canByTimeRange.put(key, arr);
-                    }
-                    arr.add(one);
-                }
+                int[] topIndx = groupByTimeRange(rankNum, countByDate, candiates, canByTimeRange);
                 List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
 
-                // compute the scores
-                int numKey = keySet.size();
-                double[] neighbors = new double[numKey];
-                for (int i = 0; i < numKey; i++) {
-                    String key = keySet.get(i);
-                    List<RegionRankInfoVO> arr = canByTimeRange.get(key);
-                    for (RegionRankInfoVO one : arr) {
-                        for (Date date : one.getDays()) {
-                            String dKey = DateUtil.format(date, DateUtil.SHORT_FORMAT);
-                            neighbors[i] += countByDate.get(dKey);
-                        }
-                    }
-                }
-
                 // output results
-                int[] topIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum,
-                    numKey);
                 for (int indx : topIndx) {
                     String key = keySet.get(indx);
                     List<RegionRankInfoVO> arr = canByTimeRange.get(key);
@@ -106,9 +67,142 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 }
                 break;
             }
+            case "GROUP_BY_EVENT": {
+                Map<String, List<RegionRankInfoVO>> canByTimeRange = new HashMap<String, List<RegionRankInfoVO>>();
+                int[] topIndx = groupByTimeRange(rankNum, countByDate, candiates, canByTimeRange);
+                List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
+
+                List<List<RegionRankInfoVO>> eventList = new ArrayList<List<RegionRankInfoVO>>();
+                for (int indx : topIndx) {
+                    eventList.add(canByTimeRange.get(keySet.get(indx)));
+                }
+
+                // merge event has overlaps
+                List<RegionRankInfoVO> newMergedRep = new ArrayList<RegionRankInfoVO>();
+                RegionRankInfoVO curInfo = eventList.get(0).get(0);
+                while (!eventList.isEmpty()) {
+                    boolean hasOne = false;
+
+                    long timeLowerBound = curInfo.getDateBegin().getTime();
+                    long timeUpperBound = curInfo.getDataEnd().getTime();
+
+                    // 1. merge elements with overlapped in time range
+                    int eventSize = eventList.size();
+                    for (int i = eventSize - 1; i >= 0; i--) {
+                        RegionRankInfoVO pivotOfArr = eventList.get(i).get(0);
+                        long timeBegin = pivotOfArr.getDateBegin().getTime();
+                        long timeEnd = pivotOfArr.getDataEnd().getTime();
+
+                        if (timeEnd < timeLowerBound || timeBegin > timeUpperBound) {
+                            // no overlaps in time range
+                            continue;
+                        } else {
+                            hasOne = true;
+
+                            // update upper bound
+                            if (timeBegin < timeLowerBound) {
+                                curInfo.setDateBegin(pivotOfArr.getDateBegin());
+                                timeLowerBound = timeBegin;
+                            }
+                            // update lower bound
+                            if (timeEnd > timeUpperBound) {
+                                curInfo.setDataEnd(pivotOfArr.getDataEnd());
+                                timeUpperBound = timeEnd;
+                            }
+
+                            // update location array
+                            for (RegionRankInfoVO one : eventList.get(i)) {
+                                String locationKey = "(" + one.getX() + ", " + one.getY() + "), ";
+                                curInfo.getLocations().add(locationKey);
+                            }
+
+                            // remove merged element
+                            eventList.remove(i);
+                        }
+                    }
+
+                    // 2. check whether changed
+                    if (!hasOne) {
+                        newMergedRep.add(curInfo);
+                        curInfo = eventList.isEmpty() ? null : eventList.get(0).get(0);
+                    }
+                }
+
+                // output
+                int numCan = newMergedRep.size();
+                double[] neighbors = new double[numCan];
+                for (int i = 0; i < numCan; i++) {
+                    RegionRankInfoVO one = newMergedRep.get(i);
+                    neighbors[i] = one.getLocations().size();
+                }
+
+                int[] finalIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), numCan,
+                    numCan);
+                for (int indx : finalIndx) {
+                    RegionRankInfoVO one = newMergedRep.get(indx);
+                    String duration = "During ["
+                                      + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT)
+                                      + ", "
+                                      + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT)
+                                      + "]: ";
+                    StringBuilder ranCon = new StringBuilder(duration);
+                    for (String locKey : one.getLocations()) {
+                        ranCon.append(locKey);
+                    }
+                    System.out.println(ranCon.toString());
+                }
+            }
             default:
                 break;
         }
+    }
+
+    protected static void groupByLocation(int rankNum, Map<String, Integer> countByDate,
+                                          List<RegionRankInfoVO> candiates) {
+        int numCan = candiates.size();
+        double[] neighbors = new double[numCan];
+        for (int i = 0; i < numCan; i++) {
+            RegionRankInfoVO one = candiates.get(i);
+            for (Date date : one.getDays()) {
+                String key = DateUtil.format(date, DateUtil.SHORT_FORMAT);
+                neighbors[i] += countByDate.get(key);
+            }
+        }
+        int[] topIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum, numCan);
+        for (int indx : topIndx) {
+            System.out.println(candiates.get(indx));
+        }
+    }
+
+    protected static int[] groupByTimeRange(int rankNum, Map<String, Integer> countByDate,
+                                            List<RegionRankInfoVO> candiates,
+                                            Map<String, List<RegionRankInfoVO>> canByTimeRange) {
+        for (RegionRankInfoVO one : candiates) {
+            String key = "[" + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT) + ", "
+                         + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT) + "]";
+            List<RegionRankInfoVO> arr = canByTimeRange.get(key);
+            if (arr == null) {
+                arr = new ArrayList<RegionRankInfoVO>();
+                canByTimeRange.put(key, arr);
+            }
+            arr.add(one);
+        }
+        List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
+
+        // compute the scores
+        int numKey = keySet.size();
+        double[] neighbors = new double[numKey];
+        for (int i = 0; i < numKey; i++) {
+            String key = keySet.get(i);
+            List<RegionRankInfoVO> arr = canByTimeRange.get(key);
+            RegionRankInfoVO one = arr.get(0);
+            for (Date date : one.getDays()) {
+                String dKey = DateUtil.format(date, DateUtil.SHORT_FORMAT);
+                neighbors[i] += countByDate.get(dKey);
+            }
+            neighbors[i] += arr.size() * 0.5;
+        }
+        return StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum, numKey);
     }
 
     protected static void loadAndMake(String sql, Map<String, Integer> countByDate,
