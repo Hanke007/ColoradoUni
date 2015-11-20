@@ -186,9 +186,6 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         int dSeq = 0;
         RegionInfoVO one = null;
         while ((one = regnList.poll()) != null) {
-            if (Integer.valueOf(one.getDateStr()) < 19920101) {
-                continue;
-            }
             Point point = RegionInfoVOHelper.make12Features(one);
             dataSample.setPoint(dSeq, point);
             regnDateStr.add(one.getDateStr());
