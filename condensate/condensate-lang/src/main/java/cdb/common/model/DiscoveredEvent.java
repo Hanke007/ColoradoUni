@@ -13,25 +13,25 @@ import cdb.common.lang.DateUtil;
  * @author Chao Chen
  * @version $Id: RegionRankInfoVO.java, v 0.1 Nov 18, 2015 4:15:10 PM chench Exp $
  */
-public class RegionRankInfoVO {
+public class DiscoveredEvent {
 
     /**  the x coordinate of the rectangle region*/
     private int         x;
     /**  the y coordinate of the rectangle region*/
     private int         y;
-    /** */
+    /** the starting date*/
     private Date        dateBegin;
-    /** */
+    /** the ending date*/
     private Date        dataEnd;
-    /** */
+    /** the days covered in this event*/
     private List<Date>  days;
-    /** */
+    /** the locations contained in this event*/
     private Set<String> locations;
 
     /**
      * construction
      */
-    public RegionRankInfoVO() {
+    public DiscoveredEvent() {
         super();
         days = new ArrayList<Date>();
         locations = new HashSet<String>();

@@ -14,8 +14,12 @@ import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.StatisticParamUtil;
 import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
-import cdb.common.model.RegionRankInfoVO;
+import cdb.common.model.DiscoveredEvent;
 import cdb.dal.util.DBUtil;
+import cdb.ml.pd.AbstractPatternDiscoverer;
+import cdb.ml.pd.SpatialBasedDiscoverer;
+import cdb.ml.pd.TemporalDurationBasedDiscoverer;
+import cdb.ml.pd.TemporalOverlapBasedDiscoverer;
 
 /**
  * 
@@ -40,113 +44,52 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         int rankNum = Integer.valueOf(properties.getProperty("RANK_NUMBER"));
 
         Map<String, Integer> countByDate = new HashMap<String, Integer>();
-        List<RegionRankInfoVO> candiates = new ArrayList<RegionRankInfoVO>();
+        List<DiscoveredEvent> candiates = new ArrayList<DiscoveredEvent>();
         loadAndMake(sql, countByDate, candiates);
 
+        AbstractPatternDiscoverer pDiscoverer = null;
         switch (groupStrategy) {
             case "GROUP_BY_LOCATION": {
-                groupByLocation(rankNum, countByDate, candiates);
+                pDiscoverer = new SpatialBasedDiscoverer(sql, rankNum);
+                List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
+                for (DiscoveredEvent event : resultEventArr) {
+                    System.out.println(event);
+                }
                 break;
             }
             case "GROUP_BY_TIMERANGE": {
-                Map<String, List<RegionRankInfoVO>> canByTimeRange = new HashMap<String, List<RegionRankInfoVO>>();
-                int[] topIndx = groupByTimeRange(rankNum, countByDate, candiates, canByTimeRange);
-                List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
+                pDiscoverer = new TemporalDurationBasedDiscoverer(sql, rankNum);
+                List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
 
                 // output results
-                for (int indx : topIndx) {
-                    String key = keySet.get(indx);
-                    List<RegionRankInfoVO> arr = canByTimeRange.get(key);
+                for (DiscoveredEvent event : resultEventArr) {
+                    String timeDurationStr = "During  ["
+                                             + DateUtil.format(event.getDateBegin(),
+                                                 DateUtil.SHORT_FORMAT)
+                                             + ", " + DateUtil.format(event.getDataEnd(),
+                                                 DateUtil.SHORT_FORMAT)
+                                             + "]: ";
 
-                    StringBuilder rankCon = new StringBuilder("During " + key + ": ");
-                    for (RegionRankInfoVO one : arr) {
-                        rankCon.append("(").append(one.getX()).append(", ").append(one.getY())
-                            .append("), ");
+                    StringBuilder rankCon = new StringBuilder(timeDurationStr);
+                    for (String locStr : event.getLocations()) {
+                        rankCon.append(locStr);
                     }
                     System.out.println(rankCon.toString());
                 }
                 break;
             }
             case "GROUP_BY_EVENT": {
-                Map<String, List<RegionRankInfoVO>> canByTimeRange = new HashMap<String, List<RegionRankInfoVO>>();
-                int[] topIndx = groupByTimeRange(rankNum, countByDate, candiates, canByTimeRange);
-                List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
+                pDiscoverer = new TemporalOverlapBasedDiscoverer(sql, rankNum);
+                List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
 
-                List<List<RegionRankInfoVO>> eventList = new ArrayList<List<RegionRankInfoVO>>();
-                for (int indx : topIndx) {
-                    eventList.add(canByTimeRange.get(keySet.get(indx)));
-                }
-
-                // merge event has overlaps
-                List<RegionRankInfoVO> newMergedRep = new ArrayList<RegionRankInfoVO>();
-                RegionRankInfoVO curInfo = eventList.get(0).get(0);
-                while (!eventList.isEmpty()) {
-                    boolean hasOne = false;
-
-                    long timeLowerBound = curInfo.getDateBegin().getTime();
-                    long timeUpperBound = curInfo.getDataEnd().getTime();
-
-                    // 1. merge elements with overlapped in time range
-                    int eventSize = eventList.size();
-                    for (int i = eventSize - 1; i >= 0; i--) {
-                        RegionRankInfoVO pivotOfArr = eventList.get(i).get(0);
-                        long timeBegin = pivotOfArr.getDateBegin().getTime();
-                        long timeEnd = pivotOfArr.getDataEnd().getTime();
-
-                        if (timeEnd < timeLowerBound || timeBegin > timeUpperBound) {
-                            // no overlaps in time range
-                            continue;
-                        } else {
-                            hasOne = true;
-
-                            // update upper bound
-                            if (timeBegin < timeLowerBound) {
-                                curInfo.setDateBegin(pivotOfArr.getDateBegin());
-                                timeLowerBound = timeBegin;
-                            }
-                            // update lower bound
-                            if (timeEnd > timeUpperBound) {
-                                curInfo.setDataEnd(pivotOfArr.getDataEnd());
-                                timeUpperBound = timeEnd;
-                            }
-
-                            // update location array
-                            for (RegionRankInfoVO one : eventList.get(i)) {
-                                String locationKey = "(" + one.getX() + ", " + one.getY() + "), ";
-                                curInfo.getLocations().add(locationKey);
-                            }
-
-                            // remove merged element
-                            eventList.remove(i);
-                        }
-                    }
-
-                    // 2. check whether changed
-                    if (!hasOne) {
-                        newMergedRep.add(curInfo);
-                        curInfo = eventList.isEmpty() ? null : eventList.get(0).get(0);
-                    }
-                }
-
-                // output
-                int numCan = newMergedRep.size();
-                double[] neighbors = new double[numCan];
-                for (int i = 0; i < numCan; i++) {
-                    RegionRankInfoVO one = newMergedRep.get(i);
-                    neighbors[i] = one.getLocations().size();
-                }
-
-                int[] finalIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), numCan,
-                    numCan);
-                for (int indx : finalIndx) {
-                    RegionRankInfoVO one = newMergedRep.get(indx);
+                for (DiscoveredEvent event : resultEventArr) {
                     String duration = "During ["
-                                      + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT)
+                                      + DateUtil.format(event.getDateBegin(), DateUtil.SHORT_FORMAT)
                                       + ", "
-                                      + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT)
+                                      + DateUtil.format(event.getDataEnd(), DateUtil.SHORT_FORMAT)
                                       + "]: ";
                     StringBuilder ranCon = new StringBuilder(duration);
-                    for (String locKey : one.getLocations()) {
+                    for (String locKey : event.getLocations()) {
                         ranCon.append(locKey);
                     }
                     System.out.println(ranCon.toString());
@@ -157,32 +100,15 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         }
     }
 
-    protected static void groupByLocation(int rankNum, Map<String, Integer> countByDate,
-                                          List<RegionRankInfoVO> candiates) {
-        int numCan = candiates.size();
-        double[] neighbors = new double[numCan];
-        for (int i = 0; i < numCan; i++) {
-            RegionRankInfoVO one = candiates.get(i);
-            for (Date date : one.getDays()) {
-                String key = DateUtil.format(date, DateUtil.SHORT_FORMAT);
-                neighbors[i] += countByDate.get(key);
-            }
-        }
-        int[] topIndx = StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum, numCan);
-        for (int indx : topIndx) {
-            System.out.println(candiates.get(indx));
-        }
-    }
-
     protected static int[] groupByTimeRange(int rankNum, Map<String, Integer> countByDate,
-                                            List<RegionRankInfoVO> candiates,
-                                            Map<String, List<RegionRankInfoVO>> canByTimeRange) {
-        for (RegionRankInfoVO one : candiates) {
+                                            List<DiscoveredEvent> candiates,
+                                            Map<String, List<DiscoveredEvent>> canByTimeRange) {
+        for (DiscoveredEvent one : candiates) {
             String key = "[" + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT) + ", "
                          + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT) + "]";
-            List<RegionRankInfoVO> arr = canByTimeRange.get(key);
+            List<DiscoveredEvent> arr = canByTimeRange.get(key);
             if (arr == null) {
-                arr = new ArrayList<RegionRankInfoVO>();
+                arr = new ArrayList<DiscoveredEvent>();
                 canByTimeRange.put(key, arr);
             }
             arr.add(one);
@@ -194,8 +120,8 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         double[] neighbors = new double[numKey];
         for (int i = 0; i < numKey; i++) {
             String key = keySet.get(i);
-            List<RegionRankInfoVO> arr = canByTimeRange.get(key);
-            RegionRankInfoVO one = arr.get(0);
+            List<DiscoveredEvent> arr = canByTimeRange.get(key);
+            DiscoveredEvent one = arr.get(0);
             for (Date date : one.getDays()) {
                 String dKey = DateUtil.format(date, DateUtil.SHORT_FORMAT);
                 neighbors[i] += countByDate.get(dKey);
@@ -206,12 +132,12 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
     }
 
     protected static void loadAndMake(String sql, Map<String, Integer> countByDate,
-                                      List<RegionRankInfoVO> candiates) {
+                                      List<DiscoveredEvent> candiates) {
         try {
             List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);
 
             int arrNum = dbSet.size();
-            RegionRankInfoVO curVO = new RegionRankInfoVO();
+            DiscoveredEvent curVO = new DiscoveredEvent();
             convert2RRIVO(curVO, dbSet.get(0));
             countByDate.put(dbSet.get(0).getDateStr(), Integer.valueOf(1));
 
@@ -232,7 +158,7 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                     candiates.add(curVO);
 
                     // update current iterator
-                    curVO = new RegionRankInfoVO();
+                    curVO = new DiscoveredEvent();
                     convert2RRIVO(curVO, one);
                 }
 
@@ -250,7 +176,7 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         }
     }
 
-    protected static void convert2RRIVO(RegionRankInfoVO target, RegionAnomalyInfoVO source) {
+    protected static void convert2RRIVO(DiscoveredEvent target, RegionAnomalyInfoVO source) {
         try {
             target.setX(source.getX());
             target.setY(source.getY());
@@ -259,7 +185,6 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "");
         }
-
     }
 
 }

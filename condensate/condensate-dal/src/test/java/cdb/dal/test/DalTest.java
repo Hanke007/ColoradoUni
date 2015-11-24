@@ -56,7 +56,14 @@ public class DalTest {
 
             ctx = new ClassPathXmlApplicationContext("springContext.xml");
             AnomalyInfoDAOImpl dao = (AnomalyInfoDAOImpl) ctx.getBean("anomalyinfoDAOImpl");
-            dao.insertSelectiveArr(records);
+
+            int sNum = records.size();
+            for (int sBegin = 0; sBegin < sNum; sBegin += 10000) {
+                int sIndx = sBegin;
+                int eIndx = (sIndx + 10000);
+                eIndx = (eIndx > sNum) ? sNum : eIndx;
+                dao.insertSelectiveArr(records.subList(sIndx, eIndx));
+            }
 
         } catch (Exception e) {
             ExceptionUtil.caught(e, "It goes wrong.");
