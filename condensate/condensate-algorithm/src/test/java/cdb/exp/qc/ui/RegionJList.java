@@ -26,7 +26,7 @@ import cdb.common.lang.StringUtil;
 import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
-import cdb.ml.qc.RegionInfoVOHelper;
+import cdb.ml.qc.QualityControllHelper;
 
 /**
  * 
@@ -121,7 +121,7 @@ public class RegionJList extends JList<String> {
                 if (StringUtil.isEmpty(line)) {
                     // ignore
                     RegionInfoVO regnVO = RegionInfoVO.parseOf(line);
-                    point = RegionInfoVOHelper.make12Features(regnVO);
+                    point = QualityControllHelper.make12Features(regnVO);
                     date = DateUtil.parse(regnVO.getDateStr(), DateUtil.SHORT_FORMAT);
                 } else {
                     point = Point.parseOf(line);

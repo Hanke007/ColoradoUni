@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.springframework.util.StopWatch;
 
+import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
@@ -38,24 +40,21 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
      * @param args
      */
     public static void main(String[] args) {
-        SSMI(false);
+        SSMI("src/test/resources/zConfigQC.properties");
     }
 
-    public static void SSMI(boolean needSaveData) {
-        // thread setting
-        double alpha = 2.0;
-        int maxIter = 5;
-        int maxClusterNum = 20;
-        double potentialMaliciousRatio = 0.10;
-        int regionHeight = 8;
-        int regionWeight = 8;
-
-        // read objects
-        String freqId = "n19v";
-        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+    public static void SSMI(String configFileName) {
+        Properties properties = ConfigureUtil.read(configFileName);
+        int regionHeight = Integer.valueOf(properties.getProperty("REGION_HEIGHT"));
+        int regionWeight = Integer.valueOf(properties.getProperty("REGION_WEIGHT"));
+        String freqId = properties.getProperty("FREQ_ID");
+        String rootDir = properties.getProperty("DATA_ROOT_DIR");
         String regnInfoDir = rootDir + "ClassificationDataset/" + freqId + '_' + regionHeight + '_'
                              + regionWeight + "_ORG/";
 
+        //----------------------------
+        //  business logics
+        //----------------------------
         LoggerUtil.info(logger, "1. check and read region value-object.");
         checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);
         LoggerUtil.info(logger, "2. make multiple thread tasks.");
@@ -68,14 +67,10 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             stopWatch = new StopWatch();
             stopWatch.start();
             ExecutorService exec = Executors.newCachedThreadPool();
-            exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
-            exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
-            exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
-            exec.execute(new DefaultQualityControllThread(alpha, maxIter, maxClusterNum,
-                potentialMaliciousRatio, regionHeight, regionWeight, needSaveData));
+            exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
             exec.shutdown();
             exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
             stopWatch.stop();
@@ -144,7 +139,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
                 regnBuffer.append(regnVO.toString()).append('\n');
 
                 bufferSize++;
-                if (bufferSize > 300 * 1000) {
+                if (bufferSize > 1 * 1000 * 1000 * 1000) {
                     for (Entry<String, StringBuilder> entry : regnDistbtBuffer.entrySet()) {
                         FileUtil.writeAsAppendWithDirCheck(entry.getKey(),
                             entry.getValue().toString());

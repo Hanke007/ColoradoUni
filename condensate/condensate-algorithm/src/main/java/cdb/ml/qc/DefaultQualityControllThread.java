@@ -4,17 +4,19 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Queue;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.math3.stat.StatUtils;
 
 import cdb.common.lang.ClusterHelper;
+import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
@@ -46,7 +48,9 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
     /** the column numbers of every region*/
     private int     regionWeight            = 1;
     /** pivot to indicate whether to save the processed data*/
-    private boolean needSaveData;
+    private boolean needSaveData            = false;
+    /** filter category*/
+    private String  filterCategory          = null;
 
     /** mutex object*/
     private static Object                    ANOMALY_MUTEX = new Object();
@@ -100,6 +104,23 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         this.needSaveData = needSaveData;
     }
 
+    /**
+     * @param configFileName        the file path of the configuration file
+     */
+    public DefaultQualityControllThread(String configFileName) {
+        super();
+        Properties properties = ConfigureUtil.read(configFileName);
+        this.alpha = Double.valueOf(properties.getProperty("ALPHA"));
+        this.maxIter = Integer.valueOf(properties.getProperty("MAX_ITERATION"));
+        this.maxClusterNum = Integer.valueOf(properties.getProperty("MAX_CLUSTER_NUM"));
+        this.potentialMaliciousRatio = Double
+            .valueOf(properties.getProperty("ESTIMATED_RATIO_OF_RARE"));
+        this.regionHeight = Integer.valueOf(properties.getProperty("REGION_HEIGHT"));
+        this.regionWeight = Integer.valueOf(properties.getProperty("REGION_WEIGHT"));
+
+        this.filterCategory = properties.getProperty("DATA_FILTERING_CATEGORY");
+    }
+
     /** 
      * @see cdb.ml.qc.AbstractQualityControllThread#run()
      */
@@ -112,54 +133,79 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
             List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
             for (String fileName : fileNames) {
-                raArr.addAll(malicousDetection(fileName));
+                raArr.addAll(innerDectectoin(fileName));
             }
             save(raArr, resultFile);
         }
     }
 
-    protected List<RegionAnomalyInfoVO> malicousDetection(String fileName) {
-        // read objects
-        Queue<RegionInfoVO> regnList = new LinkedList<RegionInfoVO>();
-        readRegionVO(fileName, regnList);
-        if (regnList.isEmpty()) {
-            return new ArrayList<RegionAnomalyInfoVO>();
-        } else if (regnList.size() < maxClusterNum * 50) {
-            LoggerUtil.warn(logger, "Lack of data : " + regnList.size() + "\t"
-                                    + fileName.substring(fileName.lastIndexOf('/')));
-            return new ArrayList<RegionAnomalyInfoVO>();
+    /**
+     * pattern detection function
+     * @param fileName  the file to store the data
+     * @return
+     */
+    protected List<RegionAnomalyInfoVO> innerDectectoin(String fileName) {
+        List<RegionAnomalyInfoVO> resultArr = new ArrayList<RegionAnomalyInfoVO>();
+        try {
+            // load features for every sample
+            Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
+            if (regnList.isEmpty()) {
+                return new ArrayList<RegionAnomalyInfoVO>();
+            } else if (regnList.size() < maxClusterNum * 50) {
+                LoggerUtil.warn(logger, "Lack of data : " + regnList.size() + "\t"
+                                        + fileName.substring(fileName.lastIndexOf('/')));
+                return new ArrayList<RegionAnomalyInfoVO>();
+            }
+
+            // making clustering samples
+            RegionInfoVO pivot = regnList.peek();
+            //        int pDimen = 6 + pivot.getDistribution().dimension() + pivot.getGradCol().dimension()
+            //                     + pivot.getGradRow().dimension() + pivot.gettGradCon().dimension()
+            //                     + pivot.getsCorrCon().dimension() + pivot.getsDiffCon().dimension();
+            int pDimen = 12;
+            int rRIndx = pivot.getrIndx();
+            int cRIndx = pivot.getcIndx();
+            Samples dataSample = new Samples(regnList.size(), pDimen);
+            List<String> regnDateStr = new ArrayList<String>();
+            QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr,
+                filterCategory);
+            if (needSaveData) {
+                persistFeatureStep(fileName, dataSample, regnDateStr);
+            }
+
+            resultArr = discoverPatternStep(dataSample, fileName, regnDateStr, rRIndx, cRIndx);
+        } catch (ParseException e) {
+            ExceptionUtil.caught(e, "Date format parsing error.");
         }
 
-        // making clustering samples
-        RegionInfoVO pivot = regnList.peek();
-        //        int pDimen = 6 + pivot.getDistribution().dimension() + pivot.getGradCol().dimension()
-        //                     + pivot.getGradRow().dimension() + pivot.gettGradCon().dimension()
-        //                     + pivot.getsCorrCon().dimension() + pivot.getsDiffCon().dimension();
-        int pDimen = 12;
-        int rRIndx = pivot.getrIndx();
-        int cRIndx = pivot.getcIndx();
-        Samples dataSample = new Samples(regnList.size(), pDimen);
-        List<String> regnDateStr = new ArrayList<String>();
-        tranformRegionVO(regnList, dataSample, regnDateStr);
-        normalization(dataSample);
-        if (needSaveData) {
-            save(fileName, dataSample, regnDateStr);
-        }
-
-        // clustering 
-        Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
-            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
-        Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
-            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
-
-        // compute potential error data
-        return computingPotentialError(dataSample, fileName, newClusters, regnDateStr, rRIndx,
-            cRIndx);
+        // rare pattern detection
+        return resultArr;
     }
 
-    protected void readRegionVO(String fileName, Queue<RegionInfoVO> regnList) {
+    protected void persistFeatureStep(String fileName, Samples dataSample,
+                                      List<String> regnDateStr) {
+        StringBuilder stringBuilder = new StringBuilder();
+        int dSize = dataSample.length()[0];
+        for (int dIndx = 0; dIndx < dSize; dIndx++) {
+            Point p = dataSample.getPointRef(dIndx);
+            String dataStr = regnDateStr.get(dIndx);
+            stringBuilder.append(p.toString()).append("# ").append(dataStr).append('\n');
+        }
+
+        // replace freqId_rWidth_rHeight_ORG to freqId_rWidth_rHeight
+        int lSlant = fileName.lastIndexOf('/');
+        int lSecSlant = fileName.substring(0, lSlant).lastIndexOf('/');
+        String lDirName = fileName.substring(lSecSlant + 1, lSlant);
+        String sFileName = StringUtil.replace(fileName, lDirName,
+            lDirName.substring(0, lDirName.length() - 4));
+        FileUtil.existDirAndMakeDir(sFileName);
+        FileUtil.write(sFileName, stringBuilder.toString());
+    }
+
+    protected Queue<RegionInfoVO> readRegionInfoStep(String fileName) {
+        Queue<RegionInfoVO> regnList = new LinkedList<RegionInfoVO>();
         if (!FileUtil.exists(fileName)) {
-            return;
+            return regnList;
         }
 
         BufferedReader reader = null;
@@ -171,7 +217,6 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
                 RegionInfoVO regnVO = RegionInfoVO.parseOf(line);
                 regnList.add(regnVO);
             }
-
         } catch (FileNotFoundException e) {
             ExceptionUtil.caught(e, "无法找到对应的加载文件: " + fileName);
         } catch (IOException e) {
@@ -179,24 +224,19 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         } finally {
             IOUtils.closeQuietly(reader);
         }
+
+        return regnList;
     }
 
-    protected void tranformRegionVO(Queue<RegionInfoVO> regnList, Samples dataSample,
-                                    List<String> regnDateStr) {
-        int dSeq = 0;
-        RegionInfoVO one = null;
-        while ((one = regnList.poll()) != null) {
-            Point point = RegionInfoVOHelper.make12Features(one);
-            dataSample.setPoint(dSeq, point);
-            regnDateStr.add(one.getDateStr());
-            dSeq++;
-        }
-    }
+    protected List<RegionAnomalyInfoVO> discoverPatternStep(Samples dataSample, String fileName,
+                                                            List<String> regnDateStr, int rRIndx,
+                                                            int cRIndx) {
+        // clustering 
+        Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+        Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
 
-    protected List<RegionAnomalyInfoVO> computingPotentialError(Samples dataSample, String fileName,
-                                                                Cluster[] newClusters,
-                                                                List<String> regnDateStr,
-                                                                int rRIndx, int cRIndx) {
         int clusterNum = newClusters.length;
         double[] sizeTable = new double[clusterNum];
         for (int i = 0; i < clusterNum; i++) {
@@ -256,44 +296,4 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         return pivot;
     }
 
-    protected void normalization(Samples dataSample) {
-        int[] dimens = dataSample.length();
-
-        for (int pIndx = 0; pIndx < dimens[1]; pIndx++) {
-
-            // read datas
-            double[] vals = new double[dimens[0]];
-            for (int sIndx = 0; sIndx < dimens[0]; sIndx++) {
-                vals[sIndx] = dataSample.getValue(sIndx, pIndx);
-            }
-
-            // normalization
-            double sd = StatUtils.variance(vals);
-            if (sd != 0) {
-                double[] valNorm = StatUtils.normalize(vals);
-                for (int sIndx = 0; sIndx < dimens[0]; sIndx++) {
-                    dataSample.setValue(sIndx, pIndx, valNorm[sIndx]);
-                }
-            }
-        }
-    }
-
-    protected void save(String fileName, Samples dataSample, List<String> regnDateStr) {
-        StringBuilder stringBuilder = new StringBuilder();
-        int dSize = dataSample.length()[0];
-        for (int dIndx = 0; dIndx < dSize; dIndx++) {
-            Point p = dataSample.getPointRef(dIndx);
-            String dataStr = regnDateStr.get(dIndx);
-            stringBuilder.append(p.toString()).append("# ").append(dataStr).append('\n');
-        }
-
-        // replace freqId_rWidth_rHeight_ORG to freqId_rWidth_rHeight
-        int lSlant = fileName.lastIndexOf('/');
-        int lSecSlant = fileName.substring(0, lSlant).lastIndexOf('/');
-        String lDirName = fileName.substring(lSecSlant + 1, lSlant);
-        String sFileName = StringUtil.replace(fileName, lDirName,
-            lDirName.substring(0, lDirName.length() - 4));
-        FileUtil.existDirAndMakeDir(sFileName);
-        FileUtil.write(sFileName, stringBuilder.toString());
-    }
 }
