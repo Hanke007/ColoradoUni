@@ -154,7 +154,7 @@ public final class QualityControllHelper {
             int pNum = rFeatures.size();
             double[] fVals = new double[pNum];
             for (int pIndx = 0; pIndx < pNum; pIndx++) {
-                fVals[pIndx] = rFeatures.get(fIndx).getValue(pIndx);
+                fVals[pIndx] = rFeatures.get(pIndx).getValue(fIndx);
             }
 
             if (StatUtils.variance(fVals) == 0.0d) {
@@ -163,7 +163,7 @@ public final class QualityControllHelper {
             }
             double[] nVals = StatUtils.normalize(fVals);
             for (int pIndx = 0; pIndx < pNum; pIndx++) {
-                rFeatures.get(fIndx).setValue(pIndx, nVals[fIndx]);
+                rFeatures.get(pIndx).setValue(fIndx, nVals[pIndx]);
             }
         }
     }
