@@ -56,6 +56,10 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
 
             ResultSet rs = stmt.executeQuery();
             result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : new Location2D(0, 0);
+
+            rs.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
             DatabaseFactory.removeConnectionCache(dbId);
@@ -66,15 +70,6 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                 "Finished Nearest Approximation: " + (result == null ? "NULL" : result.toString()));
         }
 
-        if (conn != null) {
-            try {
-
-                conn.close();
-
-            } catch (SQLException e) {
-                ExceptionUtil.caught(e, "Connection Closed.");
-            }
-        }
         return result;
     }
 
@@ -109,6 +104,10 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             ResultSet rs = stmt.executeQuery();
             result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2))
                 : selectDefaultRightDown(reqContext);
+
+            rs.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
             DatabaseFactory.removeConnectionCache(dbId);
@@ -149,6 +148,10 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
 
                 ResultSet rs = stmt.executeQuery();
                 result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
+
+                rs.close();
+                stmt.close();
+                conn.close();
             } catch (SQLException e) {
                 ExceptionUtil.caught(e, reqContext);
                 DatabaseFactory.removeConnectionCache(dbId);
@@ -157,16 +160,6 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
             } finally {
                 LoggerUtil.info(logger,
                     "Find  DefaultRightDown" + (result == null ? "NULL" : result.toString()));
-            }
-
-            if (conn != null) {
-                try {
-
-                    conn.close();
-
-                } catch (SQLException e) {
-                    ExceptionUtil.caught(e, "Connection Closed.");
-                }
             }
 
             defaultRightDownVal = result;
@@ -207,6 +200,9 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                 bean.setDate(new Date(rs.getLong(3) * 24 * 60 * 60 * 1000));
                 resultSet.add(bean);
             }
+
+            rs.close();
+            stmt.close();
             conn.close();
         } catch (SQLException e) {
             ExceptionUtil.caught(e, reqContext);
@@ -218,15 +214,6 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
                                     + reqContext.toString());
         }
 
-        if (conn != null) {
-            try {
-
-                conn.close();
-
-            } catch (SQLException e) {
-                ExceptionUtil.caught(e, "Connection Closed.");
-            }
-        }
         return resultSet;
     }
 
