@@ -62,7 +62,7 @@ public final class DatabaseFactory {
                     String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
                     connPoolH2 = JdbcConnectionPool
                         .create("jdbc:h2:/h2database/" + dbName + ";SCHEMA=" + dbName
-                                + ";CACHE_SIZE=102400;MULTI_THREADED=1",
+                                + ";AUTO_SERVER=TRUE;MULTI_THREADED=1",
                             "", "");
                 } else {
                     String dbSuffix = StringUtil.equalsIgnoreCase(dsPolar, "s") ? "19902014a2"
@@ -71,7 +71,7 @@ public final class DatabaseFactory {
                     String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
                     connPoolH2 = JdbcConnectionPool
                         .create("jdbc:h2:/h2database/" + dbName + ";SCHEMA=" + dbName
-                                + ";CACHE_SIZE=102400;MULTI_THREADED=1",
+                                + ";AUTO_SERVER=TRUE;MULTI_THREADED=1",
                             "", "");
                 }
                 h2Rep.put(dbId, connPoolH2);
