@@ -61,14 +61,14 @@ public final class DatabaseFactory {
 
                     String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
                     connPoolH2 = JdbcConnectionPool.create(
-                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";MULTI_THREADED=1", "", "");
+                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";AUTO_SERVER=TRUE;MULTI_THREADED=1", "", "");
                 } else {
                     String dbSuffix = StringUtil.equalsIgnoreCase(dsPolar, "s") ? "19902014a2"
                         : "19902014a2N";
 
                     String dbName = StringUtil.toLowerCase(dsName + dsChannel + dbSuffix);
                     connPoolH2 = JdbcConnectionPool.create(
-                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";MULTI_THREADED=1", "", "");
+                        "jdbc:h2:~/" + dbName + ";SCHEMA=" + dbName + ";AUTO_SERVER=TRUE;MULTI_THREADED=1", "", "");
                 }
                 h2Rep.put(dbId, connPoolH2);
             }

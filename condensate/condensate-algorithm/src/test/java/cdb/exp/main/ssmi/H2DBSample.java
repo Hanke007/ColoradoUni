@@ -1,14 +1,16 @@
 package cdb.exp.main.ssmi;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
-import java.util.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.apache.commons.math3.stat.StatUtils;
 import org.springframework.util.StopWatch;
 
-import cdb.common.lang.DateUtil;
+import cdb.common.lang.ExceptionUtil;
+import cdb.common.model.Point;
+import cdb.dal.util.DatabaseFactory;
 
 /**
  * 
@@ -17,25 +19,55 @@ import cdb.common.lang.DateUtil;
  */
 public class H2DBSample {
 
+    /** select the anomalies occurred in certain region within certain period*/
+    protected final static String ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL = "SELECT loc.LON, loc.LAT, tp.TIMESTAMP "
+                                                                        + "FROM (SELECT * FROM VECTORS "
+                                                                        + "WHERE TIMESTAMPID IN ( SELECT ID "
+                                                                        + "FROM TIMESTAMPS "
+                                                                        + "WHERE TIMESTAMP >= ? AND TIMESTAMP <= ? "
+                                                                        + ")) As vec "
+                                                                        + "INNER JOIN LOCATIONS  AS loc  ON loc.ID = vec.LOCATIONID  "
+                                                                        + "INNER JOIN TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
+                                                                        + "WHERE ROW >= ? AND ROW <= ? AND COL >= ? AND COL <= ? ";
+
+    protected final static String AGGREGATED_ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL = "SELECT loc.LON, loc.LAT, COUNT(vec.ID), AVG(vec.VALUE) "
+                                                                                   + "FROM (SELECT * FROM VECTORS "
+                                                                                   + "WHERE TIMESTAMPID IN ( SELECT ID "
+                                                                                   + "FROM TIMESTAMPS "
+                                                                                   + "WHERE TIMESTAMP >= ? AND TIMESTAMP <= ? "
+                                                                                   + ")) As vec "
+                                                                                   + "INNER JOIN LOCATIONS  AS loc  ON loc.ID = vec.LOCATIONID  "
+                                                                                   + "INNER JOIN TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
+                                                                                   + "WHERE ROW >= ? AND ROW <= ? AND COL >= ? AND COL <= ? "
+                                                                                   + "GROUP BY loc.ID";
+
     /**
      * 
      * @param args
      * @throws Exception 
      */
     public static void main(String[] args) throws Exception {
-        Date scur = DateUtil.parse("19940101", DateUtil.SHORT_FORMAT);
-        long sdayFor1970 = scur.getTime() / (24 * 60 * 60 * 1000);
-        System.out.println(sdayFor1970);
+        long duration = 365 * 3;
+        String dbId = "H2_SSMI_s19v";
 
-        Date ecur = DateUtil.parse("19950101", DateUtil.SHORT_FORMAT);
-        long edayFor1970 = ecur.getTime() / (24 * 60 * 60 * 1000);
-        System.out.println(edayFor1970);
-
-        double[] ticks = new double[10];
+        double[] ticks = new double[40];
         for (int i = 0; i < ticks.length; i++) {
+            // imitated parameters
+            long sdayFor1970 = Double
+                .valueOf(7305.0 + (16435.0 - duration - 7305.0) * Math.random()).longValue();
+            long edayFor1970 = sdayFor1970 + duration;
+
+            double smallX = 80 + Math.random() * 120;
+            double smallY = 80 + Math.random() * 120;
+            Point boxLoc = new Point(4);
+            boxLoc.setValue(0, smallX);
+            boxLoc.setValue(1, smallX + 100);
+            boxLoc.setValue(2, smallY);
+            boxLoc.setValue(3, smallY + 100);
+
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
-            queryH2_37V(sdayFor1970, edayFor1970);
+            testH2(dbId, sdayFor1970, edayFor1970, boxLoc);
             stopWatch.stop();
             System.out.println(i + ": " + stopWatch.getTotalTimeMillis() / 1000.0);
             ticks[i] = stopWatch.getTotalTimeMillis() / 1000.0;
@@ -44,115 +76,33 @@ public class H2DBSample {
                            + Math.sqrt(StatUtils.variance(ticks)));
     }
 
-    protected static void queryH2_19H(long sdayFor1970, long edayFor1970) throws Exception {
-        //        DatasetProc dProc = new SSMIFileDtProc();
-        //        DenseMatrix tMatrix = dProc
-        //            .read("C:/Users/chench/Desktop/SIDS/2000/tb_f13_20000811_v2_s19v.bin");
+    protected static void testH2(String dbId, long sdayFor1970, long edayFor1970, Point boxLoc) {
+        try {
+            Connection conn = DatabaseFactory.getConnection(dbId);
+            PreparedStatement stmt = conn
+                .prepareStatement(AGGREGATED_ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL);
+            stmt.setLong(1, sdayFor1970);
+            stmt.setLong(2, edayFor1970);
+            stmt.setInt(3, (int) boxLoc.getValue(0));
+            stmt.setInt(4, (int) boxLoc.getValue(1));
+            stmt.setInt(5, (int) boxLoc.getValue(2));
+            stmt.setInt(6, (int) boxLoc.getValue(3));
+            ResultSet rs = stmt.executeQuery();
 
-        Class.forName("org.h2.Driver");
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/ssmi19h19902014", "", "");
-        Statement stmt = conn.createStatement();
+            int rsNum = 0;
+            while (rs.next()) {
+                rsNum++;
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+            System.out.println(rsNum + ", " + sdayFor1970 + ", " + edayFor1970 + ", " + boxLoc);
+        } catch (ClassNotFoundException e) {
+            ExceptionUtil.caught(e, "");
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, "");
+        }
 
-        String query = "SELECT loc.ROW, loc.COL " + "FROM SSMI19H19902014.VECTORS As vec "
-                       + "JOIN SSMI19H19902014.LOCATIONS   AS loc  ON loc.ID = vec.LOCATIONID "
-                       + "JOIN SSMI19H19902014.TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
-                       + "WHERE tp.TIMESTAMP >  " + sdayFor1970 + " AND tp.TIMESTAMP < "
-                       + edayFor1970
-                       + " AND loc.ROW > 100 AND loc.ROW < 200 AND loc.COL > 100 AND loc.COL < 200 ";
-        stmt.executeQuery(query);
-        //        ResultSet rs = stmt.executeQuery(query);
-        //        SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());
-        //        while (rs.next()) {
-        //            int row = rs.getInt("ROW");
-        //            int col = rs.getInt("COL");
-        //            sMatrix.setValue(row, col, tMatrix.getVal(row, col));
-        //        }
-        //        ImageWUtil.plotRGBImageWithMask(tMatrix, "C:/Users/chench/Desktop/SIDS/Anomaly/2000_/1.jpg",
-        //            sMatrix, ImageWUtil.JPG_FORMMAT);
-    }
-
-    protected static void queryH2_22V(long sdayFor1970, long edayFor1970) throws Exception {
-        //        DatasetProc dProc = new SSMIFileDtProc();
-        //        DenseMatrix tMatrix = dProc
-        //            .read("C:/Users/chench/Desktop/SIDS/2000/tb_f13_20000811_v2_s19v.bin");
-
-        Class.forName("org.h2.Driver");
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/ssmi22v19902014", "", "");
-        Statement stmt = conn.createStatement();
-
-        String query = "SELECT loc.ROW, loc.COL " + "FROM SSMI22V19902014.VECTORS As vec "
-                       + "JOIN SSMI22V19902014.LOCATIONS   AS loc  ON loc.ID = vec.LOCATIONID "
-                       + "JOIN SSMI22V19902014.TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
-                       + "WHERE tp.TIMESTAMP >  " + sdayFor1970 + " AND tp.TIMESTAMP < "
-                       + edayFor1970
-                       + " AND loc.ROW > 100 AND loc.ROW < 200 AND loc.COL > 100 AND loc.COL < 200 ";
-        stmt.executeQuery(query);
-        //        ResultSet rs = stmt.executeQuery(query);
-        //        SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());
-        //        while (rs.next()) {
-        //            int row = rs.getInt("ROW");
-        //            int col = rs.getInt("COL");
-        //            sMatrix.setValue(row, col, tMatrix.getVal(row, col));
-        //        }
-        //        ImageWUtil.plotRGBImageWithMask(tMatrix, "C:/Users/chench/Desktop/SIDS/Anomaly/2000_/1.jpg",
-        //            sMatrix, ImageWUtil.JPG_FORMMAT);
-    }
-
-    protected static void queryH2_37V(long sdayFor1970, long edayFor1970) throws Exception {
-        //        DatasetProc dProc = new SSMIFileDtProc();
-        //        DenseMatrix tMatrix = dProc
-        //            .read("C:/Users/chench/Desktop/SIDS/2000/tb_f13_20000811_v2_s19v.bin");
-
-        Class.forName("org.h2.Driver");
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/ssmi37v19902014", "", "");
-        Statement stmt = conn.createStatement();
-
-        int row = (int) (Math.random() * 300);
-        int col = (int) (Math.random() * 300);
-
-        String query = "SELECT loc.ROW, loc.COL " + "FROM SSMI37V19902014.VECTORS As vec "
-                       + " JOIN SSMI37V19902014.LOCATIONS   AS loc  ON loc.ID = vec.LOCATIONID "
-                       + " JOIN SSMI37V19902014.TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
-                       + "WHERE tp.TIMESTAMP >  " + sdayFor1970 + " AND tp.TIMESTAMP < "
-                       + edayFor1970 + " AND loc.ROW > " + row + " AND loc.ROW < " + (row + 100)
-                       + " AND loc.COL > " + col + " AND loc.COL < " + (col + 100);
-        stmt.executeQuery(query);
-        //        ResultSet rs = stmt.executeQuery(query);
-        //        SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());
-        //        while (rs.next()) {
-        //            int row = rs.getInt("ROW");
-        //            int col = rs.getInt("COL");
-        //            sMatrix.setValue(row, col, tMatrix.getVal(row, col));
-        //        }
-        //        ImageWUtil.plotRGBImageWithMask(tMatrix, "C:/Users/chench/Desktop/SIDS/Anomaly/2000_/1.jpg",
-        //            sMatrix, ImageWUtil.JPG_FORMMAT);
-    }
-
-    protected static void queryH2_85V(long sdayFor1970, long edayFor1970) throws Exception {
-        //        DatasetProc dProc = new SSMIFileDtProc();
-        //        DenseMatrix tMatrix = dProc
-        //            .read("C:/Users/chench/Desktop/SIDS/2000/tb_f13_20000811_v2_s19v.bin");
-
-        Class.forName("org.h2.Driver");
-        Connection conn = DriverManager.getConnection("jdbc:h2:~/ssmi85v19902014", "", "");
-        Statement stmt = conn.createStatement();
-
-        String query = "SELECT loc.ROW, loc.COL " + "FROM SSMI85V19902014.VECTORS As vec "
-                       + " JOIN SSMI85V19902014.LOCATIONS   AS loc  ON loc.ID = vec.LOCATIONID "
-                       + " JOIN SSMI85V19902014.TIMESTAMPS As tp   ON tp.ID = vec.TIMESTAMPID "
-                       + "WHERE tp.TIMESTAMP >  " + sdayFor1970 + " AND tp.TIMESTAMP < "
-                       + edayFor1970
-                       + " AND loc.ROW > 100 AND loc.ROW < 200 AND loc.COL > 100 AND loc.COL < 200 ";
-        stmt.executeQuery(query);
-        //        ResultSet rs = stmt.executeQuery(query);
-        //        SparseMatrix sMatrix = new SparseMatrix(tMatrix.getRowNum(), tMatrix.getColNum());
-        //        while (rs.next()) {
-        //            int row = rs.getInt("ROW");
-        //            int col = rs.getInt("COL");
-        //            sMatrix.setValue(row, col, tMatrix.getVal(row, col));
-        //        }
-        //        ImageWUtil.plotRGBImageWithMask(tMatrix, "C:/Users/chench/Desktop/SIDS/Anomaly/2000_/1.jpg",
-        //            sMatrix, ImageWUtil.JPG_FORMMAT);
     }
 
 }
