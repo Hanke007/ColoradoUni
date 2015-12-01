@@ -88,9 +88,9 @@ public class H2BasedAnomalyInfoWDAOImpl extends AbstractH2BasedDAO implements An
      * @see cdb.web.dao.AnomalyInfoWDAO#selectAggregatedInInBoxWithinTimeRange(cdb.web.bean.Location2D, cdb.web.bean.Location2D, cdb.web.envelope.AnomalyEnvelope)
      */
     @Override
-    public List<AggregatedAnomalyVO> selectAggregatedInInBoxWithinTimeRange(Location2D leftUperCorner,
-                                                                            Location2D rightDownCorner,
-                                                                            AnomalyEnvelope reqContext) {
+    public List<AggregatedAnomalyVO> selectYearlyAggregatedInInBoxWithinTimeRange(Location2D leftUperCorner,
+                                                                                  Location2D rightDownCorner,
+                                                                                  AnomalyEnvelope reqContext) {
         Map<AggregatedAnomalyVO, AggregatedAnomalyVO> aggrgtdRep = new HashMap<AggregatedAnomalyVO, AggregatedAnomalyVO>();
         String dbId = convertDBID(reqContext);
 
@@ -103,7 +103,7 @@ public class H2BasedAnomalyInfoWDAOImpl extends AbstractH2BasedDAO implements An
             dEnd = dEnd.before(constEndDay) ? dEnd : constEndDay;
 
             // merge sub-query result
-            Set<AggregatedAnomalyVO> subResultSet = selectAggregatedInner(leftUperCorner,
+            Set<AggregatedAnomalyVO> subResultSet = selectYearlyAggregatedInner(leftUperCorner,
                 rightDownCorner, dBegin, dEnd, dbId);
             for (AggregatedAnomalyVO one : subResultSet) {
                 if (aggrgtdRep.containsKey(one)) {
@@ -136,17 +136,17 @@ public class H2BasedAnomalyInfoWDAOImpl extends AbstractH2BasedDAO implements An
      * @param reqContext            the major context of the request
      * @return
      */
-    protected Set<AggregatedAnomalyVO> selectAggregatedInner(Location2D leftUperCorner,
-                                                             Location2D rightDownCorner,
-                                                             Date dateBegin, Date dateEnd,
-                                                             String dbId) {
+    protected Set<AggregatedAnomalyVO> selectYearlyAggregatedInner(Location2D leftUperCorner,
+                                                                   Location2D rightDownCorner,
+                                                                   Date dateBegin, Date dateEnd,
+                                                                   String dbId) {
         Set<AggregatedAnomalyVO> resultSet = new HashSet<AggregatedAnomalyVO>();
         Connection conn = null;
 
         try {
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn
-                .prepareStatement(AGGREGATED_ANOMALIES_IN_CERTAIN_TEMPORAL_SPATIAL);
+                .prepareStatement(AGGREGATED_YEARLY_ANOMALIES_IN_CERTAIN_TEMPORAL_SPATIAL);
 
             long daysOfStartDate = dateBegin.getTime() / (24 * 60 * 60 * 1000);
             stmt.setLong(1, daysOfStartDate);
@@ -182,6 +182,99 @@ public class H2BasedAnomalyInfoWDAOImpl extends AbstractH2BasedDAO implements An
                     "Sub-Aggregated Query: " + resultSet.size() + "\t Query: " + "[dbID=" + dbId
                                + ", sDate=" + DateUtil.format(dateBegin, DateUtil.WEB_FORMAT)
                                + ", eDate=" + DateUtil.format(dateEnd, DateUtil.WEB_FORMAT) + "]");
+        }
+        return resultSet;
+    }
+
+    /** 
+     * @see cdb.web.dao.AnomalyInfoWDAO#selectMonthlylyAggregatedInInBoxWithinTimeRange(cdb.web.bean.Location2D, cdb.web.bean.Location2D, cdb.web.envelope.AnomalyEnvelope)
+     */
+    @Override
+    public List<AggregatedAnomalyVO> selectMonthlylyAggregatedInInBoxWithinTimeRange(Location2D leftUperCorner,
+                                                                                     Location2D rightDownCorner,
+                                                                                     AnomalyEnvelope reqContext) {
+        Map<AggregatedAnomalyVO, AggregatedAnomalyVO> aggrgtdRep = new HashMap<AggregatedAnomalyVO, AggregatedAnomalyVO>();
+        String dbId = convertDBID(reqContext);
+
+        int sMonth = reqContext.getsMonth();
+        int eMonth = reqContext.geteMonth();
+        for (int curYear = reqContext.getsYear(); curYear <= reqContext.geteYear(); curYear++) {
+            // merge sub-query result
+            Set<AggregatedAnomalyVO> subResultSet = selectMonthlyAggregatedInner(leftUperCorner,
+                rightDownCorner, curYear, sMonth, eMonth, dbId);
+            for (AggregatedAnomalyVO one : subResultSet) {
+                if (aggrgtdRep.containsKey(one)) {
+                    // merge existing results
+                    AggregatedAnomalyVO existingObject = aggrgtdRep.get(one);
+                    existingObject.setFrequency(existingObject.getFrequency() + one.getFrequency());
+                    existingObject.setMean(existingObject.getMean() + one.getMean());
+                } else {
+                    aggrgtdRep.put(one, one);
+                }
+            }
+        }
+
+        List<AggregatedAnomalyVO> resultSet = new ArrayList<AggregatedAnomalyVO>(
+            aggrgtdRep.values());
+        for (AggregatedAnomalyVO one : resultSet) {
+            one.setMean(one.getMean() / one.getFrequency());
+        }
+        return resultSet;
+    }
+
+    /**
+     * select the anomalies occurred in certain region within certain period
+     * 
+     * @param leftUperCorner        the location in left upper corner of the box
+     * @param rightDownCorner       the location in right down corner of the box
+     * @param reqContext            the major context of the request
+     * @return
+     */
+    protected Set<AggregatedAnomalyVO> selectMonthlyAggregatedInner(Location2D leftUperCorner,
+                                                                    Location2D rightDownCorner,
+                                                                    int year, int sMonth,
+                                                                    int eMonth, String dbId) {
+        Set<AggregatedAnomalyVO> resultSet = new HashSet<AggregatedAnomalyVO>();
+        Connection conn = null;
+
+        try {
+            conn = DatabaseFactory.getConnection(dbId);
+            PreparedStatement stmt = conn
+                .prepareStatement(AGGREGATED_YEARLY_ANOMALIES_IN_CERTAIN_TEMPORAL_SPATIAL);
+
+            stmt.setInt(1, year);
+            stmt.setInt(2, year);
+            stmt.setInt(3, sMonth);
+            stmt.setInt(4, eMonth);
+
+            stmt.setInt(5, leftUperCorner.getRow());
+            stmt.setInt(6, rightDownCorner.getRow());
+            stmt.setInt(7, leftUperCorner.getColumn());
+            stmt.setInt(8, rightDownCorner.getColumn());
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                AggregatedAnomalyVO bean = new AggregatedAnomalyVO();
+                bean.setLongi(rs.getDouble(1));
+                bean.setLati(rs.getDouble(2));
+                bean.setFrequency(rs.getDouble(3));
+                bean.setMean(rs.getDouble(4));
+                resultSet.add(bean);
+            }
+
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            ExceptionUtil.caught(e, dbId);
+            DatabaseFactory.removeConnectionCache(dbId);
+        } catch (ClassNotFoundException e) {
+            ExceptionUtil.caught(e, "DB Driver Not Found");
+        } finally {
+            LoggerUtil.debug(logger,
+                "Sub-Aggregated Query: " + resultSet.size() + "\t Query: " + "[dbID=" + dbId
+                                     + ", Year=" + year + ", sMonth=" + sMonth + ", eMonth="
+                                     + eMonth + "]");
         }
         return resultSet;
     }

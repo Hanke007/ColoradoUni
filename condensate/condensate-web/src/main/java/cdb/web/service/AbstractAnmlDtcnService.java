@@ -25,11 +25,11 @@ public abstract class AbstractAnmlDtcnService {
     /**
      * detect anomalies in SSIM-dataset given start and end dates
      * 
-     * @param sDate     start date
-     * @param eDate     end date
-     * @param locals    the target locations to check
-     * @param session   session object
-     * @return          the list of the anomalies
+     * @param leftUperCorner        the geographic location in left upper corner
+     * @param rightDownCorner       the geographic location in right down corner
+     * @param reqContext            the request object
+     * @param session               the http session
+     * @return                      the list of the anomalies
      */
     public abstract List<AnomalyVO> retrvAnomaly(GeoLocation leftUperCorner,
                                                  GeoLocation rightDownCorner,
@@ -38,14 +38,28 @@ public abstract class AbstractAnmlDtcnService {
     /**
      * make a summary of the anomalies given start and end dates
      * 
-     * @param sDate     start date
-     * @param eDate     end date
-     * @param locals    the target locations to check
-     * @param session   session object
-     * @return          the list of the anomalies
+     * @param leftUperCorner        the geographic location in left upper corner
+     * @param rightDownCorner       the geographic location in right down corner
+     * @param reqContext            the request object
+     * @param session               the http session
+     * @return                      the list of the anomalies
      */
-    public abstract List<AggregatedAnomalyVO> retrvAggregatedAnomaly(GeoLocation leftUperCorner,
-                                                                     GeoLocation rightDownCorner,
-                                                                     AnomalyEnvelope reqContext,
-                                                                     HttpSession session);
+    public abstract List<AggregatedAnomalyVO> retrvYearlyAggregatedAnomaly(GeoLocation leftUperCorner,
+                                                                           GeoLocation rightDownCorner,
+                                                                           AnomalyEnvelope reqContext,
+                                                                           HttpSession session);
+
+    /**
+     * make a summary of the anomalies given start and end dates
+     * 
+     * @param leftUperCorner        the geographic location in left upper corner
+     * @param rightDownCorner       the geographic location in right down corner
+     * @param reqContext            the request object
+     * @param session               the http session
+     * @return                      the list of the anomalies
+     */
+    public abstract List<AggregatedAnomalyVO> retrvMonthlyAggregatedAnomaly(GeoLocation leftUperCorner,
+                                                                            GeoLocation rightDownCorner,
+                                                                            AnomalyEnvelope reqContext,
+                                                                            HttpSession session);
 }
