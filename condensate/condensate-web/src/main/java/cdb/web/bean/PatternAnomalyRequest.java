@@ -1,31 +1,27 @@
-package cdb.web.envelope;
+package cdb.web.bean;
 
-import java.util.Date;
-
-import cdb.common.lang.DateUtil;
+import java.util.List;
 
 /**
  * 
  * @author Chao Chen
- * @version $Id: AnomalyEnvelope.java, v 0.1 Nov 9, 2015 3:27:16 PM chench Exp $
+ * @version $Id: PatternAnomalyRequest.java, v 0.1 Dec 1, 2015 10:02:15 AM chench Exp $
  */
-public class AnomalyEnvelope {
+public class PatternAnomalyRequest {
     /** the name of the date set*/
-    private String dsName;
+    private String            dsName;
     /** the frequency of date set*/
-    private String dsFreq;
-    /** the date to start*/
-    private Date   sDate;
-    /** the date to end*/
-    private Date   eDate;
+    private String            dsFreq;
     /** the month to start*/
-    private int    sMonth;
+    private int               sMonth;
     /** the month to end*/
-    private int    eMonth;
+    private int               eMonth;
     /** the year to start*/
-    private int    sYear;
+    private int               sYear;
     /** the year to end*/
-    private int    eYear;
+    private int               eYear;
+    /** the locations of the target pixel*/
+    private List<GeoLocation> locations;
 
     /**
      * Getter method for property <tt>dsName</tt>.
@@ -61,42 +57,6 @@ public class AnomalyEnvelope {
      */
     public void setDsFreq(String dsFreq) {
         this.dsFreq = dsFreq;
-    }
-
-    /**
-     * Getter method for property <tt>sDate</tt>.
-     * 
-     * @return property value of sDate
-     */
-    public Date getsDate() {
-        return sDate;
-    }
-
-    /**
-     * Setter method for property <tt>sDate</tt>.
-     * 
-     * @param sDate value to be assigned to property sDate
-     */
-    public void setsDate(Date sDate) {
-        this.sDate = sDate;
-    }
-
-    /**
-     * Getter method for property <tt>eDate</tt>.
-     * 
-     * @return property value of eDate
-     */
-    public Date geteDate() {
-        return eDate;
-    }
-
-    /**
-     * Setter method for property <tt>eDate</tt>.
-     * 
-     * @param eDate value to be assigned to property eDate
-     */
-    public void seteDate(Date eDate) {
-        this.eDate = eDate;
     }
 
     /**
@@ -171,19 +131,32 @@ public class AnomalyEnvelope {
         this.eYear = eYear;
     }
 
+    /**
+     * Getter method for property <tt>locations</tt>.
+     * 
+     * @return property value of locations
+     */
+    public List<GeoLocation> getLocations() {
+        return locations;
+    }
+
+    /**
+     * Setter method for property <tt>locations</tt>.
+     * 
+     * @param locations value to be assigned to property locations
+     */
+    public void setLocations(List<GeoLocation> locations) {
+        this.locations = locations;
+    }
+
     /** 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        if (sDate != null && eDate != null) {
-            return "AnomalyEnvelope [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sDate="
-                   + DateUtil.format(sDate, DateUtil.WEB_FORMAT) + ", eDate="
-                   + DateUtil.format(eDate, DateUtil.WEB_FORMAT) + "]";
-        } else {
-            return "AnomalyEnvelope [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sMonth=" + sMonth
-                   + ", eMonth=" + eMonth + ", sYear=" + sYear + ", eYear=" + eYear + "]";
-        }
+        return "PatternAnomalyRequest [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sMonth="
+               + sMonth + ", eMonth=" + eMonth + ", sYear=" + sYear + ", eYear=" + eYear
+               + ", locations=" + locations + "]";
     }
 
 }
