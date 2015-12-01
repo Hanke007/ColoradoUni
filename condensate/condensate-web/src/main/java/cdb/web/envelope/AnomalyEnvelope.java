@@ -2,6 +2,8 @@ package cdb.web.envelope;
 
 import java.util.Date;
 
+import cdb.common.lang.DateUtil;
+
 /**
  * 
  * @author Chao Chen
@@ -94,8 +96,9 @@ public class AnomalyEnvelope {
      */
     @Override
     public String toString() {
-        return "AnomalyEnvelope [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sDate=" + sDate
-               + ", eDate=" + eDate + "]";
+        return "AnomalyEnvelope [dsName=" + dsName + ", dsFreq=" + dsFreq + ", sDate="
+               + DateUtil.format(sDate, DateUtil.WEB_FORMAT) + ", eDate="
+               + DateUtil.format(eDate, DateUtil.WEB_FORMAT) + "]";
     }
 
 }
