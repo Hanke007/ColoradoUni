@@ -1,13 +1,15 @@
 package cdb.web.service;
 
-import java.text.ParseException;
 import java.util.List;
+
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.web.bean.GeoLocation;
 import cdb.web.envelope.AnomalyEnvelope;
+import cdb.web.vo.AggregatedAnomalyVO;
 import cdb.web.vo.AnomalyVO;
 
 /**
@@ -26,11 +28,24 @@ public abstract class AbstractAnmlDtcnService {
      * @param sDate     start date
      * @param eDate     end date
      * @param locals    the target locations to check
+     * @param session   session object
      * @return          the list of the anomalies
-     * @throws ParseException  Date parse exception
      */
     public abstract List<AnomalyVO> retrvAnomaly(GeoLocation leftUperCorner,
                                                  GeoLocation rightDownCorner,
-                                                 AnomalyEnvelope reqContext);
+                                                 AnomalyEnvelope reqContext, HttpSession session);
 
+    /**
+     * make a summary of the anomalies given start and end dates
+     * 
+     * @param sDate     start date
+     * @param eDate     end date
+     * @param locals    the target locations to check
+     * @param session   session object
+     * @return          the list of the anomalies
+     */
+    public abstract List<AggregatedAnomalyVO> retrvAggregatedAnomaly(GeoLocation leftUperCorner,
+                                                                     GeoLocation rightDownCorner,
+                                                                     AnomalyEnvelope reqContext,
+                                                                     HttpSession session);
 }

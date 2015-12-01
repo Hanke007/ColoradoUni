@@ -1,12 +1,9 @@
-package cdb.web.dao;
+package cdb.web.dao.h2;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
@@ -14,21 +11,19 @@ import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.dal.util.DatabaseFactory;
 import cdb.web.bean.Location2D;
+import cdb.web.dao.LocationDAO;
 import cdb.web.envelope.AnomalyEnvelope;
-import cdb.web.vo.AnomalyVO;
 
 /**
  * 
  * @author Chao Chen
- * @version $Id: H2BasedAnomalyInfoWDAOImpl.java, v 0.1 Nov 9, 2015 2:56:26 PM chench Exp $
+ * @version $Id: H2BasedLocationDAOImpl.java, v 0.1 Nov 30, 2015 3:43:28 PM chench Exp $
  */
 @Repository
-public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
-    /** the default value of the right down corner */
-    private Location2D defaultRightDownVal;
+public class H2BasedLocationDAOImpl extends AbstractH2BasedDAO implements LocationDAO {
 
     /** 
-     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestLeftUp(double, double, cdb.web.envelope.AnomalyEnvelope)
+     * @see cdb.web.dao.LocationDAO#selectNearestLeftUp(double, double, cdb.web.envelope.AnomalyEnvelope)
      */
     @Override
     public Location2D selectNearestLeftUp(double longi, double lati, AnomalyEnvelope reqContext) {
@@ -74,7 +69,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
     }
 
     /** 
-     * @see cdb.web.dao.AnomalyInfoWDAO#selectNearestRightDown(double, double, cdb.web.envelope.AnomalyEnvelope)
+     * @see cdb.web.dao.LocationDAO#selectNearestRightDown(double, double, cdb.web.envelope.AnomalyEnvelope)
      */
     @Override
     public Location2D selectNearestRightDown(double longi, double lati,
@@ -131,75 +126,20 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
     }
 
     /** 
-     * @see cdb.web.dao.AnomalyInfoWDAO#selectDefaultRightDown()
+     * @see cdb.web.dao.LocationDAO#selectDefaultRightDown(cdb.web.envelope.AnomalyEnvelope)
      */
     @Override
     public Location2D selectDefaultRightDown(AnomalyEnvelope reqContext) {
-        if (defaultRightDownVal != null) {
-            return defaultRightDownVal;
-        } else {
-            Location2D result = null;
-            Connection conn = null;
-
-            String dbId = convertDBID(reqContext);
-            try {
-                conn = DatabaseFactory.getConnection(dbId);
-                PreparedStatement stmt = conn.prepareStatement(DEFAULT_RIGHT_DOWN);
-
-                ResultSet rs = stmt.executeQuery();
-                result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
-
-                rs.close();
-                stmt.close();
-                conn.close();
-            } catch (SQLException e) {
-                ExceptionUtil.caught(e, reqContext);
-                DatabaseFactory.removeConnectionCache(dbId);
-            } catch (ClassNotFoundException e) {
-                ExceptionUtil.caught(e, "DB Driver Not Found");
-            } finally {
-                LoggerUtil.info(logger,
-                    "Find  DefaultRightDown" + (result == null ? "NULL" : result.toString()));
-            }
-
-            defaultRightDownVal = result;
-            return result;
-        }
-    }
-
-    /** 
-     * @see cdb.web.dao.AnomalyInfoWDAO#selectInBoxWithinTimeRange(cdb.web.bean.Location2D, cdb.web.bean.Location2D, cdb.web.bean.AnomalyRequest)
-     */
-    @Override
-    public List<AnomalyVO> selectInBoxWithinTimeRange(Location2D leftUperCorner,
-                                                      Location2D rightDownCorner,
-                                                      AnomalyEnvelope reqContext) {
-        List<AnomalyVO> resultSet = new ArrayList<AnomalyVO>();
+        Location2D result = null;
         Connection conn = null;
 
         String dbId = convertDBID(reqContext);
         try {
             conn = DatabaseFactory.getConnection(dbId);
-            PreparedStatement stmt = conn.prepareStatement(ANOMALY_IN_CERTAIN_TEMPORAL_SPATIAL);
-
-            long daysOfStartDate = reqContext.getsDate().getTime() / (24 * 60 * 60 * 1000);
-            stmt.setLong(1, daysOfStartDate);
-            long daysOfEndDate = reqContext.geteDate().getTime() / (24 * 60 * 60 * 1000);
-            stmt.setLong(2, daysOfEndDate);
-
-            stmt.setInt(3, leftUperCorner.getRow());
-            stmt.setInt(4, rightDownCorner.getRow());
-            stmt.setInt(5, leftUperCorner.getColumn());
-            stmt.setInt(6, rightDownCorner.getColumn());
+            PreparedStatement stmt = conn.prepareStatement(DEFAULT_RIGHT_DOWN);
 
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                AnomalyVO bean = new AnomalyVO();
-                bean.setLongi(rs.getDouble(1));
-                bean.setLati(rs.getDouble(2));
-                bean.setDate(new Date(rs.getLong(3) * 24 * 60 * 60 * 1000));
-                resultSet.add(bean);
-            }
+            result = rs.next() ? new Location2D(rs.getInt(1), rs.getInt(2)) : null;
 
             rs.close();
             stmt.close();
@@ -210,11 +150,11 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
         } catch (ClassNotFoundException e) {
             ExceptionUtil.caught(e, "DB Driver Not Found");
         } finally {
-            LoggerUtil.info(logger, "Finished AnomalyQuery: " + resultSet.size() + "\t Query: "
-                                    + reqContext.toString());
+            LoggerUtil.info(logger,
+                "Find  DefaultRightDown" + (result == null ? "NULL" : result.toString()));
         }
 
-        return resultSet;
+        return result;
     }
 
     /**
@@ -223,9 +163,7 @@ public class H2BasedAnomalyInfoWDAOImpl implements AnomalyInfoWDAO {
      * @param reqContext
      * @return
      */
-
     protected String convertDBID(AnomalyEnvelope reqContext) {
         return "H2_" + reqContext.getDsName() + "_" + reqContext.getDsFreq();
     }
-
 }
