@@ -24,7 +24,7 @@ import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.dal.file.DatasetProc;
 import cdb.dal.file.SSMIFileDtProc;
 import cdb.dal.util.DBUtil;
-import cdb.dataset.generator.BinFileConvntnUtil;
+import cdb.dataset.util.BinFileConvntnUtil;
 import cdb.exp.qc.analysis.AbstractQcAnalysis;
 
 /**

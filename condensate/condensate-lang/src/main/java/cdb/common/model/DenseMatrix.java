@@ -18,6 +18,8 @@ public class DenseMatrix implements java.io.Serializable {
     private int               rowNum;
     /** the number of columns */
     private int               colNum;
+    /** the available number in matrix*/
+    private int               count;
 
     /**
      * Constructions 
@@ -28,7 +30,11 @@ public class DenseMatrix implements java.io.Serializable {
     public DenseMatrix(int rowNum, int colNum) {
         this.rowNum = rowNum;
         this.colNum = colNum;
+        count = 0;
         data = new double[rowNum][colNum];
+        for (int row = 0; row < rowNum; row++) {
+            Arrays.fill(data[row], Double.NaN);
+        }
     }
 
     /**
@@ -65,6 +71,11 @@ public class DenseMatrix implements java.io.Serializable {
      * @param val   the value to set
      */
     public void setVal(int i, int j, double val) {
+        if (!Double.isNaN(data[i][j]) && Double.isNaN(val)) {
+            count--;
+        } else if (Double.isNaN(data[i][j]) && !Double.isNaN(val)) {
+            count++;
+        }
         data[i][j] = val;
     }
 
@@ -201,6 +212,15 @@ public class DenseMatrix implements java.io.Serializable {
         } else {
             return Math.sqrt(sum / count);
         }
+    }
+
+    /**
+     * get the number of available data
+     * 
+     * @return
+     */
+    public int count() {
+        return count;
     }
 
     /** 

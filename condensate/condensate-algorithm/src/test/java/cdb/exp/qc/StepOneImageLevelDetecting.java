@@ -13,12 +13,12 @@ import cdb.common.lang.ImageWUtil;
 import cdb.dal.file.AVHRFileDtProc;
 import cdb.dal.file.DatasetProc;
 import cdb.dal.file.SSMIFileDtProc;
+import cdb.dataset.util.BinFileConvntnUtil;
 import cdb.common.model.Cluster;
 import cdb.common.model.DenseMatrix;
 import cdb.common.model.ImageInfoVO;
 import cdb.common.model.Point;
 import cdb.common.model.Samples;
-import cdb.dataset.generator.BinFileConvntnUtil;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 
 /**

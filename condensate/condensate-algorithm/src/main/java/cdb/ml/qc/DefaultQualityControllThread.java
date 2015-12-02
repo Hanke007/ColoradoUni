@@ -9,14 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Queue;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 
 import cdb.common.lang.ClusterHelper;
-import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
@@ -35,27 +33,11 @@ import cdb.ml.clustering.KMeansPlusPlusUtil;
  * @version $Id: DefaultQualityControllThread.java, v 0.1 Oct 27, 2015 10:22:58 AM chench Exp $
  */
 public class DefaultQualityControllThread extends AbstractQualityControllThread {
-    /** the tolerance of the merging process*/
-    private double  alpha                   = 2.0;
-    /** the maximum number of iterations in clustering process*/
-    private int     maxIter                 = 20;
-    /** the maximum number of the resulting clusters*/
-    private int     maxClusterNum           = 50;
-    /** the potential ratio of the malicious data*/
-    private double  potentialMaliciousRatio = 0.15;
-    /** the row numbers of every region*/
-    private int     regionHeight            = 1;
-    /** the column numbers of every region*/
-    private int     regionWeight            = 1;
-    /** pivot to indicate whether to save the processed data*/
-    private boolean needSaveData            = false;
-    /** filter category*/
-    private String  filterCategory          = null;
 
     /** mutex object*/
-    private static Object                    ANOMALY_MUTEX = new Object();
+    protected static Object                    ANOMALY_MUTEX = new Object();
     /** the buffer of the Region anomaly object*/
-    private static List<RegionAnomalyInfoVO> raInfoBuffer  = new ArrayList<RegionAnomalyInfoVO>();
+    protected static List<RegionAnomalyInfoVO> raInfoBuffer  = new ArrayList<RegionAnomalyInfoVO>();
 
     protected static void save(List<RegionAnomalyInfoVO> raArr, String resultFile) {
         synchronized (ANOMALY_MUTEX) {
@@ -94,31 +76,16 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
     public DefaultQualityControllThread(double alpha, int maxIter, int maxClusterNum,
                                         double potentialMaliciousRatio, int regionHeight,
                                         int regionWeight, boolean needSaveData) {
-        super();
-        this.alpha = alpha;
-        this.maxIter = maxIter;
-        this.maxClusterNum = maxClusterNum;
-        this.potentialMaliciousRatio = potentialMaliciousRatio;
-        this.regionHeight = regionHeight;
-        this.regionWeight = regionWeight;
-        this.needSaveData = needSaveData;
+        super(alpha, maxIter, maxClusterNum, potentialMaliciousRatio, regionHeight, regionWeight,
+            needSaveData);
     }
 
     /**
      * @param configFileName        the file path of the configuration file
      */
     public DefaultQualityControllThread(String configFileName) {
-        super();
-        Properties properties = ConfigureUtil.read(configFileName);
-        this.alpha = Double.valueOf(properties.getProperty("ALPHA"));
-        this.maxIter = Integer.valueOf(properties.getProperty("MAX_ITERATION"));
-        this.maxClusterNum = Integer.valueOf(properties.getProperty("MAX_CLUSTER_NUM"));
-        this.potentialMaliciousRatio = Double
-            .valueOf(properties.getProperty("ESTIMATED_RATIO_OF_RARE"));
-        this.regionHeight = Integer.valueOf(properties.getProperty("REGION_HEIGHT"));
-        this.regionWeight = Integer.valueOf(properties.getProperty("REGION_WEIGHT"));
+        super(configFileName);
 
-        this.filterCategory = properties.getProperty("DATA_FILTERING_CATEGORY");
     }
 
     /** 

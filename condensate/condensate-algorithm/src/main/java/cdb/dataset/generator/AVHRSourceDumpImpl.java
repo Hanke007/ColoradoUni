@@ -6,6 +6,7 @@ import java.util.List;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
+import cdb.dataset.util.BinFileConvntnUtil;
 
 /**
  * 
