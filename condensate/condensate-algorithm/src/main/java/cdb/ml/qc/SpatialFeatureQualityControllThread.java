@@ -99,8 +99,8 @@ public class SpatialFeatureQualityControllThread extends DefaultQualityControllT
             sizeTable[i] = newClusters[i].getList().size();
         }
 
-        String fileAlias = fileName.substring(fileName.lastIndexOf('/'));
-        String dateStrg = fileAlias.substring(6, 14);
+        String fileAlias = fileName.substring(fileName.lastIndexOf('/') + 1);
+        String dateStrg = fileAlias.substring(7, 15);
         LoggerUtil.info(logger, fileAlias + " resulting clusters: " + Arrays.toString(sizeTable));
 
         int totalNum = dataSample.length()[0];
