@@ -88,6 +88,11 @@ public class SpatialFeatureQualityControllThread extends DefaultQualityControllT
     protected List<RegionAnomalyInfoVO> discoverPatternStep(Samples dataSample,
                                                             List<RegionAnomalyInfoVO> dArr,
                                                             String fileName) {
+        if (dataSample.length()[0] <= maxClusterNum * 500) {
+            LoggerUtil.warn(logger, fileName.substring(fileName.lastIndexOf('/') + 1)
+                                    + " lacked of data: " + dataSample.length()[0]);
+            return new ArrayList<RegionAnomalyInfoVO>();
+        }
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
             DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
         Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,

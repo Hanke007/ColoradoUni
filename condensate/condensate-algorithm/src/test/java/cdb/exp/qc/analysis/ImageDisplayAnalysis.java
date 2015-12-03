@@ -1,0 +1,50 @@
+package cdb.exp.qc.analysis;
+
+import java.util.List;
+import java.util.Properties;
+
+import cdb.common.lang.ConfigureUtil;
+import cdb.common.lang.ImageWUtil;
+import cdb.common.model.DenseMatrix;
+import cdb.common.model.RegionAnomalyInfoVO;
+import cdb.common.model.SparseMatrix;
+import cdb.dal.file.DatasetProc;
+import cdb.dal.file.SSMIFileDtProc;
+import cdb.dal.util.DBUtil;
+import cdb.dataset.util.BinFileConvntnUtil;
+
+/**
+ * 
+ * @author Chao Chen
+ * @version $Id: ImageDisplayAnalysis.java, v 0.1 Dec 2, 2015 2:17:59 PM chench Exp $
+ */
+public class ImageDisplayAnalysis extends AbstractQcAnalysis {
+
+    /**
+     * 
+     * @param args
+     */
+    public static void main(String[] args) {
+        DatasetProc dProc = new SSMIFileDtProc();
+        display(dProc);
+    }
+
+    protected static void display(DatasetProc dProc) {
+        Properties properties = ConfigureUtil.read("src/test/resources/zConfigQC.properties");
+        String sql = properties.getProperty("DUMP");
+        String rootDir = properties.getProperty("DATA_ROOT_DIR");
+        String taskId = properties.getProperty("END_DATE");
+        String freqId = properties.getProperty("FREQ_ID");
+
+        SparseMatrix sMatrix = new SparseMatrix(dProc.dimensions(freqId)[0],
+            dProc.dimensions(freqId)[1]);
+        List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);
+        for (RegionAnomalyInfoVO one : dbSet) {
+            sMatrix.setValue(one.getX(), one.getY(), 1.0d);
+        }
+
+        DenseMatrix dMatrix = dProc.read(BinFileConvntnUtil.fileSSMI(rootDir, taskId, freqId));
+        ImageWUtil.plotRGBImageWithMask(dMatrix, rootDir + taskId + ".bmp", sMatrix,
+            ImageWUtil.BMP_FORMAT);
+    }
+}
