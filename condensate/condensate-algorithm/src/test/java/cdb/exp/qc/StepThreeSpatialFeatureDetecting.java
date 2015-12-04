@@ -67,7 +67,7 @@ public class StepThreeSpatialFeatureDetecting extends AbstractDetecting {
             ExceptionUtil.caught(e, "ExecutorService await crush! ");
         } finally {
             SpatialFeatureQualityControllThread
-                .flush(rootDir + "Anomaly/REG_" + freqId + '_' + 1 + '_' + 1);
+                .flush(rootDir + "Anomaly/COLD_" + freqId + '_' + 1 + '_' + 1);
             LoggerUtil.info(logger,
                 "OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
         }

@@ -11,8 +11,7 @@ import java.util.Properties;
 import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
-import cdb.common.lang.StatisticParamUtil;
-import cdb.common.model.Point;
+import cdb.common.lang.LoggerUtil;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.DiscoveredEvent;
 import cdb.dal.util.DBUtil;
@@ -92,43 +91,12 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                     for (String locKey : event.getLocations()) {
                         ranCon.append(locKey);
                     }
-                    System.out.println(ranCon.toString());
+                    LoggerUtil.info(logger, ranCon.toString());
                 }
             }
             default:
                 break;
         }
-    }
-
-    protected static int[] groupByTimeRange(int rankNum, Map<String, Integer> countByDate,
-                                            List<DiscoveredEvent> candiates,
-                                            Map<String, List<DiscoveredEvent>> canByTimeRange) {
-        for (DiscoveredEvent one : candiates) {
-            String key = "[" + DateUtil.format(one.getDateBegin(), DateUtil.SHORT_FORMAT) + ", "
-                         + DateUtil.format(one.getDataEnd(), DateUtil.SHORT_FORMAT) + "]";
-            List<DiscoveredEvent> arr = canByTimeRange.get(key);
-            if (arr == null) {
-                arr = new ArrayList<DiscoveredEvent>();
-                canByTimeRange.put(key, arr);
-            }
-            arr.add(one);
-        }
-        List<String> keySet = new ArrayList<String>(canByTimeRange.keySet());
-
-        // compute the scores
-        int numKey = keySet.size();
-        double[] neighbors = new double[numKey];
-        for (int i = 0; i < numKey; i++) {
-            String key = keySet.get(i);
-            List<DiscoveredEvent> arr = canByTimeRange.get(key);
-            DiscoveredEvent one = arr.get(0);
-            for (Date date : one.getDays()) {
-                String dKey = DateUtil.format(date, DateUtil.SHORT_FORMAT);
-                neighbors[i] += countByDate.get(dKey);
-            }
-            neighbors[i] += arr.size() * 0.5;
-        }
-        return StatisticParamUtil.findTopAbsMaxNum(new Point(neighbors), rankNum, numKey);
     }
 
     protected static void loadAndMake(String sql, Map<String, Integer> countByDate,
