@@ -1,161 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
 <head>
 <meta charset="utf-8">
-<title>Visual Analysis</title>
-<link rel="stylesheet" type="text/css"
-	href="https://fonts.googleapis.com/css?family=Syncopate" />
-<link rel="stylesheet"
-	href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
-<link rel="stylesheet" href="./css/jquery-ui-slider-pips.css">
-<link rel="stylesheet" type="text/css" href="./css/style.css">
-<!-- openlayers needs to compile sooner or error is raised -->
+<title>Antarctica</title>
+<link rel="icon" type="image/png" href="images/antarctica.png">
+
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+
+<script src="js/ol.js"></script>
 <script src="js/jquery-ui-slider-pips.js"></script>
-<script type="text/javascript"
-	src="http://cdnjs.cloudflare.com/ajax/libs/proj4js/1.1.0/proj4js-compressed.js"></script>
-<script type="text/javascript"
-	src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
-<script src="js/core.js"></script>
+<script src="js/proj4.js"></script>
+<script src="js/antarctic-epsg3031.js"></script>
+
+
+<link rel="stylesheet" href="css/jquery-ui-slider-pips.css">
+<link rel="stylesheet"
+	href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+<link rel="stylesheet" href="css/ol.css" />
+<link rel="stylesheet" href="css/example.css" />
+<link rel="stylesheet" href="css/core.css" />
+
+
+<!-- css style -->
+<style></style>
+
 </head>
-<!--Core Framework Code-->
-
 <body>
+	<div class="background"></div>
 	<div id="wrapper">
-		<header class='container' id='header'></header>
-		<!--<nav class='container roundEdge' id='nav'> -->
-		<div id="header">
-			<center>
-				<h1 id='project'>Condensing Massive Satellite Data For Rapid
-					Interactive Analysis</h1>
-			</center>
+
+		<div id="logo">
+			<img src="images/logoNSIDC.png" alt="logo"
+				style="width: 100px; height: 100px;"> <img
+				src="images/logoCU.png" alt="logo"
+				style="width: 100px; height: 100px;">
 		</div>
-		<!-- </nav> -->
-		<section class='container' id='main'>
-			<div id='content'>
-				<div id='map'>
-					<div class="time"></div>
-				</div>
+
+		<div id="top">
+
+			<div id="mapContainer">
+				<div id="map"></div>
 			</div>
-			<aside id='sidebar' class='roundEdge'>
-				<br> <img src="images/logoNSIDC.png" alt="logo"
-					style="width: 100px; height: 100px;"> <img
-					src="images/logoCU.jpg" alt="logo"
-					style="width: 100px; height: 100px;"> <br> <span
-					id="datasetName"><font color="Black">Data Set</font></span> <br>
-				<button id="dataset2" class="myButton"
-					onclick="changeDataSet('SSMI')">SSMI</button>
-				<br> <span id="datasetFrequency"><font color="Black">Frequency
-						[ SSMI ]</font></span> <br>
-				<button id="freq19" class="myButton" onclick="changeFrequency('19')">19.3</button>
-				<button id="freq22" class="myButton" onclick="changeFrequency('22')">22.2</button>
-				<button id="freq37" class="myButton" onclick="changeFrequency('37')">37.0</button>
-				<br>
-				<button id="freq85" class="myButton" onclick="changeFrequency('85')">85.5</button>
-				<button id="freq91" class="myButton" onclick="changeFrequency('91')">91.7</button>
-				<br> <span id="datasetPolarization"><font color="Black">Polarization
-						[ SSMI ]</font></span> <br>
-				<button id="vertical" class="myButton"
-					onclick="changePolarization('v')">vertical</button>
-				<button id="horizontal" class="myButton"
-					onclick="changePolarization('h')">horizontal</button>
-				<br> <span id="datasetField"><font color="Black">Start
-						Date</font></span> <br> <input id="startDate" name="startDate"
-					value="2010-12-12" type="date" min="1987-01-01" max="2014-12-31"
-					onclick="updateDate()" /> <br> <br> <span
-					id="datasetField"><font color="Black">End Date</font></span> <br>
-				<input id="endDate" name="endDate" value="2010-12-20" type="date"
-					min="1987-01-01" max="2014-12-31" onclick="updateDate()" /> <br>
-				<input class="myButton" value="Submit Query"
-					onclick="sendRequest(anomalyRequest,0);" type="button">
-				<div id="bbox_drag_instruction">Click to drag a box:</div>
-				<div id="bbox_adjust_instruction">
-					Adjust the box <br> <input type="button" value="drag new box"
-						onclick="dragNewBox();">
+
+			<div id="sidebar">
+
+				<div class="row">
+					<div class="mutual">
+						<p>
+							Frequency: <span id="darkText"> 19<input id="chk19"
+								name="chk19" type="checkbox" value="19" class="checkbox" checked>
+								22<input id="chk22" name="chk22" type="checkbox" value="22"
+								class="checkbox"> 37<input id="chk37" name="chk37"
+								type="checkbox" value="37" class="checkbox"> 85<input
+								id="chk85" name="chk85" type="checkbox" value="85"
+								class="checkbox"> 91<input id="chk91" name="chk91"
+								type="checkbox" value="91" class="checkbox">
+							</span>
+						</p>
+					</div>
 				</div>
-				<div id="mapdiv"></div>
-				<p id="bbox_result"></p>
-				<p>Opacity of Layer</p>
-				<div class="sliderOpacityLayer"></div>
-				<p>Opacity of Markers</p>
-				<div class="sliderOpacityMarkers"></div>
-				<script>
-					/******Slider Opacity Layer*****/
-					$(".sliderOpacityLayer").slider({
-						min : 0,
-						max : 1,
-						step : 0.1,
-						value : 0.6
-					}).slider(
-							"pips",
-							{
-								rest : "label",
-								labels : [ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
-										0.7, 0.8, 0.9, 1 ]
-							}).on("slidechange", function(e, ui) {
-						$(changeOpacity(ui.value));
-					});
 
-					$(".sliderOpacityMarkers").slider({
-						min : 0,
-						max : 1,
-						step : 0.1,
-						value : 0.6
-					}).slider(
-							"pips",
-							{
-								rest : "label",
-								labels : [ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
-										0.7, 0.8, 0.9, 1 ]
-							}).on("slidechange", function(e, ui) {
-						$(changeOpacityMarkers(ui.value));
-					});
-					/******End of Slider Opacity Layer*****/
-				</script>
-			</aside>
-		</section>
-		<div id="slider" class="slider"></div>
-		<script>
-			$(".slider").slider({
-				min : 0,
-				max : 9,
-				value : 0
-			}).slider("pips", {
-				rest : "label",
-				labels : arrDates
-			});
+				<div class="row">
+					<div class="mutual">
+						<p>
+							Polarization: <span id="darkText"> vertical<input
+								id="chkVertical" name="chkVertical" type="checkbox"
+								value="vertical" class="checkbox" checked> horizontal<input
+								id="chkHorizontal" name="chkHorizontal" type="checkbox"
+								value="horizontal" class="checkbox">
+							</span>
+						</p>
+					</div>
+				</div>
 
-			$(".slider").slider({
-				min : 0,
-				max : 9,
-				value : 0
-			}).slider("pips", {
-				rest : "label",
-				labels : arrDates
-			}).on("slidechange", function(e, ui) {
-				//$("#labels-months-output").text("You selected " + months[ui.value] + " (" + ui.value + ")");
-				$("#image").attr("src", "images/" + months[ui.value] + ".png");
-				$(updatePixels());
-			});
-		</script>
-		<div id="changeDateButtons">
-			<center>
-				<br> <br> <br> <input class="myButton"
-					value="Query Previous 10 Days" onclick="changeDateRange(-10);"
-					type="button"> <input class="myButton"
-					value="Query Next 10 Days" onclick="changeDateRange(10);"
-					type="button"> <br>
-			</center>
+				<div class="row">
+					<div class="mutual">
+						<p>
+							Timeline Zoom: <span id="darkText"> days<input id="chkDay"
+								name="chkDay" type="checkbox" value="day" class="checkbox"
+								checked> months<input id="chkMonth" name="chkMonth"
+								type="checkbox" value="month" class="checkbox">
+							</span>
+						</p>
+					</div>
+				</div>
+
+				<div class="row">
+					<p>Rectangle Selection for Sub-Region</p>
+				</div>
+				<div class="row">
+					<p id="tempOutput"></p>
+					<button onclick="buttonDrawRectangle();">draw rectangle</button>
+					<button onclick="source.clear();">clear rectangle</button>
+				</div>
+
+				<div class="row">
+					<p>Yearly Pattern</p>
+					<p id="patternText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderPattern"></div>
+				</div>
+
+				<div class="row">
+					<p>Range of Years</p>
+					<p id="yearsText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderYears"></div>
+				</div>
+
+				<div class="row">
+					<p>Query Threshold - Lower to Upper [Kelvin]</p>
+					<p id="thresholdText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderThreshold"></div>
+				</div>
+
+				<div class="row">
+					<button class="btn thr" onclick="sendRequest(anomalyRequest, 0);">anomalies</button>
+					<button class="btn thr" onclick="sendRequest(anomalyRequest, 1);">aggregate</button>
+				</div>
+
+				<div class="row">
+					<p>Baseline Image Opacity</p>
+					<p id="layerOpacityText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderLayerOpacity"></div>
+				</div>
+
+				<div class="row">
+					<p>Climatology Opacity</p>
+					<p id="markerOpacityText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderMarkerOpacity"></div>
+				</div>
+				<!--		
+			<div class="row"><p>Heatmap Opacity</p><p id="heatmapOpacityText"></p></div>
+			<div class="row">
+				<div class="slide sliderHeatmapOpacity"></div>
+			</div>
+-->
+
+				<div class="row">
+					<p>Results Opacity</p>
+					<p id="markerOpacityText"></p>
+				</div>
+				<div class="row">
+					<div class="slide sliderAnomalyOpacity"></div>
+				</div>
+
+				<div class="row">
+					<button class="btn thr"
+						onclick="redVectorSource.clear();blueVectorSource.clear();vectorSource.clear();">clear
+						results</button>
+				</div>
+
+
+				<!-- add back soon
+			<div class="row outputResultsBack">
+				<div id="outputResults"></div>
+			</div>
+-->
+
+			</div>
 		</div>
-		<footer class='container' id='footer'>
-			<center>
-				<p>© 2015 NSIDC &amp; University of Colorado at Boulder</p>
-			</center>
-		</footer>
+		<!-- end top -->
+
+		<div id="bottom">
+			<div id="timelineBox">
+				<div>
+					<div class="row">
+						<p id="timelineText"></p>
+					</div>
+					<div class="row">
+						<div class="slide sliderTimeline"></div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		<!-- end bottom -->
+
 	</div>
 	<!-- end wrapper -->
-</body>
 
+	<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+	<script src="js/core.js"></script>
+
+	<script type="text/javascript">
+		updateResults(anomalyRequest);
+	</script>
+	<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+
+</body>
 </html>

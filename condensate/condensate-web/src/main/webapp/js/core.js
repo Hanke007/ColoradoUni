@@ -1,487 +1,671 @@
-//js code
-/*-------------------------------------------*/
-/*****Helper Function for User Request*****/
-var sendString = "",
-    dataSet = "SSMI",
-    frequency = "19",
-    polarization = "h",
-    startDate = "2010-12-12",
-    endDate = "2010-12-20";
+/* file contains various methods for interacting with the page */
 
-loctnArray = Array();
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+// add anomalies to the map
+function updateMap() {
+	var k, j = 0; // loop vars
+	var foo = []; // each entry on list
 
-/*user request function*/
-var anomalyRequest = {
-    "dsName": dataSet,
-    "dsFreq": frequency,
-    "dsPolar": polarization,
-    "sDate": startDate,
-    "eDate": endDate,
-    "locations": loctnArray
+	// wait for response
+	if ((requestReturned == 1) && (anomalyResponse.length !== 0)) {
+		// need to reset request returned at some point
+		firstAnomaly = new Date(0);
+		firstAnomaly.setUTCSeconds(anomalyResponse[0]["date"] / 1000);
+
+		secondAnomaly = new Date(0);
+		secondAnomaly
+				.setUTCSeconds(anomalyResponse[anomalyResponse.length - 1]["date"] / 1000);
+
+		console.log("first anomaly: " + firstAnomaly);
+		console.log("last anomaly: " + secondAnomaly);
+		console.log("...with " + anomalyResponse.length + " anomalies.")
+
+		source.clear();
+
+		// create a bunch of icons and add to source vector
+		for (var k = 0; k < anomalyResponse.length; k++) {
+
+			if (k == 0) {
+				vectorSource.clear();
+			}
+			foo = anomalyResponse[k];
+			longi = foo["longi"];
+			lati = foo["lati"];
+
+			var locations = ol.proj.transform([ longi, lati ], 'EPSG:4326',
+					'EPSG:3031');
+
+			var iconFeature = new ol.Feature({
+				// geometry: new ol.geom.Point(ol.proj.transform([lati,
+				// longi],'EPSG:4326','EPSG:3031')),
+				geometry : new ol.geom.Point(locations)
+			// ,
+			// name: 'Null Island',
+			// population: 400,
+			// rainfall: 500
+			});
+			vectorSource.addFeature(iconFeature);
+		}
+
+		map.addLayer(vectorLayer);
+		requestReturned = 0; // reset for next time
+
+	} else { // if request returned is 1
+		console
+				.log("...waiting for the data ____or___ the length of anomalyResponse is zero?!");
+	}
+} // end updateMap
+
+// add anomalies to the map
+function updateMapAggregate() {
+	var k, j = 0; // loop vars
+	var foo = []; // each entry on list
+
+	// wait for response
+	if ((requestReturned == 1) && (aggregateAnomalyResponse.length !== 0)) {
+		// need to reset request returned at some point
+		console.log("...with " + aggregateAnomalyResponse.length
+				+ " anomalies.")
+
+		source.clear();
+
+		for (var k = 0; k < aggregateAnomalyResponse.length; k++) {
+
+			if (k == 0) {
+				redVectorSource.clear();
+				blueVectorSource.clear();
+			}
+			foo = aggregateAnomalyResponse[k];
+			longi = foo["longi"];
+			lati = foo["lati"];
+			mean = foo["mean"];
+			frequency = foo["frequency"];
+
+			var locations = ol.proj.transform([ longi, lati ], 'EPSG:4326',
+					'EPSG:3031');
+
+			var iconFeature = new ol.Feature({
+				geometry : new ol.geom.Point(locations)
+			});
+
+			// $(".sliderThreshold").slider("values")[1]*10
+			console.log("threshold: greater than "
+					+ $(".sliderThreshold").slider("values")[0]
+					+ ", and less than "
+					+ $(".sliderThreshold").slider("values")[1]);
+			if (mean > $(".sliderThreshold").slider("values")[0] * 10
+					&& mean < $(".sliderThreshold").slider("values")[1] * 10) {
+				redVectorSource.addFeature(iconFeature);
+			} else {
+				blueVectorSource.addFeature(iconFeature);
+			}
+		}
+
+		map.addLayer(redVectorLayer);
+		map.addLayer(blueVectorLayer);
+		requestReturned = 0; // reset for next time
+
+	} else { // if request returned is 1
+		console
+				.log("...waiting for the data or the length of aggregate anomaly request is zero?!");
+	}
+} // end updateMapAggregate
+
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+
+var months = [ "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
+		"oct", "nov", "dec" ];
+var dataSet = "SSMI";
+var frequency = "19";
+var polarization = "h";
+var startDate = "2010-12-12";
+var endDate = "2010-12-20";
+
+// bounding box for request
+var loctnArray = Array();
+loctnArray[0] = {
+	"longitude" : -39.3,
+	"latitude" : -42.5
+};
+loctnArray[1] = {
+	"longitude" : -41.4,
+	"latitude" : 136
+};
+boxCoordinates = loctnArray;
+
+var startYear = 1987; // set up as the same for the slider
+var endYear = 2014;
+var startMonth = 0;
+var endMonth = 11;
+
+anomalyRequest = {
+	"dsName" : dataSet,
+	"dsFreq" : frequency,
+	"dsPolar" : polarization,
+	"sDate" : startDate,
+	"eDate" : endDate,
+	"sMonth" : 1,
+	"eMonth" : 12,
+	"sYear" : startYear,
+	"eYear" : endYear,
+	"locations" : loctnArray
 };
 
-var anomalyResults = [];
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
 
-function updateDate() {
-    startDate = "" + document.getElementById('startDate').value;
-    endDate = "" + document.getElementById('endDate').value;
-    anomalyRequest["sDate"] = startDate;
-    anomalyRequest["eDate"] = endDate;
+// variables that control the timelilne view -- start zoomed to years
+var minYear = 1987;
+var maxYear = 2014;
+var sliderTimelineMin = minYear;
+var sliderTimelineMax = maxYear;
+var sliderTimelineStep = 1;
+var sliderTimelineValue = 1;
+var timelineZoomLevel = "day";
+
+// http://jsfiddle.net/3TssG/
+$('.mutual .checkbox').click(function() {
+	var checkedState = $(this).prop("checked")
+	$(this).parent('div').children('.checkbox:checked').prop("checked", false);
+	$(this).prop("checked", checkedState);
+	$(updateResults(anomalyRequest));
+	$(updateDateValues());
+});
+
+// change opacity of the layer
+$(".sliderLayerOpacity").slider({
+	min : 0,
+	max : 1,
+	step : 0.05,
+	value : 0.5,
+	slide : function(event, ui) {
+		// $("#layerOpacityText").text( ui.value );
+		$(layerBaseMap.setOpacity(ui.value));
+	},
+	change : function(event, ui) {
+		// $("#layerOpacityText").text( ui.value );
+		$(layerBaseMap.setOpacity(ui.value));
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 5
+}).on("slidechange", function(event, ui) {
+	// $("#layerOpacityText").text( ui.value );
+	$(layerBaseMap.setOpacity(ui.value));
+	$(updateResults(anomalyRequest));
+});
+
+// change opacity of the markers
+$(".sliderMarkerOpacity").slider({
+	min : 0,
+	max : 1,
+	step : 0.05,
+	value : 0.75,
+	slide : function(event, ui) {
+		// $("#markerOpacityText").text( ui.value );
+		$(imageLayer.setOpacity(ui.value));
+	},
+	change : function(event, ui) {
+		// $("#markerOpacityText").text( ui.value );
+		$(imageLayer.setOpacity(ui.value));
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 5
+}).on("slidechange", function(event, ui) {
+	// $("#markerOpacityText").text( ui.value );
+	$(imageLayer.setOpacity(ui.value));
+	$(updateResults(anomalyRequest));
+});
+
+// sliderHeatmapOpacity
+/*
+ * $(".sliderHeatmapOpacity") .slider({ min: 0, max: 1, step: 0.05, value: 1,
+ * slide: function( event, ui ){ //$("#markerOpacityText").text( ui.value ); $(
+ * heatmapLayer.setOpacity( ui.value ) ); }, change: function( event, ui ){
+ * //$("#markerOpacityText").text( ui.value ); $( heatmapLayer.setOpacity(
+ * ui.value ) ); } }) .slider("pips", { rest: "label", step: 5 })
+ * .on("slidechange", function( event, ui ){ //$("#markerOpacityText").text(
+ * ui.value ); $( heatmapLayer.setOpacity( ui.value ) ); $( updateResults(
+ * anomalyRequest ) ); });
+ */
+
+// slider hot and cold anomalies
+$(".sliderAnomalyOpacity").slider({
+	min : 0,
+	max : 1,
+	step : 0.05,
+	value : 0.25,
+	slide : function(event, ui) {
+		// $("#markerOpacityText").text( ui.value );
+		$(redVectorLayer.setOpacity(ui.value));
+		$(blueVectorLayer.setOpacity(ui.value));
+		$(vectorLayer.setOpacity(ui.value));
+	},
+	change : function(event, ui) {
+		// $("#markerOpacityText").text( ui.value );
+		$(redVectorLayer.setOpacity(ui.value));
+		$(blueVectorLayer.setOpacity(ui.value));
+		$(vectorLayer.setOpacity(ui.value));
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 5
+}).on("slidechange", function(event, ui) {
+	// $("#markerOpacityText").text( ui.value );
+	$(redVectorLayer.setOpacity(ui.value));
+	$(blueVectorLayer.setOpacity(ui.value));
+	$(vectorLayer.setOpacity(ui.value));
+	$(updateResults(anomalyRequest));
+});
+
+// user input of the date
+$(".sliderYears").slider({
+	min : minYear,
+	max : maxYear,
+	range : true,
+	step : 1,
+	values : [ 2001, 2003 ],
+	// this gets a live reading of the value and prints it on the page
+	slide : function(event, ui) {
+		// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
+		$(updateResults(anomalyRequest));
+	},
+	change : function(event, ui) {
+		// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
+		$(updateResults(anomalyRequest));
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 3
+}).on("slidechange", function(event, ui) {
+	// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
+	$(updateResults(anomalyRequest));
+});
+
+// slider for patterns of date input
+$(".sliderPattern").slider({
+	min : 0,
+	max : months.length - 1,
+	range : true,
+	values : [ 0, 11 ],
+	slide : function(event, ui) {
+		// $("#patternText").text( months[ui.values[0]] + " to " +
+		// months[ui.values[1]] );
+	},
+	change : function(event, ui) {
+		// $("#patternText").text( months[ui.values[0]] + " to " +
+		// months[ui.values[1]] );
+	}
+
+}).slider("pips", {
+	rest : "label",
+	labels : months
+}).on("slidechange", function(event, ui) {
+	// $("#patternText").text( months[ui.values[0]] + " to " +
+	// months[ui.values[1]] );
+	$(updateResults(anomalyRequest));
+});
+
+// thresholds for the results to return
+$(".sliderThreshold").slider({
+	min : 50,
+	max : 350,
+	range : true,
+	step : 10,
+	values : [ 50, 350 ],
+	slide : function(event, ui) {
+		$(updateResults(anomalyRequest));
+	},
+	change : function(event, ui) {
+		$(updateResults(anomalyRequest));
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 3
+}).on("slidechange", function(event, ui) {
+	$(updateResults(anomalyRequest));
+});
+
+// slider for main timeline at bottom of page
+$(".sliderTimeline").slider({
+	min : sliderTimelineMin,
+	max : sliderTimelineMax,
+	step : sliderTimelineStep,
+	values : [ sliderTimelineMin, sliderTimelineMax ],
+	slide : function(event, ui) {
+		// $("#timelineText").text( ui.value );
+	},
+	change : function(event, ui) {
+		// $("#timelineText").text( ui.value );
+	}
+}).slider("pips", {
+	rest : "label",
+	step : 1
+}).on("slidechange", function(event, ui) {
+	// $("#timelineText").text( ui.value );
+	$(updateResults(anomalyRequest));
+});
+
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+
+// updates the variables that will be input into the query
+function updateResults(anomalyRequest) {
+	// determine frequency
+	if ($("#chk19").is(':checked')) {
+		frequency = "19";
+	} else if ($("#chk22").is(':checked')) {
+		frequency = "22";
+	} else if ($("#chk37").is(':checked')) {
+		frequency = "37";
+	} else if ($("#chk85").is(':checked')) {
+		frequency = "85";
+	} else if ($("#chk91").is(':checked')) {
+		frequency = "91";
+	}
+
+	// determine polarization
+	if ($("#chkVertical").is(':checked')) {
+		polarization = "v";
+	} else if ($("#chkHorizontal").is(':checked')) {
+		polarization = "h";
+	}
+
+	// determine timeline zoom
+	if ($("#chkDay").is(':checked')) {
+		timelineZoomLevel = "day";
+	} else if ($("#chkMonth").is(':checked')) {
+		timelineZoomLevel = "month";
+	} else if ($("#chkYear").is(':checked')) {
+		timelineZoomLevel = "year";
+	}
+
+	startYear = $(".sliderYears").slider("values")[0];
+	endYear = $(".sliderYears").slider("values")[1];
+	startMonth = $(".sliderPattern").slider("values")[0] + 1;
+	endMonth = $(".sliderPattern").slider("values")[1] + 1;
+
+	startDate = startYear + "-" + ("00" + startMonth).slice(-2) + "-01";
+	endDate = endYear + "-" + ("00" + startMonth).slice(-2) + "-01";
+
+	/*
+	 * document.getElementById("outputResults").innerHTML = "<p>" + dataSet + ", " +
+	 * frequency + ", " + polarization + ", " + startDate + ", " + endDate + "<br>"
+	 * //+ "timeline zoom: " + timelineZoomLevel + "</p>" //+ "layer opacity: " +
+	 * $(".sliderLayerOpacity").slider("value") + "</p>" //+ "marker opacity: " +
+	 * $(".sliderMarkerOpacity").slider("value") + "</p>" + "dates: " +
+	 * startDate + ", " + endDate + "<br>" //+ "location array: " +
+	 * loctnArray[0] + ", " + loctnArray[1] + "</p>"; + "coordinates top-left: " +
+	 * boxCoordinates[0]["latitude"] + ", " + boxCoordinates[0]["longitude"] + "<br>" +
+	 * "coordinates bottom-right: " + boxCoordinates[1]["latitude"] + ", " +
+	 * boxCoordinates[1]["longitude"] + "<br>" + "slider years: " + startYear + ", " +
+	 * endYear + "<br>" + "slider pattern: " +
+	 * months[$(".sliderPattern").slider("values")[0]] + " to " +
+	 * months[$(".sliderPattern").slider("values")[1]] + "</p>";
+	 */
+
+	// update anomaly request values
+	anomalyRequest["dsName"] = dataSet;
+	anomalyRequest["dsFreq"] = "s" + frequency + polarization;
+	anomalyRequest["dsPolar"] = polarization;
+	anomalyRequest["sDate"] = startDate;
+	anomalyRequest["eDate"] = endDate;
+	anomalyRequest["sYear"] = startYear;
+	anomalyRequest["eYear"] = endYear;
+	anomalyRequest["sMonth"] = $(".sliderPattern").slider("values")[0] + 1;
+	anomalyRequest["eMonth"] = $(".sliderPattern").slider("values")[1] + 1;
+	anomalyRequest["locations"] = loctnArray
 }
 
-function changeDataSet(ds) {
-    dataSet = ds;
-    updateDate();
-    anomalyRequest["dsName"] = ds;
-};
-
-function changeVariableSelection(variable, selectionList) {
-    updateDate();
-
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// http://jsfiddle.net/jfhartsock/cM3ZU/
+Date.prototype.addDays = function(days) {
+	var dat = new Date(this.valueOf())
+	dat.setDate(dat.getDate() + days);
+	return dat;
+}
+function getDates(startDate, stopDate) {
+	var dateArray = new Array();
+	var currentDate = startDate;
+	while (currentDate <= stopDate) {
+		dateArray.push(currentDate)
+		currentDate = currentDate.addDays(1);
+	}
+	return dateArray;
 }
 
-function changeFrequency(freq) {
-    frequency = freq;
-    updateDate();
-    //update Frequency
-    anomalyRequest["dsFreq"] = freq;
+// update labels of timeline pips
+function updateDateValues() {
 
-    if (freq == '91') {
-        document.getElementById("freq91").style.color = "black";
-        document.getElementById("freq85").style.color = "#B6B6B4";
-        document.getElementById("freq37").style.color = "#B6B6B4";
-        document.getElementById("freq22").style.color = "#B6B6B4";
-        document.getElementById("freq19").style.color = "#B6B6B4";
-    } else if (freq == '85') {
+	// generate a list of all days between start and end of input
+	var beginningDate = new Date(startDate);
+	var endingDate = new Date(endDate);
 
-        document.getElementById("freq91").style.color = "#B6B6B4";
-        document.getElementById("freq85").style.color = "black";
-        document.getElementById("freq37").style.color = "#B6B6B4";
-        document.getElementById("freq22").style.color = "#B6B6B4";
-        document.getElementById("freq19").style.color = "#B6B6B4";
-    } else if (freq == '37') {
-        document.getElementById("freq91").style.color = "#B6B6B4";
-        document.getElementById("freq85").style.color = "#B6B6B4";
-        document.getElementById("freq37").style.color = "black";
-        document.getElementById("freq22").style.color = "#B6B6B4";
-        document.getElementById("freq19").style.color = "#B6B6B4";
-    } else if (freq == '22') {
-        document.getElementById("freq91").style.color = "#B6B6B4";
-        document.getElementById("freq85").style.color = "#B6B6B4";
-        document.getElementById("freq37").style.color = "#B6B6B4";
-        document.getElementById("freq22").style.color = "black";
-        document.getElementById("freq19").style.color = "#B6B6B4";
-    } else {
-        document.getElementById("freq91").style.color = "#B6B6B4";
-        document.getElementById("freq85").style.color = "#B6B6B4";
-        document.getElementById("freq37").style.color = "#B6B6B4";
-        document.getElementById("freq22").style.color = "#B6B6B4";
-        document.getElementById("freq19").style.color = "black";
-    }
-};
+	dateArray = getDates(beginningDate, endingDate);
 
-function changePolarization(pol) {
-    polarization = pol;
-    updateDate();
-    anomalyRequest["dsPolar"] = pol;
+	// print out all the dates to the console
+	for (i = 0; i < dateArray.length; i++) {
+		// console.log( dateArray[i] );
+	}
 
-    if (pol == 'v') {
-        document.getElementById("vertical").style.color = "black";
-        document.getElementById("horizontal").style.color = "#B6B6B4";
-    } else {
-        document.getElementById("horizontal").style.color = "black";
-        document.getElementById("vertical").style.color = "#B6B6B4";
-    }
+	if ($("#chkMonth").is(':checked')) {
+		// months
+		$(".sliderTimeline").slider({
+			min : 0,
+			max : 11,
+			step : 1,
+			value : 5
+		}).slider("pips", {
+			rest : "label",
+			labels : months
+		});
+	} else if ($("#chkYear").is(':checked')) {
+		// years
+		$(".sliderTimeline").slider({
+			min : minYear,
+			max : maxYear,
+			step : 1,
+			value : 1
+		}).slider("pips", {
+			rest : "label",
+			step : 1
+		});
+	} else {
+		// days
+		$(".sliderTimeline").slider({
+			min : 0,
+			max : 31,
+			step : 1,
+			value : 0
+		}).slider("pips", {
+			rest : "label",
+			step : 1
+		});
+	}
 }
 
-//pass full request to a new page, in localStorage
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+
+var requestReturned = 0;
+var anomalyResponse = [];
+var aggregateAnomalyResponse = [];
+
+// if mode is '0' parse daily results, if mode is '1' parse aggregate
 function sendRequest(anomalyRequest, mode) {
-    if (mode === 0) {
-        updateDate(); //update start/end date based on query
-    }
-    anomalyRequest["dsFreq"] = "s" + frequency + polarization;
-    console.log(anomalyRequest);
-    localStorage['userQuery'] = JSON.stringify(anomalyRequest);
-    parseRequest(); //send and parse results
-    updateDateValues(); //first 10 days from user query
-    updatePixels(); //visualize results
-};
-/*****End of Helper Function for User Reuqest*****/
+	anomalyRequest["dsName"] = dataSet;
+	anomalyRequest["dsFreq"] = "s" + frequency + polarization;
+	anomalyRequest["dsPolar"] = polarization;
+	anomalyRequest["sDate"] = startDate;
+	anomalyRequest["eDate"] = endDate;
+	anomalyRequest["locations"] = loctnArray
 
-/*-------------------------------------------*/
-/*****Helper Functions for Visualizing User Request*****/
-requestReturned = 0;
+	console.log("anomalyRequest" + anomalyRequest);
+
+	updateDateValues();
+	if (mode == 0) {
+		parseRequest();
+	} else if (mode == 1) {
+		// parseRequestAggregateDaily();
+		parseRequestAggregateMonthly();
+	} else {
+		console.log("error with request...");
+	}
+
+};
 
 function parseRequest(e) {
-    console.log("making request....");
+	console.log("making request....");
 
-    ajaxHandle = $.ajax({
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        url: "./anomaly/ajaxRetrvAnomaly.do",
-        data: localStorage["userQuery"],
-        dataType: 'json',
-        async: true,
-        success: function(response) {
-            console.log("________________ajax success!_________________");
-            if ($.isEmptyObject(response)) {
-                alert('No Anomaly Found, Try Another Query');
-            } else {
-                anomalyResults = response;
-                requestReturned = 1;
-                updatePixels();
-            }
-        }
-    });
+	ajaxHandle = $
+			.ajax({
+				type : "POST",
+				contentType : "application/json; charset=utf-8",
+				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvAnomaly.do",
+				// data : localStorage["userQuery"], // don't need localstorage
+				// anymore
+				data : JSON.stringify(anomalyRequest),
+				dataType : 'json',
+				async : true,
+				success : function(response) {
+					console.log("ajax success!________________ajax success!");
+					console.log("respones: " + response);
+					anomalyResponse = response;
+					requestReturned = 1;
+					updateMap();
+				}
+			});
 }
 
-var months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-var activeMonth = new Date().getMonth();
-var save = 0;
-var arrDates = [];
+// aggregate results
+function parseRequestAggregateDaily(e) {
+	console.log("making aggregate request....");
 
-function updateDateValues() {
-    sDate = JSON.parse(localStorage.userQuery)["sDate"];
-    eDate = JSON.parse(localStorage.userQuery)["eDate"];
-
-    startDate = new Date(sDate);
-    slideDate = startDate;
-    cDateNum = startDate;
-    arrDates = GetDates(startDate, 10);
-    //udpate labels for slider bar
-    $(".slider").slider({
-        min: 0,
-        max: 9,
-        value: 0
-    }).slider("pips", {
-        rest: "label",
-        labels: arrDates
-    });
+	ajaxHandle = $
+			.ajax({
+				type : "POST",
+				contentType : "application/json; charset=utf-8",
+				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
+				// to query monthly, just change the string
+				// url :
+				// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
+				data : JSON.stringify(anomalyRequest),
+				dataType : 'json',
+				async : true,
+				success : function(response) {
+					console.log("ajax success! ajax success!");
+					console.log("respones: " + response);
+					aggregateAnomalyResponse = response;
+					requestReturned = 1;
+					updateMapAggregate();
+				}
+			});
 }
 
-function formatDate(date) {
-    var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
+// aggregate results
+function parseRequestAggregateMonthly(e) {
+	console.log("making aggregate request....");
 
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
+	ajaxHandle = $
+			.ajax({
+				type : "POST",
+				contentType : "application/json; charset=utf-8",
+				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvMonthlyAggAnomaly.do",
+				// to query monthly, just change the string
+				// url :
+				// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
+				data : JSON.stringify(anomalyRequest),
+				dataType : 'json',
+				async : true,
+				success : function(response) {
+					console.log("ajax success! ajax success!");
+					console.log("respones: " + response);
+					aggregateAnomalyResponse = response;
+					requestReturned = 1;
+					updateMapAggregate();
+				}
+			});
 }
 
-function changeDateRange(num) {
-    var currentDate = new Date(slideDate.getDate());
-    currentDate.setDate;
-    slideDate.setDate(currentDate.getTime() + num);
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////////
 
-    startDate = formatDate(slideDate); //update start date
-    var currentDate = new Date(startDate);
-    currentDate.setDate(slideDate.getDate() + 10);
-    endDate = formatDate(currentDate); //update end date, need simplify code
+var draw;
 
-    arrDates = GetDates(slideDate, 10); // next 10 days
-    $(".slider").slider({
-        min: 0,
-        max: 9,
-        value: 0
-    }).slider("pips", {
-        rest: "label",
-        labels: arrDates
-    })
+function addInteraction() {
+	var locationArray = Array();
+	locationArray[0] = {
+		"longitude" : -39.3,
+		"latitude" : -42.5
+	};
+	locationArray[1] = {
+		"longitude" : -41.4,
+		"latitude" : 136
+	};
 
-    //send new query to server, no data cached so far, always query new data
-    anomalyRequest["sDate"] = startDate;
-    anomalyRequest["eDate"] = endDate;
-    sendRequest(anomalyRequest, 1);
-}
+	var geometryFunction;
 
-// find the next set of days
-function GetDates(startDate, daysToAdd) {
-    arrDates = [];
-    for (var i = 1; i <= daysToAdd; i++) {
-        var currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + i);
-        arrDates.push(currentDate.getDate() + " " + months[currentDate.getMonth()] + " " + currentDate.getFullYear());
-    }
-    return arrDates;
-}
+	function geometryFunction(coordinates, geometry) {
+		if (!geometry) {
+			geometry = new ol.geom.Polygon(null);
+		}
+		var start = coordinates[0];
+		var end = coordinates[1];
+		geometry.setCoordinates([ [ start, [ start[0], end[1] ], end,
+				[ end[0], start[1] ], start ] ]);
 
-function updatePixels() {
-    var k, j = 0;
-    var foo = [];
+		locationArray[0]["longitude"] = ol.proj.transform([ coordinates[0][0],
+				coordinates[0][1] ], 'EPSG:3031', 'EPSG:4326')[0].toFixed(2);
+		locationArray[0]["latitude"] = ol.proj.transform([ coordinates[0][0],
+				coordinates[0][1] ], 'EPSG:3031', 'EPSG:4326')[1].toFixed(2);
 
-    var sliderValue = 0;
+		locationArray[1]["longitude"] = ol.proj.transform([ coordinates[1][0],
+				coordinates[1][1] ], 'EPSG:3031', 'EPSG:4326')[0].toFixed(2);
+		locationArray[1]["latitude"] = ol.proj.transform([ coordinates[1][0],
+				coordinates[1][1] ], 'EPSG:3031', 'EPSG:4326')[1].toFixed(2);
 
-    if ((requestReturned == 1) && (anomalyResults.length !== 0)) {
-        sliderValue = $(".slider").slider("value"); // which selection is highlighted
-        timeSeconds = (slideDate.getTime() + sliderValue * 24 * 60 * 60 * 1000);
+		console.log("coordinates" + locationArray[0] + ", " + locationArray[1]);
 
-        slDate = new Date(0);
-        slDate.setUTCSeconds((slideDate.getTime() + (sliderValue + 1) * 24 * 60 * 60 * 1000) / 1000);
-        aReq = new Date(0);
-        // should be zero!
+		boxCoordinates = locationArray; // add coordinates to the var
+		loctnArray = locationArray;
+		// use one variable to store coordinates?!
+		updateResults(anomalyRequest);
 
-        // if there is nothing, then what?
-        aReq.setUTCSeconds(anomalyResults[0]["date"] / 1000);
+		return geometry;
+	}
+	;
 
-        console.log("slideDate: " + slDate.getDate() + " " + (slDate.getMonth() + 1) + " " + slDate.getFullYear());
-        console.log("requestDate: " + aReq.getDate() + " " + (aReq.getMonth() + 1) + " " + aReq.getFullYear());
+	draw = new ol.interaction.Draw({
+		source : source,
+		type : 'LineString',
+		geometryFunction : geometryFunction,
+		maxPoints : 2
+	});
 
-        markers3.clearMarkers();
+	// return cursor to user after finishing drawing
+	draw.on("drawend", function() {
+		// var a = draw.getGeometry().getCoordinates();
+		// $('#tempOutput').text(a);
+		// console.log("coor:" + draw.getGeometry().getcoordinates());
+		map.removeInteraction(draw);
+	});
 
-        for (k = 0; k < anomalyResults.length; k++) {
-            foo = anomalyResults[k];
-            num = foo["date"] / 1000;
-            d = new Date(0); // set date to epoch
-            d.setUTCSeconds(num);
+	map.addInteraction(draw);
+} // end addInteraction
 
-            // if the slider day matches any of the json anomalies
-            if (d.getDate() == slDate.getDate() && d.getMonth() == slDate.getMonth() && d.getFullYear() == slDate.getFullYear()) {
-
-                longi = foo["longi"];
-                lati = foo["lati"];
-
-                var location = new OpenLayers.LonLat(longi, lati).transform(
-                    new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-                    new OpenLayers.Projection("EPSG:3031") // to Spherical Mercator
-                );
-                var size = new OpenLayers.Size(10, 10);
-                var offset = new OpenLayers.Pixel(-size.w / 2, -size.h / 2);
-                var icon = new OpenLayers.Icon('images/redMarker.png', size, offset);
-                markers3.addMarker(new OpenLayers.Marker(location, icon.clone()));
-
-            }
-        } // end loop through anomalyResults json
-    } else { // if request returned is 1
-        console.log("...either waiting for the data or something went wrong?!");
-    }
-}
-
-/*****End of Helper Functions for Visualizing User Request*****/
-
-/*-------------------------------------------*/
-/*****Helper Functions and Variables for Map*****/
-var vectors;
-var box;
-var transform;
-var maxOpacity = 1.0;
-var minOpacity = 0.0;
-
-Proj4js.defs["EPSG:4326"] = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs";
-Proj4js.defs["EPSG:3031"] = "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=0 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs";
-Proj4js.defs["EPSG:900913"] = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs";
-
-function changeOpacity(byOpacity) {
-    graphic.setOpacity(byOpacity);
-}
-
-//Note: Update to be able to control opacity for different channels
-function changeOpacityMarkers(byOpacity) {
-    markers3.setOpacity(byOpacity);
-}
-
-function endDrag(bbox) {
-    var bounds = bbox.getBounds();
-    vertices = bbox.getVertices();
-    // coordinate transformation
-    topLeftVertice = new OpenLayers.LonLat(vertices[0]["x"], vertices[0]["y"])
-        .transform(new OpenLayers.Projection("EPSG:3031"), new OpenLayers.Projection("EPSG:4326"));
-    bottomRightVertice = new OpenLayers.LonLat(vertices[2]["x"], vertices[2]["y"])
-        .transform(new OpenLayers.Projection("EPSG:3031"), new OpenLayers.Projection("EPSG:4326"));
-
-    setBounds(bounds);
-    drawBox(bounds);
-    box.deactivate();
-    document.getElementById("bbox_drag_instruction").style.display = 'none';
-    document.getElementById("bbox_adjust_instruction").style.display = 'block';
-}
-
-function dragNewBox() {
-    box.activate();
-    console.log("drag box");
-    transform.deactivate(); //The remove the box with handles
-    vectors.destroyFeatures();
-    document.getElementById("bbox_drag_instruction").style.display = 'block';
-    document.getElementById("bbox_adjust_instruction").style.display = 'none';
-    setBounds(null);
-}
-
-function boxResize(event) {
-    setBounds(event.feature.geometry.bounds);
-}
-
-function drawBox(bounds) {
-    var feature = new OpenLayers.Feature.Vector(bounds.toGeometry());
-    vectors.addFeatures(feature);
-    transform.setFeature(feature);
-}
-
-function toPrecision(zoom, value) {
-    var decimals = Math.pow(10, Math.floor(zoom / 3));
-    return Math.round(value * decimals) / decimals;
-}
-
-function setBounds(bounds) {
-    if (bounds == null) {
-        document.getElementById("bbox_result").innerHTML = "";
-    } else {
-
-        b = bounds.clone().transform(map.getProjectionObject(), new OpenLayers.Projection("EPSG:4326"))
-        minlon = toPrecision(map.getZoom(), b.left);
-        minlat = toPrecision(map.getZoom(), b.bottom);
-        maxlon = toPrecision(map.getZoom(), b.right);
-        maxlat = toPrecision(map.getZoom(), b.top);
-
-        document.getElementById("bbox_result").innerHTML =
-            "<br>[top left] lat: " + topLeftVertice["lat"].toPrecision(3) + ", lon: " + topLeftVertice["lon"].toPrecision(3) + ",<br>" +
-            "[bottom right] lat:" + bottomRightVertice["lat"].toPrecision(3) + ", lon: " + bottomRightVertice["lon"].toPrecision(3);
-
-        //user input region
-        loctnArray = Array();
-        loctnArray[0] = {
-            "longitude": topLeftVertice["lon"].toPrecision(3),
-            "latitude": topLeftVertice["lat"].toPrecision(3)
-        };
-        loctnArray[1] = {
-            "longitude": bottomRightVertice["lon"].toPrecision(3),
-            "latitude": bottomRightVertice["lat"].toPrecision(3)
-        };
-
-        anomalyRequest["locations"] = loctnArray;
-    }
-}
-
-function setupmap() {
-    map = new OpenLayers.Map('map', {
-        projection: "EPSG:3031",
-        displayProjection: "EPSG:4326"
-    });
-
-    var lonlat = new OpenLayers.LonLat(0, 0).transform(
-        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
-        new OpenLayers.Projection("EPSG:900913") // to Spherical Mercator
-    );
-
-    vectors = new OpenLayers.Layer.Vector("Vector Layer", {
-        displayInLayerSwitcher: false
-    });
-
-    //Note: get better tiles
-    var tiles = new OpenLayers.Layer.XYZ(
-        'Polar XYZ',
-        'http://polar.openstreetmap.de/tiles/${z}/${x}/${y}.png', {
-            projection: 'EPSG:3031',
-            maxExtent: [-3000000, -3000000, 3000000, 3000000],
-            //	attribution: '© <a href="http://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-            numZoomLevels: 20,
-            transitionEffect: 'resize'
-        }
-    )
-    map.addLayer(tiles);
-
-    // http://dev.openlayers.org/examples/mouse-position.html
-    map.addControl(
-        new OpenLayers.Control.MousePosition({
-            prefix: 'coordinates: ',
-            separator: ' | ',
-            numDigits: 3,
-            emptyString: 'mouse over'
-        })
-    );
-
-    map.events.register("mousemove", map, function(e) {
-        var position = this.events.getMousePosition(e);
-        //OpenLayers.Util.getElement("coords").innerHTML = position;
-    });
-
-    //Note: for overlaying the climatology image on top of the map
-    graphic = new OpenLayers.Layer.Image(
-        'SSMI Image	',
-        'images/mar.png',
-        new OpenLayers.Bounds(-3929786, -3929786, 3923000, 4323674), // not sure why last number is 43...
-        new OpenLayers.Size(1, 1), {
-            isBaseLayer: false,
-            opacity: 0.5
-        }
-    );
-    map.addLayer(graphic);
-
-    // markers that designate the corners of the climatology image
-    var markers = new OpenLayers.Layer.Vector("Markers", {
-        projection: 'EPSG:4326',
-        /* // don't need to plot the markers
-        strategies: [new OpenLayers.Strategy.Fixed()],
-        	protocol: new OpenLayers.Protocol.HTTP({
-        	url: "interesting.json",
-        	format: new OpenLayers.Format.GeoJSON()
-        })
-        */
-    });
-    map.addLayer(markers);
-
-    var featctl = new OpenLayers.Control.SelectFeature(markers);
-    map.addControl(featctl);
-    featctl.activate();
-
-    featctl.events.register('featurehighlighted', this, function(e) {
-        var pt = e.feature.geometry,
-            ll = new OpenLayers.LonLat(pt.x, pt.y);
-        map.setCenter(0, 0);
-    });
-
-    map.events.register('zoomend', this, function() {
-        markers.setVisibility(map.zoom < 8);
-    });
-
-    if (!map.getCenter()) {
-        map.setCenter(new OpenLayers.LonLat(0, 0), 1); // despite the class name, these are in EPSG:3031, so 0/0 is actually the pole 
-    }
-
-    // begin draw box
-    var zoom = 1;
-
-    vectors = new OpenLayers.Layer.Vector("Vector Layer", {
-        displayInLayerSwitcher: false
-    });
-    map.addLayer(vectors);
-
-    box = new OpenLayers.Control.DrawFeature(vectors, OpenLayers.Handler.RegularPolygon, {
-        handlerOptions: {
-            sides: 4,
-            snapAngle: 90,
-            irregular: true,
-            persist: true
-        }
-    });
-    box.handler.callbacks.done = endDrag;
-    map.addControl(box);
-
-    transform = new OpenLayers.Control.TransformFeature(vectors, {
-        rotate: false,
-        irregular: true
-    });
-
-    transform.events.register("transformcomplete", transform, boxResize);
-
-    map.addControl(transform);
-    map.addControl(box);
-
-    box.activate();
-    map.setCenter(lonlat, zoom);
-
-    markers3 = new OpenLayers.Layer.Markers("anomalies");
-    map.addLayer(markers3);
-
+// button with listener to draw a rectangle ['clear' button is hard-coded in
+// html]
+function buttonDrawRectangle() {
+	map.removeInteraction(draw);
+	addInteraction();
 };
-/*****End of Helper Functions/Variables for Map*****/
-
-/*-------------------------------------------*/
-/*****Exectute once document is ready*****/
-$(document).ready(function() {
-    //set up map
-    setupmap();
-    //update Initial Date
-    updateDateValues();
-}); //end of document ready

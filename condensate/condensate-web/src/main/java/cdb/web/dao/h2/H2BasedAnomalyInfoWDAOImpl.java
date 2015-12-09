@@ -240,7 +240,7 @@ public class H2BasedAnomalyInfoWDAOImpl extends AbstractH2BasedDAO implements An
         try {
             conn = DatabaseFactory.getConnection(dbId);
             PreparedStatement stmt = conn
-                .prepareStatement(AGGREGATED_YEARLY_ANOMALIES_IN_CERTAIN_TEMPORAL_SPATIAL);
+                .prepareStatement(AGGREGATED_MONTHLY_ANOMALIES_IN_CERTAIN_TEMPORAL_SPATIAL);
 
             stmt.setInt(1, year);
             stmt.setInt(2, year);
