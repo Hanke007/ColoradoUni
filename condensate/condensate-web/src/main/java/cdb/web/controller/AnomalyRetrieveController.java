@@ -132,8 +132,8 @@ public class AnomalyRetrieveController extends AbstractController {
         } catch (Exception e) {
             ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvAggAnomaly failed.");
         } finally {
-            LoggerUtil.info(logger,
-                "Request: " + anomlyRequest + " Times: " + stopWatch.getTotalTimeSeconds());
+            LoggerUtil.info(logger, "Request: " + anomlyRequest + " Size: " + result.size()
+                                    + " Times: " + stopWatch.getTotalTimeSeconds());
         }
         return result;
     }
