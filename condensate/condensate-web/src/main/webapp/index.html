@@ -91,9 +91,8 @@
 
 				<div class="row">
 					<button id="submtAgg" class="btn thr"
-						onclick="sendRequest(anomalyRequest, 1);">aggregate</button>
-					<button id="submtIter" class="btn thr"
-						onclick="sendRequest(anomalyRequest, 0);">anomalies</button>
+						onclick="ajaxAggregateDailyRequest();">aggregate</button>
+					<button id="submtIter" class="btn thr" onclick="ajaxIterRequest();">anomalies</button>
 				</div>
 
 				<div class="row" id="datePicker">

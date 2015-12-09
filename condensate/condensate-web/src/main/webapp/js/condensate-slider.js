@@ -51,18 +51,6 @@ $(".sliderMarkerOpacity").slider({
 	$(updateResults(anomalyRequest));
 });
 
-// sliderHeatmapOpacity
-/*
- * $(".sliderHeatmapOpacity") .slider({ min: 0, max: 1, step: 0.05, value: 1,
- * slide: function( event, ui ){ //$("#markerOpacityText").text( ui.value ); $(
- * heatmapLayer.setOpacity( ui.value ) ); }, change: function( event, ui ){
- * //$("#markerOpacityText").text( ui.value ); $( heatmapLayer.setOpacity(
- * ui.value ) ); } }) .slider("pips", { rest: "label", step: 5 })
- * .on("slidechange", function( event, ui ){ //$("#markerOpacityText").text(
- * ui.value ); $( heatmapLayer.setOpacity( ui.value ) ); $( updateResults(
- * anomalyRequest ) ); });
- */
-
 // slider hot and cold anomalies
 $(".sliderAnomalyOpacity").slider({
 	min : 0,
@@ -102,50 +90,25 @@ $(".sliderYears").slider({
 	max : maxYear,
 	range : true,
 	step : 1,
-	values : [ startYear, endYear ],
-	// this gets a live reading of the value and prints it on the page
-	slide : function(event, ui) {
-		// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
-		$(updateResults(anomalyRequest));
-	},
-	change : function(event, ui) {
-		// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
-		$(updateResults(anomalyRequest));
-	}
+	values : [ gStartYear, gEndYear ]
 }).slider("pips", {
 	rest : "label",
 	step : 3
-}).on("slidechange", function(event, ui) {
-	// $("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
-	$(updateResults(anomalyRequest));
 });
 
 // ====================================================
 //
-// slider for patterns of date input
+// slider for Month of date input
 //
 // ====================================================
 $(".sliderMonths").slider({
 	min : 0,
 	max : 11,
 	range : true,
-	values : [ startMonth, endMonth ],
-	slide : function(event, ui) {
-		// $("#patternText").text( months[ui.values[0]] + " to " +
-		// months[ui.values[1]] );
-	},
-	change : function(event, ui) {
-		// $("#patternText").text( months[ui.values[0]] + " to " +
-		// months[ui.values[1]] );
-	}
-
+	values : [ gStartMonth, gEndMonth ]
 }).slider("pips", {
 	rest : "label",
-	labels : months
-}).on("slidechange", function(event, ui) {
-	// $("#patternText").text( months[ui.values[0]] + " to " +
-	// months[ui.values[1]] );
-	$(updateResults(anomalyRequest));
+	labels : gMonths
 });
 
 // ====================================================
@@ -158,18 +121,10 @@ $(".sliderVal").slider({
 	max : 350,
 	range : true,
 	step : 10,
-	values : [ 50, 350 ],
-	slide : function(event, ui) {
-		$(updateResults(anomalyRequest));
-	},
-	change : function(event, ui) {
-		$(updateResults(anomalyRequest));
-	}
+	values : [ gStartKevin, gEndKevin ]
 }).slider("pips", {
 	rest : "label",
 	step : 3
-}).on("slidechange", function(event, ui) {
-	$(updateResults(anomalyRequest));
 });
 
 // ====================================================
@@ -191,7 +146,4 @@ $(".sliderTimeline").slider({
 }).slider("pips", {
 	rest : "label",
 	step : 1
-}).on("slidechange", function(event, ui) {
-	// $("#timelineText").text( ui.value );
-	$(updateResults(anomalyRequest));
 });

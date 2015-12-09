@@ -55,13 +55,13 @@ public class AnomalyRetrieveController extends AbstractController {
         List<AnomalyVO> result = new ArrayList<AnomalyVO>();
         // parameter validation
         if (!hasAnomalyParam(anomlyRequest)) {
-            LoggerUtil.info(logger, "Insufficient request: " + anomlyRequest);
+            LoggerUtil.info(logger, "IterQuest. Insufficient request: " + anomlyRequest);
             return result;
         }
 
         StopWatch stopWatch = new StopWatch();
         try {
-            LoggerUtil.debug(logger, "Request: " + anomlyRequest);
+            LoggerUtil.debug(logger, "IterQuest: " + anomlyRequest);
             stopWatch.start();
             AnomalyEnvelope reqContext = new AnomalyEnvelope();
             Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
@@ -82,8 +82,8 @@ public class AnomalyRetrieveController extends AbstractController {
         } catch (Exception e) {
             ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvAnomaly failed.");
         } finally {
-            LoggerUtil.info(logger,
-                "Request: " + anomlyRequest + " Times: " + stopWatch.getTotalTimeSeconds());
+            LoggerUtil.info(logger, "IterQuest: " + anomlyRequest + " Size: " + result.size()
+                                    + " Times: " + stopWatch.getTotalTimeSeconds());
         }
         return result;
     }
@@ -102,13 +102,13 @@ public class AnomalyRetrieveController extends AbstractController {
         List<AggregatedAnomalyVO> result = new ArrayList<AggregatedAnomalyVO>();
         // parameter validation
         if (!hasAnomalyParam(anomlyRequest)) {
-            LoggerUtil.info(logger, "Insufficient request: " + anomlyRequest);
+            LoggerUtil.info(logger, "DailyAgg. Insufficient request: " + anomlyRequest);
             return result;
         }
 
         StopWatch stopWatch = new StopWatch();
         try {
-            LoggerUtil.debug(logger, "Request: " + anomlyRequest);
+            LoggerUtil.debug(logger, "DailyAggRequest: " + anomlyRequest);
             stopWatch.start();
             AnomalyEnvelope reqContext = new AnomalyEnvelope();
             Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
@@ -130,9 +130,9 @@ public class AnomalyRetrieveController extends AbstractController {
         } catch (ParseException e) {
             ExceptionUtil.caught(e, "Check date format.");
         } catch (Exception e) {
-            ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvAggAnomaly failed.");
+            ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvYearlyAggAnomaly failed.");
         } finally {
-            LoggerUtil.info(logger, "Request: " + anomlyRequest + " Size: " + result.size()
+            LoggerUtil.info(logger, "DailyAggRequest: " + anomlyRequest + " Size: " + result.size()
                                     + " Times: " + stopWatch.getTotalTimeSeconds());
         }
         return result;
@@ -153,13 +153,13 @@ public class AnomalyRetrieveController extends AbstractController {
 
         // parameter validation
         if (!hasPatternAnomalyParam(anomlyRequest)) {
-            LoggerUtil.info(logger, "Insufficient request: " + anomlyRequest);
+            LoggerUtil.info(logger, "MonthlyAgg. Insufficient request: " + anomlyRequest);
             return result;
         }
 
         StopWatch stopWatch = new StopWatch();
         try {
-            LoggerUtil.debug(logger, "Request: " + anomlyRequest);
+            LoggerUtil.debug(logger, "MonthlyAgg: " + anomlyRequest);
             stopWatch.start();
             AnomalyEnvelope reqContext = new AnomalyEnvelope();
             reqContext.setsMonth(anomlyRequest.getsMonth());
@@ -177,10 +177,10 @@ public class AnomalyRetrieveController extends AbstractController {
             stopWatch.stop();
 
         } catch (Exception e) {
-            ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvAggAnomaly failed.");
+            ExceptionUtil.caught(e, "URL:/anomaly/ajaxRetrvMonthlyAggAnomaly failed.");
         } finally {
-            LoggerUtil.info(logger,
-                "Request: " + anomlyRequest + " Times: " + stopWatch.getTotalTimeSeconds());
+            LoggerUtil.info(logger, "MonthlyAgg: " + anomlyRequest + anomlyRequest + " Size: "
+                                    + result.size() + " Times: " + stopWatch.getTotalTimeSeconds());
         }
         return result;
     }
