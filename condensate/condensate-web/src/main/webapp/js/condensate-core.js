@@ -71,7 +71,7 @@ var lHeader;
 var aggregateAnomalyResponse = [];
 
 // iterate results
-function ajaxIterRequest(e) {
+function ajaxIterRequestIntial(e) {
 	lHeader = anomalyRequest["dsName"] + "_" + anomalyRequest["dsFreq"] + "_"
 			+ JSON.stringify(anomalyRequest["locations"]) + "_";
 
@@ -94,13 +94,35 @@ function ajaxIterRequest(e) {
 						gCurWindowBegin = new Date(0);
 						gCurWindowBegin
 								.setUTCSeconds(response[0]["date"] / 1000)
-						updateMap(response, gCurWindowBegin);
+						updateMapAndFillCache(response, gCurWindowBegin);
 
-						updateTimelineSlider();
+						createTimelineSlider();
 						document.getElementById("timelineBox").style.visibility = "visible";
 					}
 				}
 			});
+}
+
+function ajaxIterRequestConcave(lsDate) {
+	anomalyRequest["sDate"] = lsDate;
+	ajaxHandle = $.ajax({
+		type : "POST",
+		contentType : "application/json; charset=utf-8",
+		url : "./anomaly/ajaxRetrvAnomaly.do",
+		// data : localStorage["userQuery"], // don't need localstorage
+		// anymore
+		data : JSON.stringify(anomalyRequest),
+		dataType : 'json',
+		async : true,
+		success : function(response) {
+			if (response != null && response.length !== 0) {
+				requestReturned = 1;
+				lwBegin = new Date(0);
+				lwBegin.setUTCSeconds(response[0]["date"] / 1000)
+				updateMapAndFillCache(response, lwBegin);
+			}
+		}
+	});
 }
 
 // aggregate results
@@ -167,7 +189,7 @@ function ajaxAggregateMonthlyRequest(e) {
 //
 //
 // *************************************************************************************
-function updateMap(anomalyResponse, targetDate) {
+function updateMapAndFillCache(anomalyResponse, targetDate) {
 	var anomlyArr = []; // each entry on list
 
 	if ((requestReturned == 1) && (anomalyResponse.length !== 0)) {

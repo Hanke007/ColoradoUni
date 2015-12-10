@@ -46,30 +46,41 @@ function updateDsFreq(anomalyRequest) {
 //
 // ====================================================
 function submtIterOnClick() {
-	ajaxIterRequest();
+	ajaxIterRequestIntial();
 }
 
-function updateTimelineSlider() {
-	arrDates = GetDates(gCurWindowBegin, DATE_STEP_CONST);
+function createTimelineSlider() {
+	lEndDate = new Date(Date.parse(anomalyRequest["eDate"]));
+	initialValue = 0;
+	min = 0;
+	max = (lEndDate.getTime() - gCurWindowBegin.getTime())
+			/ (24 * 60 * 60 * 1000.0) + 1;
+	labelArr = GetDates(gCurWindowBegin, max);
 
 	// udpate labels for slider bar
 	$(".sliderTimeline").slider({
-		min : 0,
-		max : DATE_STEP_CONST - 1,
+		min : min,
+		max : max - 1,
 		value : 0,
 		slide : function(event, ui) {
-			updateTimeLinesliderOnSlideChange(event, ui);
+			updateTimeLinesliderOnSlideChange(event, ui, labelArr);
 		},
 		change : function(event, ui) {
-			updateTimeLinesliderOnSlideChange(event, ui);
+			updateTimeLinesliderOnSlideChange(event, ui, labelArr);
 		}
-	}).slider("pips", {
-		rest : "label",
-		labels : arrDates
-	})
+	});
+	$("#timeLineLabel").text(labelArr[initialValue]);
+	$("#timeLineLabel").css("margin-left",
+			(initialValue - 1) / (max - min) * 100 + "%");
+	$("#timeLineLabel").css("left", "-50px");
+
 }
 
-function updateTimeLinesliderOnSlideChange(event, ui) {
+function updateTimeLinesliderOnSlideChange(event, ui, labelArr) {
+	$("#timeLineLabel").text(labelArr[ui.value]);
+	$("#timeLineLabel").css("margin-left", (ui.value - 0) / (1000) * 100 + "%");
+	$("#timeLineLabel").css("left", "-50px");
+
 	offSet = ui.value;
 	lDate = new Date(gCurWindowBegin);
 	lDate.setDate(gCurWindowBegin.getDate() + offSet);
@@ -77,10 +88,10 @@ function updateTimeLinesliderOnSlideChange(event, ui) {
 	lhKey = lHeader + lDate.getUTCFullYear() + "_" + lDate.getUTCMonth() + "_"
 			+ lDate.getUTCDate();
 	lanomlyArr = gAnomalyRepo[lhKey];
-	if (lanomlyArr.length !== 0) {
+	if (lanomlyArr != null && lanomlyArr.length !== 0) {
 		replotMap(lanomlyArr);
 	} else {
-		alert("No results in this selected day!");
+		ajaxIterRequestConcave(formatDate(lDate));
 	}
 }
 

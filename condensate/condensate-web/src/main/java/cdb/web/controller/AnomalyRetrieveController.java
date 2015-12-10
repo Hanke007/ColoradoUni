@@ -66,9 +66,9 @@ public class AnomalyRetrieveController extends AbstractController {
             AnomalyEnvelope reqContext = new AnomalyEnvelope();
             Date sDate = DateUtil.parse(anomlyRequest.getsDate(), DateUtil.WEB_FORMAT);
             reqContext.setsDate(sDate);
-            Date eDate = DateUtil.parse(anomlyRequest.geteDate(), DateUtil.WEB_FORMAT);
             Date eDefault = new Date(sDate.getTime() + 10 * 24 * 60 * 60 * 1000);
-            reqContext.seteDate(eDate.after(eDefault) ? eDefault : eDate);
+            anomlyRequest.seteDate(DateUtil.format(eDefault, DateUtil.WEB_FORMAT));
+            reqContext.seteDate(eDefault);
             reqContext.setDsFreq(anomlyRequest.getDsFreq());
             reqContext.setDsName(anomlyRequest.getDsName());
             GeoLocation leftUperCorner = anomlyRequest.getLocations().get(0);

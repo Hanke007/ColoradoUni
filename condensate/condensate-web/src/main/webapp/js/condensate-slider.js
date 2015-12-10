@@ -157,8 +157,7 @@ function GetDates(startDate, daysToAdd) {
 	for (var i = 1; i <= daysToAdd; i++) {
 		var currentDate = new Date(startDate);
 		currentDate.setDate(currentDate.getDate() + i);
-		arrDates.push(gMonths[currentDate.getMonth()] + " "
-				+ currentDate.getDate() + " " + currentDate.getFullYear());
+		arrDates.push(formatDate(currentDate));
 	}
 	return arrDates;
 }
