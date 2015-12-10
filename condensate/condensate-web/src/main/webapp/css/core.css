@@ -1,0 +1,114 @@
+html {
+	overflow: hidden;
+}
+body {
+	font-family: 'Roboto', 'Helvetica', 'Arial', 'Sans Serif';
+	max-width: 100%;
+	overflow-x: hidden;
+	background: url('../images/snow2.jpg') no-repeat center center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	margin: 0; padding: 0;
+	height:100%;
+}
+.background {
+	position: fixed;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+#top {
+	clear: left;
+	width: 100vw;
+	height: 90vh;
+}
+#bottom {
+	clear: left;
+	width: 90vw;
+	height: 18vh;
+}
+#mapContainer {
+	float: left;
+	width: 75vw;
+	height: 100%;
+	background-color: #aaa;
+}
+#map { height: 100%; }
+#sidebar {
+	float: left;
+	width: 24vw;
+	height: 100%;
+	background-color: #999;
+}
+#timelineBox {
+	width: 99vw;
+	height: 10vh;
+	background-color: rgba(255,255,255,0.4);
+	text-align: center;
+	background-color: #bbb;
+}
+#logo {
+	position: absolute;
+	float: left;
+	top: 10px;
+	z-index: 2;
+}
+#logo img {
+	margin-left: 7px;
+	margin-right: 0px;
+}
+.ol-zoom { /* controls the position of the zoom button */
+	position: absolute;
+	left: auto;
+	right: 20px;
+	top: 50px;
+}
+p {
+	color: #fff;
+	font-size: 0.8em;
+	text-align: center;
+}
+#darkText {
+	color: #999;
+}
+.outputResultsBack {
+	background-color: "#00FF00";
+	float: right;
+	width: 100px;
+	height: 100px;
+	overflow: scroll;
+	font-size: 0.7em;
+}
+.row {
+	width: 92%;
+	position: relative;
+	float: left;
+	display: inline-block;
+	text-align: center;
+	padding: 0;
+	margin-left: 5%;
+}
+.slide {
+	margin: 0 2% 0 2%;
+}
+.btn {
+	display: inline-block;
+	border-radius: 5px;
+	border: none;
+	height: 30px;
+	padding: 0;
+	margin: 10px;
+	font-size: 0.8em;
+	letter-spacing: 2px;
+}
+.btn:active {
+	font-size: 0.9em;
+	letter-spacing: 2.2px;
+}
+.sm { width: 19%; }
+.thr { width: 32%; }
+.md { width: 48%; }
+.lg { width: 98%; }
