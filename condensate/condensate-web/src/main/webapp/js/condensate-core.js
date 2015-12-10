@@ -104,14 +104,15 @@ function ajaxIterRequestIntial(e) {
 }
 
 function ajaxIterRequestConcave(lsDate) {
-	anomalyRequest["sDate"] = lsDate;
+	lAmlyRequest = JSON.parse(JSON.stringify(anomalyRequest));
+	lAmlyRequest["sDate"] = lsDate;
 	ajaxHandle = $.ajax({
 		type : "POST",
 		contentType : "application/json; charset=utf-8",
 		url : "./anomaly/ajaxRetrvAnomaly.do",
 		// data : localStorage["userQuery"], // don't need localstorage
 		// anymore
-		data : JSON.stringify(anomalyRequest),
+		data : JSON.stringify(lAmlyRequest),
 		dataType : 'json',
 		async : true,
 		success : function(response) {
