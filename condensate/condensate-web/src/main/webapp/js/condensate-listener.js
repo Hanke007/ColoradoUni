@@ -74,3 +74,9 @@ function updateMonthlyRange(anomalyRequest) {
 	anomalyRequest["eMonth"] = endMonth;
 	// alert(anomalyRequest["sMonth"] + ", " + anomalyRequest["eMonth"]);
 }
+
+function updateKevinRange(aggregateAnomalyResponse) {
+	if (aggregateAnomalyResponse.length !== 0) {
+		replotMap(aggregateAnomalyResponse);
+	}
+}

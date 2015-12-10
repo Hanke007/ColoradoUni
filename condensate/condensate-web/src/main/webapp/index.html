@@ -97,9 +97,9 @@
 
 				<div class="row" id="datePicker">
 					<br> <label for="from">From</label> <input type="date"
-						value="2002-02-03" min="1987-01-01" max="2014-12-31"
+						value="2010-12-12" min="1987-01-01" max="2014-12-31"
 						onblur="updateBeginDate(this, anomalyRequest)"> <label
-						for="to">to</label> <input type="date" value="2002-02-23"
+						for="to">to</label> <input type="date" value="2010-12-20"
 						min="1987-01-01" max="2014-12-31"
 						onblur="updateEndDate(this, anomalyRequest)">
 				</div>
@@ -107,7 +107,8 @@
 				<div class="row" id="valuePicker">
 					<p>Query Threshold - Lower to Upper [Kelvin]</p>
 					<p id="thresholdText"></p>
-					<div class="slide sliderVal"></div>
+					<div class="slide sliderVal"
+						onclick="updateKevinRange(aggregateAnomalyResponse)"></div>
 				</div>
 
 				<div class="row" id="timePicker" style="visibility: hidden;">

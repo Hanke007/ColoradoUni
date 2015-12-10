@@ -90,7 +90,13 @@ $(".sliderYears").slider({
 	max : maxYear,
 	range : true,
 	step : 1,
-	values : [ gStartYear, gEndYear ]
+	values : [ gStartYear, gEndYear ],
+	slide : function(event, ui) {
+		updateYearlyRange(aggregateAnomalyResponse);
+	},
+	change : function(event, ui) {
+		updateYearlyRange(aggregateAnomalyResponse);
+	}
 }).slider("pips", {
 	rest : "label",
 	step : 3
@@ -105,7 +111,13 @@ $(".sliderMonths").slider({
 	min : 0,
 	max : 11,
 	range : true,
-	values : [ gStartMonth, gEndMonth ]
+	values : [ gStartMonth, gEndMonth ],
+	slide : function(event, ui) {
+		updateMonthlyRange(aggregateAnomalyResponse);
+	},
+	change : function(event, ui) {
+		updateMonthlyRange(aggregateAnomalyResponse);
+	}
 }).slider("pips", {
 	rest : "label",
 	labels : gMonths
@@ -121,7 +133,13 @@ $(".sliderVal").slider({
 	max : 350,
 	range : true,
 	step : 10,
-	values : [ gStartKevin, gEndKevin ]
+	values : [ gStartKevin, gEndKevin ],
+	slide : function(event, ui) {
+		updateKevinRange(aggregateAnomalyResponse);
+	},
+	change : function(event, ui) {
+		updateKevinRange(aggregateAnomalyResponse);
+	}
 }).slider("pips", {
 	rest : "label",
 	step : 3

@@ -21,14 +21,17 @@ gLoctnArray[1] = {
 
 var gStartDate = "2010-12-12";
 var gEndDate = "2010-12-20";
-var gStartYear = 1992;	// invoke in condensate-slider
-var gEndYear = 1994;	// invoke in condensate-slider
-var gStartMonth = 7; 	// invoke in condensate-slider; 7 means august
-var gEndMonth = 9; 		// invoke in condensate-slider; 9 means october
-var gStartKevin = 160;	// invoke in condensate-slider
-var gEndKevin = 240;	// invoke in condensate-slider
+var gStartYear = 1992; // invoke in condensate-slider
+var gEndYear = 1994; // invoke in condensate-slider
+var gStartMonth = 7; // invoke in condensate-slider; 7 means august
+var gEndMonth = 9; // invoke in condensate-slider; 9 means october
+var gStartKevin = 160; // invoke in condensate-slider
+var gEndKevin = 240; // invoke in condensate-slider
 
-anomalyRequest = {
+var anomalyResponse = [];
+var aggregateAnomalyResponse = [];
+
+var anomalyRequest = {
 	"chkPolar" : "v",
 	"chkFreq" : "19",
 	"dsName" : "SSMI",
@@ -117,7 +120,6 @@ function updateDateValues() {
 //
 // *************************************************************************************
 var requestReturned = 0;
-var anomalyResponse = [];
 var aggregateAnomalyResponse = [];
 
 // iterate results
@@ -202,6 +204,14 @@ function ajaxAggregateMonthlyRequest(e) {
 //
 // *************************************************************************************
 // add anomalies to the map
+
+// *************************************************************************************
+//
+//
+// Open Layer 3.0
+//
+//
+// *************************************************************************************
 function updateMap() {
 	var k, j = 0; // loop vars
 	var foo = []; // each entry on list
@@ -266,50 +276,50 @@ function updateMapAggregate() {
 		// need to reset request returned at some point
 		console.log("...with " + aggregateAnomalyResponse.length
 				+ " anomalies.")
-
-		source.clear();
-
-		for (var k = 0; k < aggregateAnomalyResponse.length; k++) {
-
-			if (k == 0) {
-				redVectorSource.clear();
-				blueVectorSource.clear();
-			}
-			foo = aggregateAnomalyResponse[k];
-			longi = foo["longi"];
-			lati = foo["lati"];
-			mean = foo["mean"];
-			frequency = foo["frequency"];
-
-			var locations = ol.proj.transform([ longi, lati ], 'EPSG:4326',
-					'EPSG:3031');
-
-			var iconFeature = new ol.Feature({
-				geometry : new ol.geom.Point(locations)
-			});
-
-			// $(".sliderThreshold").slider("values")[1]*10
-			console.log("threshold: greater than "
-					+ $(".sliderThreshold").slider("values")[0]
-					+ ", and less than "
-					+ $(".sliderThreshold").slider("values")[1]);
-			if (mean > $(".sliderThreshold").slider("values")[0] * 10
-					&& mean < $(".sliderThreshold").slider("values")[1] * 10) {
-				redVectorSource.addFeature(iconFeature);
-			} else {
-				blueVectorSource.addFeature(iconFeature);
-			}
-		}
-
-		map.addLayer(redVectorLayer);
-		map.addLayer(blueVectorLayer);
-		requestReturned = 0; // reset for next time
-
+		replotMap(aggregateAnomalyResponse);
 	} else { // if request returned is 1
 		console
 				.log("...waiting for the data or the length of aggregate anomaly request is zero?!");
 	}
 } // end updateMapAggregate
+
+function replotMap(anomlyArr) {
+	lwrBound = $(".sliderVal").slider("values")[0] * 10;
+	uprBound = $(".sliderVal").slider("values")[1] * 10;
+	console.log("threshold: greater than " + lwrBound + ", and less than "
+			+ uprBound);
+
+	source.clear();
+	for (var k = 0; k < anomlyArr.length; k++) {
+		if (k == 0) {
+			redVectorSource.clear();
+			blueVectorSource.clear();
+		}
+		foo = anomlyArr[k];
+		longi = foo["longi"];
+		lati = foo["lati"];
+		mean = foo["mean"];
+		frequency = foo["frequency"];
+
+		var locations = ol.proj.transform([ longi, lati ], 'EPSG:4326',
+				'EPSG:3031');
+
+		var iconFeature = new ol.Feature({
+			geometry : new ol.geom.Point(locations)
+		});
+
+		// $(".sliderThreshold").slider("values")[1]*10
+		if (mean > lwrBound && mean < uprBound) {
+			redVectorSource.addFeature(iconFeature);
+		} else {
+			blueVectorSource.addFeature(iconFeature);
+		}
+	}
+
+	map.addLayer(redVectorLayer);
+	map.addLayer(blueVectorLayer);
+	requestReturned = 0; // reset for next time
+}
 
 // *************************************************************************************
 //
@@ -318,7 +328,6 @@ function updateMapAggregate() {
 //
 //
 // *************************************************************************************
-
 var draw;
 
 // button with listener to draw a rectangle ['clear' button is hard-coded in
@@ -339,40 +348,41 @@ function addInteraction() {
 		"latitude" : 136
 	};
 
-	var geometryFunction;
-
-	function geometryFunction(coordinates, geometry) {
-		if (!geometry) {
-			geometry = new ol.geom.Polygon(null);
-		}
-		var start = coordinates[0];
-		var end = coordinates[1];
-		geometry.setCoordinates([ [ start, [ start[0], end[1] ], end,
-				[ end[0], start[1] ], start ] ]);
-
-		locationArray[0]["longitude"] = ol.proj.transform([ coordinates[0][0],
-				coordinates[0][1] ], 'EPSG:3031', 'EPSG:4326')[0].toFixed(2);
-		locationArray[0]["latitude"] = ol.proj.transform([ coordinates[0][0],
-				coordinates[0][1] ], 'EPSG:3031', 'EPSG:4326')[1].toFixed(2);
-
-		locationArray[1]["longitude"] = ol.proj.transform([ coordinates[1][0],
-				coordinates[1][1] ], 'EPSG:3031', 'EPSG:4326')[0].toFixed(2);
-		locationArray[1]["latitude"] = ol.proj.transform([ coordinates[1][0],
-				coordinates[1][1] ], 'EPSG:3031', 'EPSG:4326')[1].toFixed(2);
-
-		console.log("coordinates" + locationArray[0] + ", " + locationArray[1]);
-
-		// use one variable to store coordinates?!
-		gLoctnArray = locationArray;
-		anomalyRequest["locations"] = gLoctnArray;
-
-		return geometry;
-	}
-
 	draw = new ol.interaction.Draw({
 		source : source,
 		type : 'LineString',
-		geometryFunction : geometryFunction,
+		geometryFunction : function(coordinates, geometry) {
+			if (!geometry) {
+				geometry = new ol.geom.Polygon(null);
+			}
+			var start = coordinates[0];
+			var end = coordinates[1];
+			geometry.setCoordinates([ [ start, [ start[0], end[1] ], end,
+					[ end[0], start[1] ], start ] ]);
+
+			locationArray[0]["longitude"] = ol.proj.transform([
+					coordinates[0][0], coordinates[0][1] ], 'EPSG:3031',
+					'EPSG:4326')[0].toFixed(2);
+			locationArray[0]["latitude"] = ol.proj.transform([
+					coordinates[0][0], coordinates[0][1] ], 'EPSG:3031',
+					'EPSG:4326')[1].toFixed(2);
+
+			locationArray[1]["longitude"] = ol.proj.transform([
+					coordinates[1][0], coordinates[1][1] ], 'EPSG:3031',
+					'EPSG:4326')[0].toFixed(2);
+			locationArray[1]["latitude"] = ol.proj.transform([
+					coordinates[1][0], coordinates[1][1] ], 'EPSG:3031',
+					'EPSG:4326')[1].toFixed(2);
+
+			console.log("coordinates" + locationArray[0] + ", "
+					+ locationArray[1]);
+
+			// use one variable to store coordinates?!
+			gLoctnArray = locationArray;
+			anomalyRequest["locations"] = gLoctnArray;
+
+			return geometry;
+		},
 		maxPoints : 2
 	});
 
