@@ -46,6 +46,7 @@ function updateDsFreq(anomalyRequest) {
 //
 // ====================================================
 function submtIterOnClick() {
+	gAnomalyRepo = [];
 	ajaxIterRequestIntial();
 }
 
