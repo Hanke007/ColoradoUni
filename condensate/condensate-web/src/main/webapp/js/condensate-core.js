@@ -5,8 +5,8 @@
 //																				*
 //																				*
 //*******************************************************************************
-var gMonths = [ "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
-		"oct", "nov", "dec" ];
+var gMonths = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
+		"Oct", "Nov", "Dec" ];
 
 // bounding box for request
 var gLoctnArray = Array();
@@ -28,7 +28,10 @@ var gEndMonth = 9; // invoke in condensate-slider; 9 means october
 var gStartKevin = 160; // invoke in condensate-slider
 var gEndKevin = 240; // invoke in condensate-slider
 
-var anomalyResponse = [];
+var DATE_STEP_CONST = 8;
+var gCurWindowBegin;
+
+var gAnomalyRepo = [];
 var aggregateAnomalyResponse = [];
 
 var anomalyRequest = {
@@ -53,64 +56,8 @@ Date.prototype.addDays = function(days) {
 	dat.setDate(dat.getDate() + days);
 	return dat;
 }
-function getDates(startDate, stopDate) {
-	var dateArray = new Array();
-	var currentDate = startDate;
-	while (currentDate <= stopDate) {
-		dateArray.push(currentDate)
-		currentDate = currentDate.addDays(1);
-	}
-	return dateArray;
-}
 
 // update labels of timeline pips
-function updateDateValues() {
-
-	// generate a list of all days between start and end of input
-	var beginningDate = new Date(anomalyRequest["sDate"]);
-	var endingDate = new Date(anomalyRequest["eDate"]);
-	dateArray = getDates(beginningDate, endingDate);
-
-	// print out all the dates to the console
-	for (i = 0; i < dateArray.length; i++) {
-		// console.log( dateArray[i] );
-	}
-
-	if ($("#chkMonth").is(':checked')) {
-		// months
-		$(".sliderTimeline").slider({
-			min : 0,
-			max : 11,
-			step : 1,
-			value : 5
-		}).slider("pips", {
-			rest : "label",
-			labels : gMonths
-		});
-	} else if ($("#chkYear").is(':checked')) {
-		// years
-		$(".sliderTimeline").slider({
-			min : minYear,
-			max : maxYear,
-			step : 1,
-			value : 1
-		}).slider("pips", {
-			rest : "label",
-			step : 1
-		});
-	} else {
-		// days
-		$(".sliderTimeline").slider({
-			min : 0,
-			max : 31,
-			step : 1,
-			value : 0
-		}).slider("pips", {
-			rest : "label",
-			step : 1
-		});
-	}
-}
 
 // *************************************************************************************
 //
@@ -120,17 +67,19 @@ function updateDateValues() {
 //
 // *************************************************************************************
 var requestReturned = 0;
+var lHeader;
 var aggregateAnomalyResponse = [];
 
 // iterate results
 function ajaxIterRequest(e) {
-	console.log("making request....");
+	lHeader = anomalyRequest["dsName"] + "_" + anomalyRequest["dsFreq"] + "_"
+			+ JSON.stringify(anomalyRequest["locations"]) + "_";
 
 	ajaxHandle = $
 			.ajax({
 				type : "POST",
 				contentType : "application/json; charset=utf-8",
-				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvAnomaly.do",
+				url : "./anomaly/ajaxRetrvAnomaly.do",
 				// data : localStorage["userQuery"], // don't need localstorage
 				// anymore
 				data : JSON.stringify(anomalyRequest),
@@ -139,9 +88,17 @@ function ajaxIterRequest(e) {
 				success : function(response) {
 					console.log("ajax success!________________ajax success!");
 					console.log("respones: " + response);
-					anomalyResponse = response;
-					requestReturned = 1;
-					updateMap();
+
+					if (response.length !== 0) {
+						requestReturned = 1;
+						gCurWindowBegin = new Date(0);
+						gCurWindowBegin
+								.setUTCSeconds(response[0]["date"] / 1000)
+						updateMap(response, gCurWindowBegin);
+
+						updateTimelineSlider();
+						document.getElementById("timelineBox").style.visibility = "visible";
+					}
 				}
 			});
 }
@@ -150,50 +107,48 @@ function ajaxIterRequest(e) {
 function ajaxAggregateDailyRequest(e) {
 	console.log("making aggregate request....");
 
-	ajaxHandle = $
-			.ajax({
-				type : "POST",
-				contentType : "application/json; charset=utf-8",
-				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
-				// to query monthly, just change the string
-				// url :
-				// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
-				data : JSON.stringify(anomalyRequest),
-				dataType : 'json',
-				async : true,
-				success : function(response) {
-					console.log("ajax success! ajax success!");
-					console.log("respones: " + response);
-					aggregateAnomalyResponse = response;
-					requestReturned = 1;
-					updateMapAggregate();
-				}
-			});
+	ajaxHandle = $.ajax({
+		type : "POST",
+		contentType : "application/json; charset=utf-8",
+		url : "./anomaly/ajaxRetrvYearlyAggAnomaly.do",
+		// to query monthly, just change the string
+		// url :
+		// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
+		data : JSON.stringify(anomalyRequest),
+		dataType : 'json',
+		async : true,
+		success : function(response) {
+			console.log("ajax success! ajax success!");
+			console.log("respones: " + response);
+			aggregateAnomalyResponse = response;
+			requestReturned = 1;
+			updateMapAggregate();
+		}
+	});
 }
 
 // aggregate results
 function ajaxAggregateMonthlyRequest(e) {
 	console.log("making aggregate request....");
 
-	ajaxHandle = $
-			.ajax({
-				type : "POST",
-				contentType : "application/json; charset=utf-8",
-				url : "http://localhost:8080/condensate-web/anomaly/ajaxRetrvMonthlyAggAnomaly.do",
-				// to query monthly, just change the string
-				// url :
-				// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
-				data : JSON.stringify(anomalyRequest),
-				dataType : 'json',
-				async : true,
-				success : function(response) {
-					console.log("ajax success! ajax success!");
-					console.log("respones: " + response);
-					aggregateAnomalyResponse = response;
-					requestReturned = 1;
-					updateMapAggregate();
-				}
-			});
+	ajaxHandle = $.ajax({
+		type : "POST",
+		contentType : "application/json; charset=utf-8",
+		url : "./anomaly/ajaxRetrvMonthlyAggAnomaly.do",
+		// to query monthly, just change the string
+		// url :
+		// "http://localhost:8080/condensate-web/anomaly/ajaxRetrvYearlyAggAnomaly.do",
+		data : JSON.stringify(anomalyRequest),
+		dataType : 'json',
+		async : true,
+		success : function(response) {
+			console.log("ajax success! ajax success!");
+			console.log("respones: " + response);
+			aggregateAnomalyResponse = response;
+			requestReturned = 1;
+			updateMapAggregate();
+		}
+	});
 }
 
 // *************************************************************************************
@@ -212,52 +167,39 @@ function ajaxAggregateMonthlyRequest(e) {
 //
 //
 // *************************************************************************************
-function updateMap() {
-	var k, j = 0; // loop vars
-	var foo = []; // each entry on list
+function updateMap(anomalyResponse, targetDate) {
+	var anomlyArr = []; // each entry on list
 
-	// wait for response
 	if ((requestReturned == 1) && (anomalyResponse.length !== 0)) {
 		// need to reset request returned at some point
-		firstAnomaly = new Date(0);
-		firstAnomaly.setUTCSeconds(anomalyResponse[0]["date"] / 1000);
-
-		secondAnomaly = new Date(0);
-		secondAnomaly
-				.setUTCSeconds(anomalyResponse[anomalyResponse.length - 1]["date"] / 1000);
-
-		console.log("first anomaly: " + firstAnomaly);
-		console.log("last anomaly: " + secondAnomaly);
-		console.log("...with " + anomalyResponse.length + " anomalies.")
-
 		source.clear();
 
-		// create a bunch of icons and add to source vector
+		// build result buffer
 		for (var k = 0; k < anomalyResponse.length; k++) {
-
 			if (k == 0) {
 				vectorSource.clear();
 			}
-			foo = anomalyResponse[k];
-			longi = foo["longi"];
-			lati = foo["lati"];
 
-			var locations = ol.proj.transform([ longi, lati ], 'EPSG:4326',
-					'EPSG:3031');
+			iDate = new Date(0);
+			iDate.setUTCSeconds(anomalyResponse[k]["date"] / 1000);
+			hDateStr = iDate.getUTCFullYear() + "_" + iDate.getUTCMonth() + "_"
+					+ iDate.getUTCDate();
+			hKey = lHeader + hDateStr;
+			hVal = gAnomalyRepo[hKey];
+			if (hVal == null) {
+				hVal = [];
+			}
+			hVal.push(anomalyResponse[k]);
+			gAnomalyRepo[hKey] = hVal;
 
-			var iconFeature = new ol.Feature({
-				// geometry: new ol.geom.Point(ol.proj.transform([lati,
-				// longi],'EPSG:4326','EPSG:3031')),
-				geometry : new ol.geom.Point(locations)
-			// ,
-			// name: 'Null Island',
-			// population: 400,
-			// rainfall: 500
-			});
-			vectorSource.addFeature(iconFeature);
+			if (targetDate.getUTCFullYear() == iDate.getUTCFullYear()
+					&& targetDate.getUTCMonth() == iDate.getUTCMonth()
+					&& targetDate.getUTCDate() == iDate.getUTCDate()) {
+				anomlyArr.push(anomalyResponse[k]);
+			}
 		}
 
-		map.addLayer(vectorLayer);
+		replotMap(anomlyArr);
 		requestReturned = 0; // reset for next time
 
 	} else { // if request returned is 1

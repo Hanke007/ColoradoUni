@@ -1,5 +1,6 @@
 //====================================================
 //
+//
 //		onClick events for Ratio 
 //
 //
@@ -38,6 +39,65 @@ function updateDsFreq(anomalyRequest) {
 }
 
 // ====================================================
+//
+//
+// onClick events for Button
+//
+//
+// ====================================================
+function submtIterOnClick() {
+	ajaxIterRequest();
+}
+
+function updateTimelineSlider() {
+	arrDates = GetDates(gCurWindowBegin, DATE_STEP_CONST);
+
+	// udpate labels for slider bar
+	$(".sliderTimeline").slider({
+		min : 0,
+		max : DATE_STEP_CONST - 1,
+		value : 0,
+		slide : function(event, ui) {
+			updateTimeLinesliderOnSlideChange(event, ui);
+		},
+		change : function(event, ui) {
+			updateTimeLinesliderOnSlideChange(event, ui);
+		}
+	}).slider("pips", {
+		rest : "label",
+		labels : arrDates
+	})
+}
+
+function updateTimeLinesliderOnSlideChange(event, ui) {
+	offSet = ui.value;
+	lDate = new Date(gCurWindowBegin);
+	lDate.setDate(gCurWindowBegin.getDate() + offSet);
+
+	lhKey = lHeader + lDate.getUTCFullYear() + "_" + lDate.getUTCMonth() + "_"
+			+ lDate.getUTCDate();
+	lanomlyArr = gAnomalyRepo[lhKey];
+	if (lanomlyArr.length !== 0) {
+		replotMap(lanomlyArr);
+	} else {
+		alert("No results in this selected day!");
+	}
+}
+
+function formatDate(date) {
+	var d = new Date(date), month = '' + (d.getMonth() + 1), day = ''
+			+ d.getDate(), year = d.getFullYear();
+
+	if (month.length < 2)
+		month = '0' + month;
+	if (day.length < 2)
+		day = '0' + day;
+
+	return [ year, month, day ].join('-');
+}
+
+// ====================================================
+//
 //
 // listener for date
 //

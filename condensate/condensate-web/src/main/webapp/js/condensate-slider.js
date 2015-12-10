@@ -150,18 +150,15 @@ $(".sliderVal").slider({
 // slider for main timeline at bottom of page
 //
 // ====================================================
-$(".sliderTimeline").slider({
-	min : sliderTimelineMin,
-	max : sliderTimelineMax,
-	step : sliderTimelineStep,
-	values : [ sliderTimelineMin, sliderTimelineMax ],
-	slide : function(event, ui) {
-		// $("#timelineText").text( ui.value );
-	},
-	change : function(event, ui) {
-		// $("#timelineText").text( ui.value );
+
+// find the next set of days
+function GetDates(startDate, daysToAdd) {
+	arrDates = [];
+	for (var i = 1; i <= daysToAdd; i++) {
+		var currentDate = new Date(startDate);
+		currentDate.setDate(currentDate.getDate() + i);
+		arrDates.push(gMonths[currentDate.getMonth()] + " "
+				+ currentDate.getDate() + " " + currentDate.getFullYear());
 	}
-}).slider("pips", {
-	rest : "label",
-	step : 1
-});
+	return arrDates;
+}
