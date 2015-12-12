@@ -14,10 +14,32 @@
 	<link rel="stylesheet" type="text/css" href="css/font-awesome.css" />
 	<link rel="stylesheet" type="text/css" href="css/style.css" />
 
+	<style>
+		.nav li {
+			margin-left: 20px;
+			margin-right: 20px;
+			margin-top: -30px;
+			background-color: rgba(0, 0, 0, 0.2);
+		}
+	</style>
+
 </head>
 <body>
 	<div class="jumbotron home home-fullscreen" id="home">
 		<div class="mask"></div>
+		
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="main-navbar">
+		  <ul class="nav navbar-nav navbar-right">
+			<li class="active"><a class="page-scroll" href="#home">Home<span class="sr-only">(current)</span></a></li>
+			<li><a href="./tutorial.html">Getting Started</a></li>
+			<li><a class="page-scroll" href="#download">Download</a></li>
+			<li><a href="./example.html">Examples</a></li>
+			<li><a href="./datasets.html">Datasets</a></li>
+			<li><a class="page-scroll" href="#contact">Contact</a></li>
+		  </ul>
+		</div><!-- /.navbar-collapse -->
+
 
 		<!-- Offsite navigation -->
 		<div class="container">
