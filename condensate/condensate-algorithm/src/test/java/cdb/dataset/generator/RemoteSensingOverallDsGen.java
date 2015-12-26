@@ -1,26 +1,8 @@
 package cdb.dataset.generator;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
-import org.springframework.util.StopWatch;
 
-import cdb.common.lang.ExceptionUtil;
-import cdb.common.lang.FileUtil;
-import cdb.common.lang.LoggerUtil;
-import cdb.common.lang.SerializeUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
-import cdb.common.model.DenseMatrix;
 import cdb.dal.file.AVHRFileDtProc;
 import cdb.dal.file.SSMIFileDtProc;
 import cdb.dataset.generator.AVHRSourceDumpImpl;
@@ -29,7 +11,8 @@ import cdb.dataset.generator.ImageInfoVOTransformerImpl;
 import cdb.dataset.generator.RemoteSensingGen;
 import cdb.dataset.generator.SSMISourceDumpImpl;
 import cdb.dataset.generator.ui.DsGenFrame;
-import cdb.dataset.parameter.DefaultParamThread;
+import cdb.dataset.parameter.AVHRParamCalculator;
+import cdb.dataset.parameter.SSMIParamCalculator;
 
 /**
  * 
@@ -121,123 +104,33 @@ public class RemoteSensingOverallDsGen {
         String sDateStr = "19980101";
         String eDateStr = "20150101";
 
-        LoggerUtil.info(logger, "1. Achieve parameters.");
-        Map<String, DenseMatrix> meanRep = new HashMap<String, DenseMatrix>();
-        Map<String, DenseMatrix> sdRep = new HashMap<String, DenseMatrix>();
-        achieveParam(rootDir, regionHeight, regionWeight, meanRep, sdRep, freqId);
-
-        LoggerUtil.info(logger, "2. Making region objects.");
         RemoteSensingGen rsGen = new RemoteSensingGen(rootDir, sDateStr, eDateStr, freqId);
         rsGen.setDataProc(new SSMIFileDtProc());
         rsGen.setSourceDumper(new SSMISourceDumpImpl());
         rsGen.setDataTransformer(new RegionIfnoVOTransformerImpl(regionHeight, regionWeight, minVal,
-            maxVal, k, meanRep, sdRep));
+            maxVal, k, new SSMIParamCalculator(rootDir, 1992, 2014, regionHeight, regionWeight,
+                freqId, new SSMIFileDtProc())));
         rsGen.run();
     }
 
-    protected static void achieveParam(String rootDir, int regionHeight, int regionWeight,
-                                       Map<String, DenseMatrix> meanRep,
-                                       Map<String, DenseMatrix> sdRep, String freqId) {
-        paramRead(rootDir, regionHeight, regionWeight, meanRep, sdRep, freqId);
+    public static void regionAVHR() {
+        String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+        int regionHeight = 8;
+        int regionWeight = 8;
+        int minVal = 0;
+        int maxVal = 400;
+        int k = 5;
+        String freqId = "n19v";
+        String sDateStr = "19980101";
+        String eDateStr = "20150101";
 
-        // if no such information, then compute it
-        if (meanRep.isEmpty() & sdRep.isEmpty()) {
-            paramCmpSSMI(rootDir, regionHeight, regionWeight, meanRep, sdRep, freqId);
-        }
+        RemoteSensingGen rsGen = new RemoteSensingGen(rootDir, sDateStr, eDateStr, freqId);
+        rsGen.setDataProc(new AVHRFileDtProc());
+        rsGen.setSourceDumper(new AVHRSourceDumpImpl());
+        rsGen.setDataTransformer(new RegionIfnoVOTransformerImpl(regionHeight, regionWeight, minVal,
+            maxVal, k, new AVHRParamCalculator(rootDir, 1985, 1998, regionHeight, regionWeight,
+                freqId, new AVHRFileDtProc())));
+        rsGen.run();
     }
 
-    protected static void paramCmpSSMI(String rootDir, int regionHeight, int regionWeight,
-                                       Map<String, DenseMatrix> meanRep,
-                                       Map<String, DenseMatrix> sdRep, String freqId) {
-        String[] seasons = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11",
-                             "12" };
-        int sYear = 1992;
-        int eYear = 2014;
-
-        Queue<Entry<String, List<String>>> multiThreadTasks = new LinkedList<Entry<String, List<String>>>();
-        for (String season : seasons) {
-            // regionHeight_regionWeight_season_frequencyId
-            String dirIdSerial = rootDir + "Condensate/" + regionHeight + '_' + regionWeight + '_'
-                                 + season + '_' + freqId + '_';
-            List<String> fileRes = new ArrayList<String>();
-            Entry<String, List<String>> newOne = new AbstractMap.SimpleEntry<String, List<String>>(
-                dirIdSerial, fileRes);
-            multiThreadTasks.add(newOne);
-
-            for (int year = sYear; year <= eYear; year++) {
-                int timeRange = year * 100 + Integer.valueOf(season);
-                String fileRE = rootDir + year + "/";
-                if (timeRange < 199201) {
-                    fileRE += "tb_f08_" + timeRange + "\\d{2}_v2_" + freqId + ".bin";
-                } else if (timeRange < 199601) {
-                    fileRE += "tb_f11_" + timeRange + "\\d{2}_v2_" + freqId + ".bin";
-                } else if (timeRange < 200901) {
-                    fileRE += "tb_f13_" + timeRange + "\\d{2}_v2_" + freqId + ".bin";
-                } else if (timeRange < 201001) {
-                    fileRE += "tb_f13_" + timeRange + "\\d{2}_v3_" + freqId + ".bin";
-                } else {
-                    fileRE += "tb_f17_" + timeRange + "\\d{2}_v4_" + freqId + ".bin";
-                }
-
-                fileRes.add(fileRE);
-            }
-        }
-
-        // multiple thread module
-        StopWatch stopWatch = new StopWatch();
-        try {
-            stopWatch.start();
-            DefaultParamThread.tasks = multiThreadTasks;
-            ExecutorService exec = Executors.newCachedThreadPool();
-            exec.execute(
-                new DefaultParamThread(regionHeight, regionWeight, freqId, new SSMIFileDtProc()));
-            exec.execute(
-                new DefaultParamThread(regionHeight, regionWeight, freqId, new SSMIFileDtProc()));
-            exec.execute(
-                new DefaultParamThread(regionHeight, regionWeight, freqId, new SSMIFileDtProc()));
-            exec.execute(
-                new DefaultParamThread(regionHeight, regionWeight, freqId, new SSMIFileDtProc()));
-            exec.shutdown();
-            exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
-            stopWatch.stop();
-        } catch (InterruptedException e) {
-            ExceptionUtil.caught(e, "ExecutorService await crush! ");
-        } finally {
-            LoggerUtil.info(logger,
-                "Task completed, time consuming: " + stopWatch.getTotalTimeSeconds());
-        }
-
-        // read and save parameters
-        for (String season : seasons) {
-            String meanFile = rootDir + "Condensate/" + regionHeight + '_' + regionWeight + '_'
-                              + season + '_' + freqId + "_mean.OBJ";
-            DenseMatrix mean = (DenseMatrix) SerializeUtil.readObject(meanFile);
-            meanRep.put(season, mean);
-
-            String sdFile = rootDir + "Condensate/" + regionHeight + '_' + regionWeight + '_'
-                            + season + '_' + freqId + "_sd.OBJ";
-            DenseMatrix sd = (DenseMatrix) SerializeUtil.readObject(sdFile);
-            sdRep.put(season, sd);
-        }
-        SerializeUtil.writeObject(meanRep, rootDir + "Condensate/" + regionHeight + '_'
-                                           + regionWeight + "_mean_" + freqId + ".OBJ");
-
-        SerializeUtil.writeObject(sdRep,
-            rootDir + "Condensate/" + regionHeight + '_' + regionWeight + "_sd_" + freqId + ".OBJ");
-    }
-
-    @SuppressWarnings("unchecked")
-    protected static void paramRead(String rootDir, int regionHeight, int regionWeight,
-                                    Map<String, DenseMatrix> meanRep,
-                                    Map<String, DenseMatrix> sdRep, String freqId) {
-        String meanFileSeril = rootDir + "Condensate/" + regionHeight + '_' + regionWeight
-                               + "_mean_" + freqId + ".OBJ";
-        String sdFileSeril = rootDir + "Condensate/" + regionHeight + '_' + regionWeight + "_sd_"
-                             + freqId + ".OBJ";
-
-        if (FileUtil.exists(meanFileSeril) & FileUtil.exists(sdFileSeril)) {
-            meanRep.putAll((HashMap<String, DenseMatrix>) SerializeUtil.readObject(meanFileSeril));
-            sdRep.putAll((HashMap<String, DenseMatrix>) SerializeUtil.readObject(sdFileSeril));
-        }
-    }
 }

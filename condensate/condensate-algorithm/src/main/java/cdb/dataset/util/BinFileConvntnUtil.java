@@ -6,7 +6,6 @@ import java.util.Date;
 
 import cdb.common.lang.DateUtil;
 import cdb.common.lang.ExceptionUtil;
-import cdb.common.lang.StringUtil;
 
 /**
  * 
@@ -65,12 +64,16 @@ public final class BinFileConvntnUtil {
             cal.setTime(date);
 
             int timeRange = Integer.valueOf(taskId) / 100;
-            int year = timeRange / 100;
-            String fileName = rootDir + year + "PROC/";
-            if (timeRange < 200201) {
-                String timeStr = year + StringUtil.alignRight("" + cal.get(Calendar.DAY_OF_YEAR), 3,
-                    '0');
-                fileName += "a14_n005_" + timeStr + "_" + freqId + ".v3";
+            String fileName = rootDir;
+
+            if (timeRange < 198501) {
+                fileName += "a07_s005_" + timeRange + "_" + freqId + ".v2";
+            } else if (timeRange < 199001) {
+                fileName += "a09_s005_" + timeRange + "_" + freqId + ".v2";
+            } else if (timeRange < 199501) {
+                fileName += "a11_s005_" + timeRange + "_" + freqId + ".v2";
+            } else {
+                fileName += "a14_s005_" + timeRange + "_" + freqId + ".v2";
             }
 
             return fileName;

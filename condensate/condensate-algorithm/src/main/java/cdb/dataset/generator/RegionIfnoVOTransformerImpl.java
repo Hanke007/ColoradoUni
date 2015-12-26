@@ -2,6 +2,7 @@ package cdb.dataset.generator;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import cdb.common.model.Point;
 import cdb.common.model.RegionInfoVO;
 import cdb.common.model.RegionInfoWindow;
 import cdb.dal.file.DatasetProc;
+import cdb.dataset.parameter.AbstractParamCalculator;
 
 /**
  * 
@@ -36,26 +38,28 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
     /** the repository of sds for different months*/
     private Map<String, DenseMatrix> sdRep;
 
-    /**
-     * @param regionHeight
-     * @param regionWeight
-     * @param minVal
-     * @param maxVal
-     * @param k
-     * @param meanRep
+    /** 
+     * @param regionHeight      the number of rows in sub-regions
+     * @param regionWeight      the number of columns in sub-regions
+     * @param minVal            the minimum value of the data
+     * @param maxVal            the maximum value of the data
+     * @param k                 the number of the counted distribution
+     * @param meanRep           
      * @param sdRep
      */
     public RegionIfnoVOTransformerImpl(int regionHeight, int regionWeight, double minVal,
-                                       double maxVal, int k, Map<String, DenseMatrix> meanRep,
-                                       Map<String, DenseMatrix> sdRep) {
+                                       double maxVal, int k,
+                                       AbstractParamCalculator paramCalculator) {
         super();
         this.regionHeight = regionHeight;
         this.regionWeight = regionWeight;
         this.minVal = minVal;
         this.maxVal = maxVal;
         this.k = k;
-        this.meanRep = meanRep;
-        this.sdRep = sdRep;
+
+        this.meanRep = new HashMap<String, DenseMatrix>();
+        this.sdRep = new HashMap<String, DenseMatrix>();
+        paramCalculator.calculate(meanRep, sdRep);
     }
 
     /** 
