@@ -67,13 +67,13 @@ public final class BinFileConvntnUtil {
             String fileName = rootDir;
 
             if (timeRange < 198501) {
-                fileName += "a07_s005_" + timeRange + "_" + freqId + ".v2";
+                fileName += "a07_s005_" + taskId + "_" + freqId + ".v2";
             } else if (timeRange < 199001) {
-                fileName += "a09_s005_" + timeRange + "_" + freqId + ".v2";
+                fileName += "a09_s005_" + taskId + "_" + freqId + ".v2";
             } else if (timeRange < 199501) {
-                fileName += "a11_s005_" + timeRange + "_" + freqId + ".v2";
+                fileName += "a11_s005_" + taskId + "_" + freqId + ".v2";
             } else {
-                fileName += "a14_s005_" + timeRange + "_" + freqId + ".v2";
+                fileName += "a14_s005_" + taskId + "_" + freqId + ".v2";
             }
 
             return fileName;

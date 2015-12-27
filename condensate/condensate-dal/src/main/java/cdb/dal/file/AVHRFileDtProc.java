@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 
 import cdb.common.lang.Byte2NumUtil;
 import cdb.common.lang.ExceptionUtil;
+import cdb.common.lang.FileUtil;
 import cdb.common.lang.StringUtil;
 import cdb.common.model.DenseMatrix;
 
@@ -26,6 +27,8 @@ public class AVHRFileDtProc implements DatasetProc {
     public DenseMatrix read(String fileName) {
         // check validation
         if (StringUtil.isBlank(fileName)) {
+            return null;
+        }else if (!FileUtil.exists(fileName)) {
             return null;
         }
 
@@ -114,6 +117,9 @@ public class AVHRFileDtProc implements DatasetProc {
         if (freqId.indexOf("v3") != -1) {
             dimension[0] = 452;
             dimension[1] = 452;
+        }else if (freqId.indexOf("v2") != -1) {
+        	dimension[0] = 1605 ;
+        	dimension[1] = 1605 ;
         }
         return dimension;
     }
