@@ -1,7 +1,10 @@
 package cdb.dataset.generator;
 
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
+import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.dal.file.AVHRFileDtProc;
 import cdb.dal.file.SSMIFileDtProc;
@@ -104,12 +107,16 @@ public class RemoteSensingOverallDsGen {
         String sDateStr = "19980101";
         String eDateStr = "20150101";
 
+        Properties properties = ConfigureUtil.read("src/test/resources/regionInfoDsGen.properties");
+
         RemoteSensingGen rsGen = new RemoteSensingGen(rootDir, sDateStr, eDateStr, freqId);
         rsGen.setDataProc(new SSMIFileDtProc());
         rsGen.setSourceDumper(new SSMISourceDumpImpl());
-        rsGen.setDataTransformer(new RegionIfnoVOTransformerImpl(regionHeight, regionWeight, minVal,
-            maxVal, k, new SSMIParamCalculator(rootDir, 1992, 2014, regionHeight, regionWeight,
-                freqId, new SSMIFileDtProc())));
+        rsGen
+            .setDataTransformer(new RegionIfnoVOTransformerImpl(
+                regionHeight, regionWeight, minVal, maxVal, k, new SSMIParamCalculator(rootDir,
+                    1992, 2014, regionHeight, regionWeight, freqId, new SSMIFileDtProc()),
+                properties));
         rsGen.run();
     }
 
@@ -124,12 +131,16 @@ public class RemoteSensingOverallDsGen {
         String sDateStr = "19980101";
         String eDateStr = "20150101";
 
+        Properties properties = ConfigureUtil.read("src/test/resources/regionInfoDsGen.properties");
+
         RemoteSensingGen rsGen = new RemoteSensingGen(rootDir, sDateStr, eDateStr, freqId);
         rsGen.setDataProc(new AVHRFileDtProc());
         rsGen.setSourceDumper(new AVHRSourceDumpImpl());
-        rsGen.setDataTransformer(new RegionIfnoVOTransformerImpl(regionHeight, regionWeight, minVal,
-            maxVal, k, new AVHRParamCalculator(rootDir, 1985, 1998, regionHeight, regionWeight,
-                freqId, new AVHRFileDtProc())));
+        rsGen
+            .setDataTransformer(new RegionIfnoVOTransformerImpl(
+                regionHeight, regionWeight, minVal, maxVal, k, new AVHRParamCalculator(rootDir,
+                    1985, 1998, regionHeight, regionWeight, freqId, new AVHRFileDtProc()),
+                properties));
         rsGen.run();
     }
 

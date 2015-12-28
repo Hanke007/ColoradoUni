@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
 import cdb.common.lang.FileUtil;
@@ -37,6 +38,8 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
     private Map<String, DenseMatrix> meanRep;
     /** the repository of sds for different months*/
     private Map<String, DenseMatrix> sdRep;
+    /** the properties of parameters*/
+    private Properties               properties;
 
     /** 
      * @param regionHeight      the number of rows in sub-regions
@@ -49,13 +52,15 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
      */
     public RegionIfnoVOTransformerImpl(int regionHeight, int regionWeight, double minVal,
                                        double maxVal, int k,
-                                       AbstractParamCalculator paramCalculator) {
+                                       AbstractParamCalculator paramCalculator,
+                                       Properties properties) {
         super();
         this.regionHeight = regionHeight;
         this.regionWeight = regionWeight;
         this.minVal = minVal;
         this.maxVal = maxVal;
         this.k = k;
+        this.properties = properties;
 
         this.meanRep = new HashMap<String, DenseMatrix>();
         this.sdRep = new HashMap<String, DenseMatrix>();
@@ -154,54 +159,97 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
 
     private void plainInfoInsert(DenseMatrix dMatrix, RegionInfoVO regn, int tIndx,
                                  List<String> tDateDump, String freqId) {
-        Point distribution = StatisticParamUtil.distributionInPoint(dMatrix, minVal, maxVal, k,
-            1.0d);
-        regn.setDistribution(distribution);
-
-        double entropy = StatisticParamUtil.entropy(distribution);
-        regn.setEntropy(entropy);
 
         regn.setDateStr(tDateDump.get(tIndx));
         regn.setFreqIdDomain(freqId);
 
+        // distribution related features
+        if (Boolean.valueOf(properties.getProperty("DISTRIBUTION"))) {
+            Point distribution = StatisticParamUtil.distributionInPoint(dMatrix, minVal, maxVal, k,
+                1.0d);
+            regn.setDistribution(distribution);
+
+            double entropy = StatisticParamUtil.entropy(distribution);
+            regn.setEntropy(entropy);
+        }
+
+        // gradient along rows
         double gradSum = 0.0d;
-        Point gradRow = new Point((regionHeight - 1) * regionWeight);
-        for (int j = 0; j < regionWeight; j++) {
-            for (int i = 0; i + 1 < regionHeight; i++) {
-                int indx = j * (regionHeight - 1) + i;
+        if (Boolean.valueOf(properties.getProperty("GRADIENT_ROW"))) {
+            Point gradRow = new Point((regionHeight - 1) * regionWeight);
+            for (int j = 0; j < regionWeight; j++) {
+                for (int i = 0; i + 1 < regionHeight; i++) {
+                    int indx = j * (regionHeight - 1) + i;
 
-                double gradient = dMatrix.getVal(i + 1, j) - dMatrix.getVal(i, j);
-                gradRow.setValue(indx, gradient);
-                gradSum += Math.abs(gradient);
+                    double gradient = dMatrix.getVal(i + 1, j) - dMatrix.getVal(i, j);
+                    gradRow.setValue(indx, gradient);
+                    gradSum += Math.abs(gradient);
+                }
             }
+            regn.setGradRow(gradRow);
         }
-        regn.setGradRow(gradRow);
 
-        Point gradCol = new Point((regionWeight - 1) * regionHeight);
-        for (int i = 0; i < regionHeight; i++) {
-            for (int j = 0; j + 1 < regionWeight; j++) {
-                int indx = i * (regionWeight - 1) + j;
+        // gradient along columns
+        if (Boolean.valueOf(properties.getProperty("GRADIENT_COL"))) {
+            Point gradCol = new Point((regionWeight - 1) * regionHeight);
+            for (int i = 0; i < regionHeight; i++) {
+                for (int j = 0; j + 1 < regionWeight; j++) {
+                    int indx = i * (regionWeight - 1) + j;
 
-                double gradient = dMatrix.getVal(i, j + 1) - dMatrix.getVal(i, j);
-                gradCol.setValue(indx, gradient);
-                gradSum += Math.abs(gradient);
+                    double gradient = dMatrix.getVal(i, j + 1) - dMatrix.getVal(i, j);
+                    gradCol.setValue(indx, gradient);
+                    gradSum += Math.abs(gradient);
+                }
             }
+            regn.setGradCol(gradCol);
         }
-        regn.setGradCol(gradCol);
 
-        double gradMean = gradSum
-                          / ((regionWeight - 1) * regionHeight + (regionHeight - 1) * regionWeight);
-        regn.setGradMean(gradMean);
+        // gradient mean features
+        if (Boolean.valueOf(properties.getProperty("GRADIENT_COL"))
+            & Boolean.valueOf(properties.getProperty("GRADIENT_ROW"))) {
+            double gradMean = gradSum / ((regionWeight - 1) * regionHeight
+                                         + (regionHeight - 1) * regionWeight);
+            regn.setGradMean(gradMean);
+        } else if (Boolean.valueOf(properties.getProperty("GRADIENT_MEAN"))) {
+            gradSum = 0.0d;
+            for (int j = 0; j < regionWeight; j++) {
+                for (int i = 0; i + 1 < regionHeight; i++) {
+                    double gradient = dMatrix.getVal(i + 1, j) - dMatrix.getVal(i, j);
+                    gradSum += Math.abs(gradient);
+                }
+            }
 
-        double mean = dMatrix.average();
-        regn.setMean(mean);
+            for (int i = 0; i < regionHeight; i++) {
+                for (int j = 0; j + 1 < regionWeight; j++) {
+                    double gradient = dMatrix.getVal(i, j + 1) - dMatrix.getVal(i, j);
+                    gradSum += Math.abs(gradient);
+                }
+            }
 
-        double sd = dMatrix.sd();
-        regn.setSd(sd);
+            double gradMean = gradSum / ((regionWeight - 1) * regionHeight
+                                         + (regionHeight - 1) * regionWeight);
+            regn.setGradMean(gradMean);
+        }
+
+        //mean features
+        if (Boolean.valueOf(properties.getProperty("MEAN"))) {
+            double mean = dMatrix.average();
+            regn.setMean(mean);
+        }
+
+        //sd features
+        if (Boolean.valueOf(properties.getProperty("SD"))) {
+            double sd = dMatrix.sd();
+            regn.setSd(sd);
+        }
     }
 
     private void conSpatialFeatureInsert(RegionInfoVO[][] regns, int regnRowNum, int regnColNum,
                                          String dateStr) {
+        if (!Boolean.valueOf(properties.getProperty("SPATIAL_FEATURES"))) {
+            return;
+        }
+
         String month = dateStr.substring(4, 6);
         DenseMatrix mean = meanRep.get(month);
         DenseMatrix sd = sdRep.get(month);
@@ -250,8 +298,6 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
                         break;
                     }
                 }
-                regn.setsCorrCon(sCorrCon);
-                regn.setsDiffCon(sDiffCon);
             }
         }
 
@@ -263,6 +309,10 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
 
     private void conTemporalFeatureInsert(RegionInfoWindow regnWindow, int regnRowNum,
                                           int regnColNum, StringBuilder regnInfoBuffer) {
+        if (!Boolean.valueOf(properties.getProperty("TEMPORAL_FEATURES"))) {
+            return;
+        }
+
         // compute the differences
         RegionInfoVO[][] prevImage = regnWindow.get(0);
         RegionInfoVO[][] curImage = regnWindow.get(1);
@@ -281,11 +331,11 @@ public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
 
                 Point tGradCon = new Point(3 * 2);
                 tGradCon.setValue(0, curRgn.getEntropy() - prevRgn.getEntropy());
-                tGradCon.setValue(1, nextRgn.getEntropy() - curRgn.getEntropy());
+                //                tGradCon.setValue(1, nextRgn.getEntropy() - curRgn.getEntropy());
                 tGradCon.setValue(2, curRgn.getMean() - prevRgn.getMean());
-                tGradCon.setValue(3, nextRgn.getMean() - curRgn.getMean());
+                //                tGradCon.setValue(3, nextRgn.getMean() - curRgn.getMean());
                 tGradCon.setValue(4, curRgn.getSd() - prevRgn.getSd());
-                tGradCon.setValue(5, nextRgn.getSd() - curRgn.getSd());
+                //                tGradCon.setValue(5, nextRgn.getSd() - curRgn.getSd());
 
                 curRgn.settGradCon(tGradCon);
                 regnInfoBuffer.append(curRgn.toString()).append('\n');
