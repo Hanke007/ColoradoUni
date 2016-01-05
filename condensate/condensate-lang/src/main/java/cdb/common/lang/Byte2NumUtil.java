@@ -26,7 +26,7 @@ public final class Byte2NumUtil {
     }
 
     /**
-     * convert bytes to non-signal integer    
+     * convert bytes to non-signal integer little-endian 
      * 
      * @param bytes     the bytes to convert
      * @param offset    the index of the first byte to convert
@@ -37,6 +37,22 @@ public final class Byte2NumUtil {
         int result = 0;
         for (int i = 0; i < len; i++) {
             result = result | ((bytes[offset + i] & 0xff) << (i * 8));
+        }
+        return result;
+    }
+    
+    /**
+     * convert bytes to non-signal integer big-endian   
+     * 
+     * @param bytes     the bytes to convert
+     * @param offset    the index of the first byte to convert
+     * @param len       the total length of bytes to convert
+     * @return          the integer corresponding to the given bytes
+     */
+    public static int byte2int_bigend(byte[] bytes, int offset, int len) {
+        int result = 0;
+        for (int i = 0; i < len; i++) {
+            result = result | ((bytes[offset + i] & 0xff) << ((1-i) * 8));
         }
         return result;
     }

@@ -12,7 +12,7 @@ import cdb.common.lang.DateUtil;
  */
 public class AVHRFileNameModificationScript {
 
-    private static final String AVHR_ROOT_DIR = "C:/Users/chench/Desktop/SIDS/AVHR/2000abtm/";
+    private static final String AVHR_ROOT_DIR = "/Users/mira67/Documents/icedata/AVHRR0066/temp/";
 
     /**
      * 

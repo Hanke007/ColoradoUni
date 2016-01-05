@@ -67,7 +67,7 @@ public class AVHRFileDtProc implements DatasetProc {
                 inStream.read(buffer);
 
                 for (int j = 0; j < colNum; j++) {
-                    int val = Byte2NumUtil.byte2int(buffer, j * 2, 2);
+                    int val = Byte2NumUtil.byte2int_bigend(buffer, j * 2, 2);
                     geoEntity.setVal(i, j, calibretion(val));
                 }
             }
@@ -91,7 +91,7 @@ public class AVHRFileDtProc implements DatasetProc {
      * @return
      */
     private double calibretion(double val) {
-        if (val == 0 | val > 3100) {
+        if (val == 0 | val > 5000) {//
             val = Double.NaN;
         } else {
             val /= 10;
