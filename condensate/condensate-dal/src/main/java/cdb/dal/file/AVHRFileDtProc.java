@@ -120,6 +120,9 @@ public class AVHRFileDtProc implements DatasetProc {
         }else if (freqId.indexOf("v2") != -1) {
         	dimension[0] = 1605 ;
         	dimension[1] = 1605 ;
+        }else{
+        	dimension[0] = 1605 ;
+        	dimension[1] = 1605 ;
         }
         return dimension;
     }

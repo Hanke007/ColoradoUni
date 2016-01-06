@@ -40,6 +40,7 @@ public final class QualityControllHelper {
         int pSeq = 0;
 
         double gradRowSum = 0;
+        if(one.getGradRow()!= null)
         for (double gradRowVal : one.getGradRow()) {
             gradRowSum += gradRowVal;
             //                dataSample.setValue(dSeq, pSeq++, gradRowVal);
@@ -48,6 +49,7 @@ public final class QualityControllHelper {
 
         // gradient along column
         double gradColSum = 0;
+        if(one.getGradCol()!= null)
         for (double gradColVal : one.getGradCol()) {
             gradColSum += gradColVal;
             //                dataSample.setValue(dSeq, pSeq++, gradColVal);
@@ -70,6 +72,9 @@ public final class QualityControllHelper {
         // Contextual: spatial correlations
         double sCorrSum = 0;
         for (double sCorrConVal : one.getsCorrCon()) {
+        	if(Double.isNaN(sCorrConVal)){
+        		continue;
+        	}
             sCorrSum += sCorrConVal;
             //                dataSample.setValue(dSeq, pSeq++, sCorrConVal);
         }

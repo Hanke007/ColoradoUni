@@ -226,6 +226,8 @@ public class Point implements Iterable<Double> {
     public static Point parseOf(String line) {
         if (StringUtil.isBlank(line)) {
             return null;
+        }else if(StringUtil.equalsIgnoreCase(line, "NULL")){
+        	return null;
         }
 
         String[] elems = line.split("\\#");
