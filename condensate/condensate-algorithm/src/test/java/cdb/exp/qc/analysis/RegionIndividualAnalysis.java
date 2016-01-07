@@ -34,7 +34,7 @@ public class RegionIndividualAnalysis extends AbstractQcAnalysis {
             3, 2010, true, sql);
         frame.pack();
         frame.setLocation(300, 20);
-        frame.setSize(540, 700);
+        frame.setSize(1700, 1700);
         frame.setVisible(true);
     }
 

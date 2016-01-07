@@ -84,7 +84,7 @@ public class ControlButton extends Button implements ActionListener {
         dateStrLabel.setText(dateStr);
 
         // update image panel
-        String imgFile = imgRootDir + dateStr + '_' + freqId + ".bmp";
+        String imgFile = imgRootDir + dateStr + freqId + ".bmp";
         imgPanel.updateImage(imgFile, regnAnmlInfoArrs);
         imgPanel.updateUI();
 

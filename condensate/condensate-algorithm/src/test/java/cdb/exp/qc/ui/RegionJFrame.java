@@ -111,7 +111,7 @@ public class RegionJFrame extends JFrame {
         labelLayer(gridConsts);
 
         // image layer
-        String imgFile = imgRootDir + dateStr + '_' + freqId + ".bmp";
+        String imgFile = imgRootDir + dateStr + freqId + ".bmp";
         imgPanel = new RegionImageJPanel(imgFile, regnAnmlInfoArrs);
         imagePanelLayer(gridConsts);
 
@@ -141,7 +141,7 @@ public class RegionJFrame extends JFrame {
 
     protected void imagePanelLayer(GridBagConstraints gridConsts) {
         gridConsts.fill = GridBagConstraints.BOTH;
-        gridConsts.ipady = 400; // make this component tall
+        gridConsts.ipady = 1200; // make this component tall
         gridConsts.gridwidth = 2;
         gridConsts.weightx = 1;
         gridConsts.gridx = 0;

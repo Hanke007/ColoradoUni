@@ -25,6 +25,7 @@ import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.model.RegionInfoVO;
+import cdb.dal.file.AVHRFileDtProc;
 import cdb.dal.file.SSMIFileDtProc;
 import cdb.ml.qc.DefaultQualityControllThread;
 
@@ -87,7 +88,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
     protected static void configureMultiThreadJobs(String rootDir, String regnInfoDir,
                                                    String freqId, int regionHeight,
                                                    int regionWeight) {
-        int[] dimens = (new SSMIFileDtProc()).dimensions(freqId);
+        int[] dimens = (new AVHRFileDtProc()).dimensions(freqId);
         String resultFile = rootDir + "Anomaly/REG_" + freqId + '_' + regionHeight + '_'
                             + regionWeight;
 
@@ -139,7 +140,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
                 regnBuffer.append(regnVO.toString()).append('\n');
 
                 bufferSize++;
-                if (bufferSize > 1 * 1000 * 1000 * 1000) {
+                if (bufferSize > 1 * 1000 * 1 * 1000) {
                     for (Entry<String, StringBuilder> entry : regnDistbtBuffer.entrySet()) {
                         FileUtil.writeAsAppendWithDirCheck(entry.getKey(),
                             entry.getValue().toString());

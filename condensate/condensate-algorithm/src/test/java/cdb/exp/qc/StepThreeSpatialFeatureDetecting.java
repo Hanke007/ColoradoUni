@@ -90,7 +90,7 @@ public class StepThreeSpatialFeatureDetecting extends AbstractDetecting {
             while (curDate.before(eDate)) {
                 String key = resultFile;
                 List<String> val = new ArrayList<String>();
-                val.add(BinFileConvntnUtil.fileSSMI(rootDir,
+                val.add(BinFileConvntnUtil.fileAVHR(rootDir,
                     DateUtil.format(curDate, DateUtil.SHORT_FORMAT), freqId));
                 //move to next day
                 curDate.setTime(curDate.getTime() + 24 * 60 * 60 * 1000);

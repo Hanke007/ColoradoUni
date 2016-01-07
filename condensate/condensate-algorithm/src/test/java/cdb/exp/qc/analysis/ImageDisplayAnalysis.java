@@ -66,7 +66,7 @@ public class ImageDisplayAnalysis extends AbstractQcAnalysis {
 			Date eDate = DateUtil.parse(endDate, DateUtil.SHORT_FORMAT);
 
 			while (!bDate.after(eDate)) {
-				DenseMatrix dMatrix = dProc.read(BinFileConvntnUtil.fileAVHR(rootDir, begDate, freqId));
+				DenseMatrix dMatrix = dProc.read(BinFileConvntnUtil.fileAVHR(rootDir, DateUtil.format(bDate, DateUtil.SHORT_FORMAT), freqId));
 				if (dMatrix != null) {
 					ImageWUtil.plotGrayImage(dMatrix, imgDir + DateUtil.format(bDate, DateUtil.SHORT_FORMAT) + ".bmp",
 							ImageWUtil.BMP_FORMAT);
