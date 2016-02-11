@@ -16,17 +16,19 @@ import cdb.common.lang.DateUtil;
 public class DiscoveredEvent {
 
     /**  the x coordinate of the rectangle region*/
-    private int         x;
+    private int                       x;
     /**  the y coordinate of the rectangle region*/
-    private int         y;
+    private int                       y;
     /** the starting date*/
-    private Date        dateBegin;
+    private Date                      dateBegin;
     /** the ending date*/
-    private Date        dataEnd;
+    private Date                      dataEnd;
     /** the days covered in this event*/
-    private List<Date>  days;
+    private List<Date>                days;
     /** the locations contained in this event*/
-    private Set<String> locations;
+    private Set<String>               locations;
+    /** the anomalous objects*/
+    private List<RegionAnomalyInfoVO> raObjects;
 
     /**
      * construction
@@ -35,6 +37,7 @@ public class DiscoveredEvent {
         super();
         days = new ArrayList<Date>();
         locations = new HashSet<String>();
+        raObjects = new ArrayList<RegionAnomalyInfoVO>();
     }
 
     /**
@@ -143,6 +146,24 @@ public class DiscoveredEvent {
      */
     public void setLocations(Set<String> locations) {
         this.locations = locations;
+    }
+
+    /**
+     * Getter method for property <tt>raObjects</tt>.
+     * 
+     * @return property value of raObjects
+     */
+    public List<RegionAnomalyInfoVO> getRaObjects() {
+        return raObjects;
+    }
+
+    /**
+     * Setter method for property <tt>raObjects</tt>.
+     * 
+     * @param raObjects value to be assigned to property raObjects
+     */
+    public void setRaObjects(List<RegionAnomalyInfoVO> raObjects) {
+        this.raObjects = raObjects;
     }
 
     /** 
