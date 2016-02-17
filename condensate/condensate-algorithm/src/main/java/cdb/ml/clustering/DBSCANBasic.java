@@ -2,10 +2,8 @@ package cdb.ml.clustering;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections.ListUtils;
 
 import cdb.common.lang.DistanceUtil;
-import cdb.common.lang.LoggerUtil;
 import cdb.common.model.Cluster;
 import cdb.common.model.Point;
 import cdb.common.model.Samples;
@@ -24,9 +22,7 @@ public class DBSCANBasic {
 		/* Noise */
 		NOISE,
 		/* In Cluster */
-		IN_CLUSTER,
-		/* Core Point */
-		CORE
+		IN_CLUSTER
 	}
 
 	/**
@@ -47,13 +43,10 @@ public class DBSCANBasic {
 	 *            type of distance
 	 * @return
 	 */
-	public static List<Cluster> cluster(final Samples points, final int K, final int eps, final int minPts,
+	public static List<Cluster> cluster(final Samples points, final int eps, final int minPts,
 			final int type) {
 
 		final int pointCount = points.length()[0];
-		if (pointCount < K) {
-			throw new RuntimeException("Number of samples is less than the number of classes.");
-		}
 
 		List<Cluster> resultSet = new ArrayList<Cluster>();
 		PointStatus[] visited = new PointStatus[pointCount];// 1-visited 2-noise
@@ -64,7 +57,7 @@ public class DBSCANBasic {
 			}
 
 			// query neighborhood
-			List<Integer> neighbors = new ArrayList<Integer>();
+			List<Integer> neighbors = new ArrayList<Integer>();// index of neighbors wrt points
 			neighbors = neighborQuery(points, i, eps, pointCount, type);
 
 			if (neighbors.size() >= minPts) {
@@ -93,7 +86,6 @@ public class DBSCANBasic {
 	 * @return the expanded cluster
 	 * 
 	 */
-	@SuppressWarnings("unused")
 	protected static Cluster expandCluster(int pid, Samples points, int pointCount, List<Integer> neighbors,
 			Cluster cluster, int eps, int minPts, final int type, PointStatus[] visited) {
 		// add P to cluster C
@@ -101,18 +93,16 @@ public class DBSCANBasic {
 		visited[pid] = PointStatus.IN_CLUSTER;// make sure visited is updated
 												// globally
 		// for each point, expand neighbors
-		int counts = neighbors.size();
-		for (int i = 0; i < counts; i++) {
+		for (int i = 0; i < neighbors.size(); i++) {
 			Integer current = neighbors.get(i);
 			PointStatus pStatus = visited[current];// check neighbor point
 													// status
 			// only check non-visited points
 			if (pStatus == null) {
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
-				currentNeighbors = neighborQuery(points, i, eps, pointCount, type);
+				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
 				if (currentNeighbors.size() >= minPts) {
-					@SuppressWarnings("unchecked")
-					List<Integer> joined = ListUtils.union(neighbors, currentNeighbors);
+					neighbors = joinList(currentNeighbors,neighbors);//update neighbors
 				}
 			}
 
@@ -141,7 +131,7 @@ public class DBSCANBasic {
 	protected static List<Integer> neighborQuery(Samples points, int pid, int eps, int pointCount, final int type) {
 		List<Integer> neighbors = new ArrayList<Integer>();
 		for (int i = 0; i < pointCount; i++) {
-			Point neighbor = points.getPointRef(i);
+			Point neighbor = points.getPointRef(i);//get actual point features vector
 			// Neighbor-P Distance
 			double distance = DistanceUtil.distance(neighbor, points.getPointRef(pid), type);
 			if (distance <= eps) {
@@ -150,5 +140,18 @@ public class DBSCANBasic {
 		}
 		return neighbors;
 	}
+	
+	/**
+     * Join two lists
+     */
+    private static List<Integer> joinList(final List<Integer> one, final List<Integer> two) {
+    	int onesize = one.size();
+        for (int i = 0; i < onesize; i++) {
+            if (!two.contains(one.get(i))) {
+                two.add(one.get(i));
+            }
+        }
+        return two;
+    }
 
 }// end of DBSCANBasic
