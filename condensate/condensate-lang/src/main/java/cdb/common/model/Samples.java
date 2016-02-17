@@ -96,6 +96,21 @@ public class Samples implements Iterable<Point> {
         return newPoint;
     }
 
+    /**
+     * Return a copy of a given point.
+     * 
+     * @param index The row index to retrieve.
+     * @return A reference to the designated row.
+     */
+    public UJMPDenseVector getPointW(int index) {
+        UJMPDenseVector newPoint = new UJMPDenseVector(dataDimnsn);
+        for (int i = 0; i < dataDimnsn; i++) {
+            newPoint.setValue(i, rows[index].getValue(i));
+        }
+
+        return newPoint;
+    }
+
     /*========================================
      * Properties
      *========================================*/
