@@ -20,6 +20,8 @@ public class Point implements Iterable<Double> {
 	private double[] data;
 	/** length of the data */
 	private int dataDimnsn;
+	/** spatial attribute - default 2D*/
+	private double[] location;
 
 	/**
 	 * Construction
@@ -44,6 +46,18 @@ public class Point implements Iterable<Double> {
 		super();
 		this.dataDimnsn = args.length;
 		data = args;
+	}
+	
+	/*including spatial attributes*/
+	public Point(int dimention, double x, double y) {
+		super();
+		/*non-spatial attributes*/
+		this.dataDimnsn = dimention;
+		data = new double[dimention];
+		/*spatial attribute*/
+		location = new double[2];
+		location[0] = x;
+		location[1] = y;
 	}
 
 	/*
@@ -71,6 +85,30 @@ public class Point implements Iterable<Double> {
 	 */
 	public void setValue(int i, double val) {
 		data[i] = val;
+	}
+	
+	/**
+	 * Get the coordination
+	 * 
+	 * @param i
+	 *            the position index
+	 * @param val
+	 *            the value to set
+	 */
+	public double getLocation(int i) {
+		return location[i];
+	}
+	
+	/**
+	 * Set the coordination
+	 * 
+	 * @param i
+	 *            the position index
+	 * @param val
+	 *            the value to set
+	 */
+	public void setLocation(int i, double val) {
+		location[i] = val;
 	}
 
 	/**

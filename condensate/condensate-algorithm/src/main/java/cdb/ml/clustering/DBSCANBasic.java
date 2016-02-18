@@ -9,7 +9,7 @@ import cdb.common.model.Point;
 import cdb.common.model.Samples;
 
 /**
- * class for basic DBSCAN algorithm. Ester, Martin, et al.
+ * class for basic DBSCAN algorithm.
  * "A density-based algorithm for discovering clusters in large spatial databases with noise."
  * 
  * @author Qi LIU
@@ -43,7 +43,7 @@ public class DBSCANBasic {
 	 *            type of distance
 	 * @return
 	 */
-	public static List<Cluster> cluster(final Samples points, final int eps, final int minPts,
+	public static List<Cluster> cluster(final Samples points, final double eps, final int minPts,
 			final int type) {
 
 		final int pointCount = points.length()[0];
@@ -86,8 +86,8 @@ public class DBSCANBasic {
 	 * @return the expanded cluster
 	 * 
 	 */
-	protected static Cluster expandCluster(int pid, Samples points, int pointCount, List<Integer> neighbors,
-			Cluster cluster, int eps, int minPts, final int type, PointStatus[] visited) {
+	protected static Cluster expandCluster(final int pid, Samples points, final int pointCount, List<Integer> neighbors,
+			Cluster cluster, final double eps, final int minPts, final int type, PointStatus[] visited) {
 		// add P to cluster C
 		cluster.add(pid);
 		visited[pid] = PointStatus.IN_CLUSTER;// make sure visited is updated
@@ -128,7 +128,7 @@ public class DBSCANBasic {
 	 *            of distance
 	 * @return the List of neighbors
 	 */
-	protected static List<Integer> neighborQuery(Samples points, int pid, int eps, int pointCount, final int type) {
+	protected static List<Integer> neighborQuery(Samples points, final int pid, final double eps, final int pointCount, final int type) {
 		List<Integer> neighbors = new ArrayList<Integer>();
 		for (int i = 0; i < pointCount; i++) {
 			Point neighbor = points.getPointRef(i);//get actual point features vector
