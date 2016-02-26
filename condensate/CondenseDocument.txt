@@ -1,0 +1,23 @@
+#Feature Extraction Process#
+File: class RemoteSensingOverallDsGen {}
+:call regionSSMI or regionAVHR to extract features for target dataset
+:what is sample ratio?
+|
+File: regionInfoDsGen.properties
+:feature settings, select features to extract
+|
+File: class RemoteSensingGen {}
+|
+File: class SSMIFileDtProc {}
+:dataset processor for special sensor microwave image (SSM/I)
+:reading data from raw files to DenseMatrix
+|
+File: Class DenseMatrix (lang->cdb.common.model)
+|
+File: Class SSMISourceDumpI (algorithm->cdb.dataset.generator)
+:get file for current date, going through all dates
+|
+File: ImageInfoVOTransformerImpl
+:convert image into feature space and record to file
+
+
