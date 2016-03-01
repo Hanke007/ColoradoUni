@@ -203,7 +203,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
     	final int len = dataSample.length()[0];//number of samples
     	final int resDim = 1 + 1 + 1 + 1; //+ dataSample.length()[1];//date(0) + cluster label(1) + merge label(2) + outlier label(3) + sample dimension
     	Samples midresult = new Samples(len, resDim);
-    	
+    	final String midresultDir = "C:/Dataset/SSMI/midresults/";
     	/*mid result analysis: step 0: initialize with sample value of dim and grab datestr*/
         final int dateID = 0, outlierID = 3;
         int k = 0;
@@ -278,8 +278,10 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
             }
         }
         
-        /*record midresult to file*/
-        
+        /*record midresult to file, one onject one file*/
+        //writeAsAppendWithDirCheck(String file, String context) 
+        String midrfile = midresultDir + rRIndx + '_' + cRIndx;
+        FileUtil.writeAsAppendWithDirCheck(midrfile, midresult.toString());//test this, see how the result looks like 
         
         return raArr;
     }
