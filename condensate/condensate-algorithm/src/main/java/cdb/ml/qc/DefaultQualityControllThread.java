@@ -198,13 +198,47 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
     protected List<RegionAnomalyInfoVO> discoverPatternStep(Samples dataSample, String fileName,
                                                             List<String> regnDateStr, int rRIndx,
                                                             int cRIndx) {
-        // clustering 
+        
+    	//for mid results analysis
+    	final int len = dataSample.length()[0];//number of samples
+    	final int resDim = 1 + 1 + 1 + 1; //+ dataSample.length()[1];//date(0) + cluster label(1) + merge label(2) + outlier label(3) + sample dimension
+    	Samples midresult = new Samples(len, resDim);
+    	
+    	/*mid result analysis: step 0: initialize with sample value of dim and grab datestr*/
+        final int dateID = 0, outlierID = 3;
+        int k = 0;
+        for (String dt:regnDateStr){
+        		midresult.setValue(k, dateID, Integer.parseInt(dt));//convert date string to int: 19980908
+        		k++;
+        }
+    	
+    	// clustering 
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
             DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+        
+        /*mid result analysis: step 1: grab samples cluster label, use [1:number of clusters]*/
+        k = 0;//from 0 to number of clusters
+        final int clusterLabelID = 1;
+        for (Cluster rcluster:roughClusters){
+        	for (int idx:rcluster.getList()){
+        		midresult.setValue(idx, clusterLabelID, k);
+        	}
+        	k++;//update cluster index
+        }
+        
+        // merge step
         Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
             DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);//regnDateStr, for loop: new cluster
         
-        // 
+        /*mid result analysis: step 2: grab samples merge label, [1:number of clusters]*/
+        k = 0;//from 0 to number of clusters
+        final int clusterMergeID = 2;
+        for (Cluster ncluster:newClusters){
+        	for (int idx:ncluster.getList()){
+        		midresult.setValue(idx, clusterMergeID, k);
+        	}
+        	k++;//update cluster index
+        }
         
         // identification
         int clusterNum = newClusters.length;
@@ -214,6 +248,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         }
         LoggerUtil.info(logger, fileName.substring(fileName.lastIndexOf('/'))
                                 + " resulting clusters: " + Arrays.toString(sizeTable));//check log
+        
         // total number * 1%, 10%, total number: total observations
         int curNum = 0;
         int totalNum = regnDateStr.size();
@@ -237,9 +272,15 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
                 raVO.setY(cRIndx * regionWeight);
                 raVO.setdPoint(dataSample.getPointRef(dIndx));
                 raArr.add(raVO);
+                
+                /*mid result analysis: step 3: grab samples outlier label: 1-outlier, 0-normal*/
+                midresult.setValue(dIndx, outlierID, 1);
             }
         }
-
+        
+        /*record midresult to file*/
+        
+        
         return raArr;
     }
 

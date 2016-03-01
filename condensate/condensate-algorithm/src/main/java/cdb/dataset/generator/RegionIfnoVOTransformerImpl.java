@@ -20,6 +20,7 @@ import cdb.dataset.parameter.AbstractParamCalculator;
 /**
  * 
  * @author Chao Chen
+ * * For feature extraction
  * @version $Id: RegionIfnoVOTransformerImpl.java, v 0.1 Oct 22, 2015 4:56:42 PM chench Exp $
  */
 public class RegionIfnoVOTransformerImpl extends AbstractDataTransformer {
