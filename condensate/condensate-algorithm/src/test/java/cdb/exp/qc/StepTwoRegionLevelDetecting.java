@@ -57,9 +57,9 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         //  business logics
         //----------------------------
         LoggerUtil.info(logger, "1. check and read region value-object.");
-        checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);
+        checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//chai feng, 132line
         LoggerUtil.info(logger, "2. make multiple thread tasks.");
-        configureMultiThreadJobs(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);
+        configureMultiThreadJobs(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//bing fa shu ju chuli
 
         // detect anomaly
         LoggerUtil.info(logger, "3. detect potential errors.");
@@ -88,9 +88,9 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
     protected static void configureMultiThreadJobs(String rootDir, String regnInfoDir,
                                                    String freqId, int regionHeight,
                                                    int regionWeight) {
-        int[] dimens = (new AVHRFileDtProc()).dimensions(freqId);
+        int[] dimens = (new AVHRFileDtProc()).dimensions(freqId);//SSMI -> AVHR
         String resultFile = rootDir + "Anomaly/REG_" + freqId + '_' + regionHeight + '_'
-                            + regionWeight;
+                            + regionWeight;// result file
 
         // Entry: resultFile - sourceFile
         Queue<Entry<String, List<String>>> multiThreadTasks = new LinkedList<Entry<String, List<String>>>();
@@ -105,7 +105,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
                 multiThreadTasks.add(newOne);
             }
         }
-        DefaultQualityControllThread.tasks = multiThreadTasks;
+        DefaultQualityControllThread.tasks = multiThreadTasks;//quality control
     }
 
     protected static void checkAndReadRegionInfoVO(String rootDir, String regnInfoDir,
@@ -131,7 +131,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             while ((line = reader.readLine()) != null) {
                 RegionInfoVO regnVO = RegionInfoVO.parseOf(line);
 
-                String fileName = regnTargetDir + regnVO.getrIndx() + '_' + regnVO.getcIndx();
+                String fileName = regnTargetDir + regnVO.getrIndx() + '_' + regnVO.getcIndx();//mingming guize
                 StringBuilder regnBuffer = regnDistbtBuffer.get(fileName);
                 if (regnBuffer == null) {
                     regnBuffer = new StringBuilder();

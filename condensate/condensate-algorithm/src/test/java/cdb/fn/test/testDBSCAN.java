@@ -12,7 +12,7 @@ import cdb.common.model.Cluster;
 import cdb.common.model.Point;
 import cdb.common.model.Samples;
 import cdb.ml.clustering.DBSCANBasic;
-import cdb.ml.clustering.STDBSCANKut;
+//import cdb.ml.clustering.STDBSCANKut;
 
 public class testDBSCAN {
 
@@ -40,10 +40,10 @@ public class testDBSCAN {
 		initSample(points, br, testSize, testDim, true,xlim, ylim);
 		
 		//clustering with basic DBSCAN
-		//List<Cluster> clusters = DBSCANBasic.cluster(points, eps1, minPts, type);
+		List<Cluster> clusters = DBSCANBasic.cluster(points, eps1, minPts, type);
 		
 		//clustering with Kut ST-DBSCAN
-		List<Cluster> clusters = STDBSCANKut.cluster(points, eps1, eps2, minPts, delta, type);
+		//List<Cluster> clusters = STDBSCANKut.cluster(points, eps1, eps2, minPts, delta, type);
 		
 		//print out results
 		for (int i = 0; i < clusters.size(); i++) {    

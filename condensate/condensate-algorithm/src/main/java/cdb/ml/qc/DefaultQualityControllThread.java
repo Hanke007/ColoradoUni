@@ -92,15 +92,15 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
      * @see cdb.ml.qc.AbstractQualityControllThread#run()
      */
     @Override
-    public void run() {
+    public void run() {//configuration file zconfigqc.properties
         Entry<String, List<String>> dEntry = null;
         while ((dEntry = task()) != null) {
-            String resultFile = dEntry.getKey();
-            List<String> fileNames = dEntry.getValue();
+            String resultFile = dEntry.getKey();//result
+            List<String> fileNames = dEntry.getValue();//source
 
             List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
             for (String fileName : fileNames) {
-                raArr.addAll(innerDectectoin(fileName));
+                raArr.addAll(innerDectectoin(fileName));//detect anomaly
             }
             save(raArr, resultFile);
         }
@@ -114,11 +114,11 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
     protected List<RegionAnomalyInfoVO> innerDectectoin(String fileName) {
         List<RegionAnomalyInfoVO> resultArr = new ArrayList<RegionAnomalyInfoVO>();
         try {
-            // load features for every sample
-            Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
+            // load features for every sample (region observations)
+            Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);//read each file for each region
             if (regnList.isEmpty()) {
                 return new ArrayList<RegionAnomalyInfoVO>();
-            } else if (regnList.size() < maxClusterNum * 50) {
+            } else if (regnList.size() < maxClusterNum * 50) {//!!!drop this region, to ensure the number for clustering
                 LoggerUtil.warn(logger, "Lack of data : " + regnList.size() + "\t"
                                         + fileName.substring(fileName.lastIndexOf('/')));
                 return new ArrayList<RegionAnomalyInfoVO>();
@@ -134,9 +134,9 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
             int cRIndx = pivot.getcIndx();
             Samples dataSample = new Samples(regnList.size(), pDimen);
             List<String> regnDateStr = new ArrayList<String>();
-            QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr,
-                filterCategory);
-            if (needSaveData) {
+            QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr,//z-score, parse from regnList->dataSample
+                filterCategory);//regnDateStr, date attribute, one to one
+            if (needSaveData) {//normalized data save
                 persistFeatureStep(fileName, dataSample, regnDateStr);
             }
 
@@ -202,16 +202,19 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
         Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
             DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
         Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
-            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
-
+            DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);//regnDateStr, for loop: new cluster
+        
+        // 
+        
+        // identification
         int clusterNum = newClusters.length;
         double[] sizeTable = new double[clusterNum];
         for (int i = 0; i < clusterNum; i++) {
             sizeTable[i] = newClusters[i].getList().size();
         }
         LoggerUtil.info(logger, fileName.substring(fileName.lastIndexOf('/'))
-                                + " resulting clusters: " + Arrays.toString(sizeTable));
-
+                                + " resulting clusters: " + Arrays.toString(sizeTable));//check log
+        // total number * 1%, 10%, total number: total observations
         int curNum = 0;
         int totalNum = regnDateStr.size();
         int newClusterNum = newClusters.length;
@@ -224,7 +227,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
                 break;
             }
 
-            // result presentation
+            // result presentation - write to files
             for (int dIndx : cluster.getList()) {
                 RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
                 raVO.setDateStr(regnDateStr.get(dIndx));

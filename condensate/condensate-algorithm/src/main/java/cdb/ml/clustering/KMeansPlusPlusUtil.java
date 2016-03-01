@@ -120,7 +120,7 @@ public class KMeansPlusPlusUtil {
             }
 
         }
-
+        //mean point in a cluster, write to log
         int cenIndex = 1;
         StringBuilder centdInfo = new StringBuilder();
         for (Point centroid : centroids) {

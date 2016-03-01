@@ -1,3 +1,6 @@
+#How to import maven (with pom.xml) project into workspace?#
+: File->import->Existing Maven Projects->Select Source Directory->...continue
+
 #Feature Extraction Process#
 File: class RemoteSensingOverallDsGen {}
 :call regionSSMI or regionAVHR to extract features for target dataset

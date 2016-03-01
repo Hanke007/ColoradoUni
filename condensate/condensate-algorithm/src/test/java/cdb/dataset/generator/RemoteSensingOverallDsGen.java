@@ -32,7 +32,7 @@ public class RemoteSensingOverallDsGen {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		regionAVHR();
+		regionSSMI();//generate features for ssmi data
 	}
 
 	public static void imageSSMI() {
@@ -97,14 +97,14 @@ public class RemoteSensingOverallDsGen {
 	}
 
 	public static void regionSSMI() {
-		String rootDir = "C:/Users/chench/Desktop/SIDS/SSMI/";
+		String rootDir = "C:/Dataset/SSMI/";
 		int regionHeight = 8;
 		int regionWeight = 8;
 		int minVal = 0;
 		int maxVal = 400;
 		int k = 5;
 		String freqId = "n19v";
-		String sDateStr = "19980101";
+		String sDateStr = "20141220";//for test
 		String eDateStr = "20150101";
 
 		Properties properties = ConfigureUtil.read("src/test/resources/regionInfoDsGen.properties");
@@ -113,7 +113,7 @@ public class RemoteSensingOverallDsGen {
 		rsGen.setDataProc(new SSMIFileDtProc());
 		rsGen.setSourceDumper(new SSMISourceDumpImpl());
 		rsGen.setDataTransformer(new RegionIfnoVOTransformerImpl(regionHeight, regionWeight, minVal, maxVal, k,
-				new SSMIParamCalculator(rootDir, 1992, 2014, regionHeight, regionWeight, freqId, new SSMIFileDtProc()),
+				new SSMIParamCalculator(rootDir, 2013, 2014, regionHeight, regionWeight, freqId, new SSMIFileDtProc()),
 				properties));
 		rsGen.run();
 	}

@@ -143,7 +143,7 @@ public final class QualityControllHelper {
 			List<RegionInfoVO> data = dRep.get(key);
 			List<Point> rFeatures = new ArrayList<Point>();
 			for (RegionInfoVO regnInfoVO : data) {
-				rFeatures.add(QualityControllHelper.make12Features(regnInfoVO));
+				rFeatures.add(QualityControllHelper.make12Features(regnInfoVO));//
 				regnDateStr.add(regnInfoVO.getDateStr());
 			}
 			normalization(rFeatures);
