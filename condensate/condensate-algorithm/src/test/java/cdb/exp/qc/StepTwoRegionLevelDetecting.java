@@ -72,7 +72,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             exec.execute(new DefaultQualityControllThread(configFileName));
             exec.execute(new DefaultQualityControllThread(configFileName));
             exec.execute(new DefaultQualityControllThread(configFileName));
-            exec.shutdown();
+            //exec.shutdown();
             exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
             stopWatch.stop();
         } catch (InterruptedException e) {
@@ -88,7 +88,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
     protected static void configureMultiThreadJobs(String rootDir, String regnInfoDir,
                                                    String freqId, int regionHeight,
                                                    int regionWeight) {
-        int[] dimens = (new AVHRFileDtProc()).dimensions(freqId);//SSMI -> AVHR
+        int[] dimens = (new SSMIFileDtProc()).dimensions(freqId);//SSMI -> AVHR
         String resultFile = rootDir + "Anomaly/REG_" + freqId + '_' + regionHeight + '_'
                             + regionWeight;// result file
 
