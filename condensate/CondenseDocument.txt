@@ -23,4 +23,12 @@ File: Class SSMISourceDumpI (algorithm->cdb.dataset.generator)
 File: ImageInfoVOTransformerImpl
 :convert image into feature space and record to file
 
+#Anomaly Detection Main Code#
+File: StepTwoRegionLevelDetecting
+:configuration file: zConfigQC.properties [path, region size, merge tolerance]
+|
+:checkAndReadRegionInfoVO
+:check if individual region file row_col existed, if so, skip, othervise regenerate
+|
+:configureMultiThreadJobs [SSMIFileDtProc or AVHRFileDtProc, need configure and expand]
 

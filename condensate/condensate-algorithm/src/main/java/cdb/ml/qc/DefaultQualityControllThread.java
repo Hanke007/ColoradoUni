@@ -44,7 +44,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		synchronized (ANOMALY_MUTEX) {
 			raInfoBuffer.addAll(raArr);
 
-			if (raInfoBuffer.size() >= 1000 * 1000) {
+			if (raInfoBuffer.size() >= 10) {//1000*1000
 				StringBuilder strBuffer = new StringBuilder();
 				for (RegionAnomalyInfoVO one : raInfoBuffer) {
 					strBuffer.append(one.toString()).append('\n');
@@ -103,7 +103,6 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		while ((dEntry = task()) != null) {
 			String resultFile = dEntry.getKey();// result
 			List<String> fileNames = dEntry.getValue();// source
-
 			List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
 			for (String fileName : fileNames) {
 				raArr.addAll(innerDectectoin(fileName));// detect anomaly
@@ -317,6 +316,8 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 				 * 1-outlier, 0-normal
 				 */
 				midresult.setValue(dIndx, outlierID, 1);
+				LoggerUtil.debug(logger,"Outlier: "+rRIndx+','+cRIndx+':'+dIndx);// check
+				
 			}
 		}
 

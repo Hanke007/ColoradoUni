@@ -57,7 +57,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         //  business logics
         //----------------------------
         LoggerUtil.info(logger, "1. check and read region value-object.");
-        checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//chai feng, 132line
+        checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//if individual file exists, skip, if not, create one file for one object
         LoggerUtil.info(logger, "2. make multiple thread tasks.");
         configureMultiThreadJobs(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//bing fa shu ju chuli
 
@@ -72,7 +72,7 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             exec.execute(new DefaultQualityControllThread(configFileName));
             exec.execute(new DefaultQualityControllThread(configFileName));
             exec.execute(new DefaultQualityControllThread(configFileName));
-            //exec.shutdown();
+            exec.shutdown();
             exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
             stopWatch.stop();
         } catch (InterruptedException e) {
