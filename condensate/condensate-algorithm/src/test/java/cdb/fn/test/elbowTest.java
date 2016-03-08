@@ -64,7 +64,7 @@ public class elbowTest {
 			
 			double dist = 0;//
 			int m = 0;//index if error array
-		    for (int i = 2; i<maxClusterNum+1;i++)//at least two clusters
+		    for (int i = 20; i<maxClusterNum+1;i++)//at least two clusters
 		    {
 //				Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
 //						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
