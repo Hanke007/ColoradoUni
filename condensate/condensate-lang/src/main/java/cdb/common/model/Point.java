@@ -266,6 +266,14 @@ public class Point implements Iterable<Double> {
 		String arrStr = Arrays.toString(data).replace(',', '#');
 		return arrStr.substring(1, arrStr.length() - 1);
 	}
+	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	public String toStringSimple() {
+		String arrStr = Arrays.toString(data);
+		return arrStr.substring(1, arrStr.length() - 1);
+	}
 
 	/**
 	 * similar to valueOf function of Numeric

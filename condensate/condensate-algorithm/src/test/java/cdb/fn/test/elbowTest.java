@@ -12,6 +12,7 @@ import java.util.Queue;
 
 import org.apache.commons.io.IOUtils;
 
+import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
@@ -29,18 +30,25 @@ public class elbowTest {
 
 		final int type = DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE;
 		String elbowFile = "C:/Dataset/SSMI/elbowTest/elbow";
+		String feaFile = "C:/Dataset/SSMI/elbowTest/visFea";
+		String alpFile = "C:/Dataset/SSMI/elbowTest/alpha";
 		try {
 			// load features for every sample (region observations)
 			String fileName = "C:/Dataset/SSMI/ClassificationDataset/n19v_2_2_ORG/159_81";
 			Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
 			// making clustering samples
-			RegionInfoVO pivot = regnList.peek();
 			int pDimen = 12;
 			Samples dataSample = new Samples(regnList.size(), pDimen);
+			Samples alpresult = new Samples(regnList.size(), 8);//1 id + 5 labels at different alpha
 			List<String> regnDateStr = new ArrayList<String>();
-			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");//z-score
+			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");//z-score, add a not normalized option
+			
+			//re-write samples to a file for visual analysis, not-normalized
 			
 			final int maxClusterNum = 50;
+			final float maxAlpha = 4.5f;
+			final int maxIter  =5;
+			
 			List<Double> costError = new ArrayList<Double>();
 			
 			for (int i = 0; i < maxClusterNum; i++){
@@ -49,20 +57,48 @@ public class elbowTest {
 			
 			double dist = 0;//
 			int m = 0;//index if error array
-		    for (int i = 2; i<maxClusterNum+1;i++)
+		    for (int i = 20; i<maxClusterNum+1;i++)
 		    {
-				Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
-						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
-				//compute cost function of K-Means results
+//				Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
+//						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 				
-				for (Cluster cl:roughClusters) {
-					for (int j = 0; j < cl.getList().size(); j++){
-						dist = DistanceUtil.distance(dataSample.getPointRef(cl.getList().get(j)),cl.centroid(dataSample), type);
-						costError.set(m, dist+costError.get(m));//accumulate total errors
+				//compute cost function of K-Means results
+//				for (Cluster cl:roughClusters) {
+//					for (int j = 0; j < cl.getList().size(); j++){
+//						dist = DistanceUtil.distance(dataSample.getPointRef(cl.getList().get(j)),cl.centroid(dataSample), type);
+//						costError.set(m, dist+costError.get(m));//accumulate total errors
+//					
+//					}
+//                }//end of K clusters loop
+//				m++;
+				
+				//Testing of different alpha during merging
+				int alpID = 1;
+				for (float alp = 1; alp < maxAlpha; alp = alp + 0.5f) {
 					
-					}
-                }//end of K clusters loop
-				m++;
+						Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
+							DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+						Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
+						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alp, maxIter);
+						
+						int k = 0;// from 0 to number of clusters
+						for (Cluster ncluster : newClusters) {
+							for (int idx : ncluster.getList()) {
+								System.out.println(idx);
+								alpresult.setValue(idx, alpID, k);
+								alpresult.setValue(idx, 0, idx);
+							}
+							k++;// update cluster index
+						}
+						alpID++;
+				}
+				
+				for (int pt = 0; pt < dataSample.length()[0]; pt++){
+					FileUtil.writeAsAppendWithDirCheck(alpFile, alpresult.getPoint(pt).toStringSimple()+"\n");
+				}
+				
+				alpID = 10;
+				
 		    }//end of compute cost error
 		    
 		    //write cost error to file
