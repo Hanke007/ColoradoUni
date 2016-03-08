@@ -16,13 +16,16 @@ import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DistanceUtil;
 import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.FileUtil;
-import cdb.common.lang.LoggerUtil;
 import cdb.common.model.Cluster;
-import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
 import cdb.common.model.Samples;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 import cdb.ml.qc.QualityControllHelper;
+
+/**
+ * Author: Qi LIU
+ * Elbow, Alpha boundary testing code
+ * */
 
 public class elbowTest {
 
@@ -32,6 +35,7 @@ public class elbowTest {
 		String elbowFile = "C:/Dataset/SSMI/elbowTest/elbow";
 		String feaFile = "C:/Dataset/SSMI/elbowTest/visFea";
 		String alpFile = "C:/Dataset/SSMI/elbowTest/alpha";
+		String rawfeaFile = "C:/Dataset/SSMI/elbowTest/rawfea";
 		try {
 			// load features for every sample (region observations)
 			String fileName = "C:/Dataset/SSMI/ClassificationDataset/n19v_2_2_ORG/159_81";
@@ -44,6 +48,9 @@ public class elbowTest {
 			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");//z-score, add a not normalized option
 			
 			//re-write samples to a file for visual analysis, not-normalized
+			for (int pt = 0; pt < dataSample.length()[0]; pt++){
+				FileUtil.writeAsAppendWithDirCheck(rawfeaFile, dataSample.getPoint(pt).toStringSimple()+"\n");
+			}
 			
 			final int maxClusterNum = 50;
 			final float maxAlpha = 4.5f;
@@ -57,7 +64,7 @@ public class elbowTest {
 			
 			double dist = 0;//
 			int m = 0;//index if error array
-		    for (int i = 20; i<maxClusterNum+1;i++)
+		    for (int i = 2; i<maxClusterNum+1;i++)//at least two clusters
 		    {
 //				Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
 //						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
