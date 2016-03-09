@@ -41,7 +41,7 @@ public class DalTest {
         try {
             List<AnomalyInfoBean> records = new ArrayList<AnomalyInfoBean>();
             String[] lines = FileUtil
-                .readLines("C:/Dataset/SSMI/Anomaly/REG_n19v_8_8");
+                .readLines("C:/Dataset/SSMI/Anomaly/backupresults/REG_n19v_2_2_v1");
             for (String line : lines) {
                 RegionAnomalyInfoVO bean = RegionAnomalyInfoVO.parseOf(line);
 
@@ -50,7 +50,7 @@ public class DalTest {
                 model.setY(bean.getY());
                 model.setDate(DateUtil.parse(bean.getDateStr(), DateUtil.SHORT_FORMAT));
                 model.setDesc(bean.getdPoint().toString());
-                model.setRid(1);
+                model.setRid(7);
                 records.add(model);
             }
 

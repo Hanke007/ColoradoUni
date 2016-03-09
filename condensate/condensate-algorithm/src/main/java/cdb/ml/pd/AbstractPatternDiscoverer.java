@@ -51,7 +51,7 @@ public abstract class AbstractPatternDiscoverer {
     protected void preprocessing(String sql, Map<String, Integer> freqInDay,
                                  List<DiscoveredEvent> insularEventArr) {
         try {
-            List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);
+            List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);//can be optimized out
 
             int arrNum = dbSet.size();
             DiscoveredEvent curVO = new DiscoveredEvent();

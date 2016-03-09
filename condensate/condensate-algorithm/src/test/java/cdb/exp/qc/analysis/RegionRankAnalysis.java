@@ -42,9 +42,9 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         String groupStrategy = properties.getProperty("GROUP_STRATEGY");
         int rankNum = Integer.valueOf(properties.getProperty("RANK_NUMBER"));
 
-        Map<String, Integer> countByDate = new HashMap<String, Integer>();
-        List<DiscoveredEvent> candiates = new ArrayList<DiscoveredEvent>();
-        loadAndMake(sql, countByDate, candiates);
+        //Map<String, Integer> countByDate = new HashMap<String, Integer>();
+        //List<DiscoveredEvent> candiates = new ArrayList<DiscoveredEvent>();
+        //loadAndMake(sql, countByDate, candiates); //duplicate with pre-processing
 
         AbstractPatternDiscoverer pDiscoverer = null;
         switch (groupStrategy) {
