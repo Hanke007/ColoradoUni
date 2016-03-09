@@ -32,3 +32,21 @@ File: StepTwoRegionLevelDetecting
 |
 :configureMultiThreadJobs [SSMIFileDtProc or AVHRFileDtProc, need configure and expand]
 
+
+----------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------
+#Query outliers and group in events#
+File: RegionRankAnalysis
+: read properties from rankSql.properties
+|
+loadAndMake
+:Do actual sql query
+|
+File:TemporalOverlapBasedDiscoverer
+: Event based grouping
+
+#Write anomaly to mysql
+File: DalTest
+: ibatorConfig.xml, url and user name of mysql
+: jdbc.properties in DAL, user name and url and password
+

@@ -58,11 +58,10 @@ public final class DBUtil {
 
     protected static Connection getAvailConnection() {
         Connection conn = null;
-        String[] urls = { "jdbc:mysql://128.138.189.106:3306/regionanomalyrep",
-                          "jdbc:mysql://localhost:3306/regionanomalyrep" };
+        String[] urls = {"jdbc:mysql://localhost:3306/regionanomalyrep" };
         for (String url : urls) {
             try {
-                conn = DriverManager.getConnection(url, "chench", "123456");
+                conn = DriverManager.getConnection(url, "pc67", "123456");
 
                 if (conn != null) {
                     break;

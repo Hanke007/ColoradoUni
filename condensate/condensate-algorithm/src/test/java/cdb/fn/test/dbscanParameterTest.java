@@ -49,14 +49,7 @@ public class dbscanParameterTest {
 			
 			final double eps = 17.6329;
 			final int minPts = 6;
-			
-			List<Double> costError = new ArrayList<Double>();
-			
-			for (int i = 0; i < maxClusterNum; i++){
-				costError.add(i,(double) 0);
-			}
-			
-			double dist = 0;//
+
 			int m = 0;//index if error array
 		    for (int i = 20; i<maxClusterNum+1;i++)//at least two clusters
 		    {
@@ -65,7 +58,7 @@ public class dbscanParameterTest {
 				//Testing of different alpha during merging
 				int alpID = 1;
 				for (float alp = 1; alp < maxAlpha; alp = alp + 0.5f) {
-					
+					    
 						Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, i, 20,
 							DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 						Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
@@ -90,9 +83,6 @@ public class dbscanParameterTest {
 				alpID = 10;
 				
 		    }//end of compute cost error
-		    
-		    //write cost error to file
-		    FileUtil.writeAsAppendWithDirCheck(elbowFile, costError.toString());
 		    
 		} catch (ParseException e) {
 			ExceptionUtil.caught(e, "Date format parsing error.");
