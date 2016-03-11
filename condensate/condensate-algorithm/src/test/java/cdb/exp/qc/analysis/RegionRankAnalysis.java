@@ -26,7 +26,6 @@ import cdb.ml.pd.TemporalOverlapBasedDiscoverer;
  * @version $Id: RegionRankAnalysis.java, v 0.1 Nov 18, 2015 3:27:05 PM chench Exp $
  */
 public class RegionRankAnalysis extends AbstractQcAnalysis {
-
     /**
      * 
      * @param args
@@ -41,12 +40,8 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
         String sql = properties.getProperty("DUMP");
         String groupStrategy = properties.getProperty("GROUP_STRATEGY");
         int rankNum = Integer.valueOf(properties.getProperty("RANK_NUMBER"));
-
-        //Map<String, Integer> countByDate = new HashMap<String, Integer>();
-        //List<DiscoveredEvent> candiates = new ArrayList<DiscoveredEvent>();
-        //loadAndMake(sql, countByDate, candiates); //duplicate with pre-processing
-
         AbstractPatternDiscoverer pDiscoverer = null;
+        
         switch (groupStrategy) {
             case "GROUP_BY_LOCATION": {
                 pDiscoverer = new SpatialBasedDiscoverer(sql, rankNum);
@@ -96,62 +91,6 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
             }
             default:
                 break;
-        }
-    }
-
-    protected static void loadAndMake(String sql, Map<String, Integer> countByDate,
-                                      List<DiscoveredEvent> candiates) {
-        try {
-            List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);
-
-            int arrNum = dbSet.size();
-            DiscoveredEvent curVO = new DiscoveredEvent();
-            convert2RRIVO(curVO, dbSet.get(0));
-            countByDate.put(dbSet.get(0).getDateStr(), Integer.valueOf(1));
-
-            for (int i = 1; i < arrNum; i++) {
-                RegionAnomalyInfoVO one = dbSet.get(i);
-                Date date = DateUtil.parse(one.getDateStr(), DateUtil.SHORT_FORMAT);
-
-                int x = one.getX();
-                int y = one.getY();
-                double diffAfter = (date.getTime() - curVO.getDataEnd().getTime())
-                                   / (24.0 * 60 * 60 * 1000);
-
-                if (curVO.getX() == x && curVO.getY() == y && diffAfter <= 1.0d) {
-                    curVO.setDataEnd(date);
-                    curVO.getDays().add(date);
-                } else {
-                    // add to array
-                    candiates.add(curVO);
-
-                    // update current iterator
-                    curVO = new DiscoveredEvent();
-                    convert2RRIVO(curVO, one);
-                }
-
-                // update count map
-                Integer count = countByDate.get(one.getDateStr());
-                if (count == null) {
-                    count = 1;
-                } else {
-                    count++;
-                }
-                countByDate.put(one.getDateStr(), count);
-            }
-        } catch (ParseException e) {
-            ExceptionUtil.caught(e, "");
-        }
-    }
-
-    protected static void convert2RRIVO(DiscoveredEvent target, RegionAnomalyInfoVO source) {
-        try {
-            target.setX(source.getX());
-            target.setY(source.getY());
-            target.setDateBegin(DateUtil.parse(source.getDateStr(), DateUtil.SHORT_FORMAT));
-            target.setDataEnd(DateUtil.parse(source.getDateStr(), DateUtil.SHORT_FORMAT));
-        } catch (ParseException e) {
-            ExceptionUtil.caught(e, "");
         }
     }
 

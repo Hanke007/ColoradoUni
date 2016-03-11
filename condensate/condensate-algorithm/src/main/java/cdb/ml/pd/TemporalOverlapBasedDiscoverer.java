@@ -31,11 +31,16 @@ public class TemporalOverlapBasedDiscoverer extends TemporalDurationBasedDiscove
     public List<DiscoveredEvent> discoverPattern() {
         Map<String, Integer> freqInDay = new HashMap<String, Integer>();
         List<DiscoveredEvent> insularEventArr = new ArrayList<DiscoveredEvent>();
-        preprocessing(sqlContext, freqInDay, insularEventArr);
+        preprocessing(sqlContext, freqInDay, insularEventArr);//merge same locations with continued time duration
 
-        // group such event with the same time duration into one cluster as a final event
+        // group such event with the same time duration into one cluster as a final event - for one object
         List<DiscoveredEvent> eventRep = groupBySameDuration(insularEventArr);
-
+        
+        // initial scores before overlapping by time
+        for (DiscoveredEvent evt:eventRep) {
+        	double score = (evt.getDays().size() + 1) * (evt.getLocations().size());
+        	evt.setScore(score);
+        }
         // merge event has overlaps
         List<DiscoveredEvent> eventArr = new ArrayList<DiscoveredEvent>();
         DiscoveredEvent curInfo = eventRep.get(0);
@@ -74,6 +79,10 @@ public class TemporalOverlapBasedDiscoverer extends TemporalDurationBasedDiscove
                         curInfo.getLocations().add(locStr);
                     }
 
+                    // update score
+                    double tspan = (timeEnd - timeBegin) / (24 * 60 * 60 * 1000);
+                    curInfo.setScore((tspan + 1) * eventRep.get(i).getLocations().size());
+                    
                     // remove merged element
                     eventRep.remove(i);
                 }
@@ -85,15 +94,17 @@ public class TemporalOverlapBasedDiscoverer extends TemporalDurationBasedDiscove
                 curInfo = eventRep.isEmpty() ? null : eventRep.get(0);
             }
         }
-
-        // computer the scores
+        
+        // compute the scores -> update to use property score
         int numEvent = eventArr.size();
         double[] neighbors = new double[numEvent];
         for (int i = 0; i < numEvent; i++) {
             DiscoveredEvent one = eventArr.get(i);
             double timeSpan = (one.getDataEnd().getTime() - one.getDateBegin().getTime())
                               / (24 * 60 * 60 * 1000);
-            neighbors[i] = one.getLocations().size() + timeSpan;
+            neighbors[i] = one.getLocations().size() + timeSpan;//wrong? one location appears across multiple days
+            
+           // neighbors[i] = one.getScore();//accumulated score
         }
 
         // make output

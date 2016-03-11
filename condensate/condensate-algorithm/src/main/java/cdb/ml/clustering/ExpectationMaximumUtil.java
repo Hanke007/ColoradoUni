@@ -181,13 +181,13 @@ public class ExpectationMaximumUtil {
          * @param sample    the given sample
          * @return  the density
          */
-        public double density(UJMPDenseVector sample) {
+        public double density(UJMPDenseVector sample) {//pdf function
             double density = Math.pow(2 * Math.PI, dimnVar) * sigmaMatrix.getMatrix().det();
-            density = 1.0 / Math.sqrt(density);
+            density = 1.0 / Math.sqrt(density);//expected value
 
             UJMPDenseVector unbiasedVec = sample.minus(mu);
             density *= Math
-                .exp(-0.5 * sigmaMatrix.inverse().times(unbiasedVec).innerProduct(unbiasedVec));
+                .exp(-0.5 * sigmaMatrix.inverse().times(unbiasedVec).innerProduct(unbiasedVec));//sigmaMatric covariance matrix, calculate pdf
             return density;
         }
 

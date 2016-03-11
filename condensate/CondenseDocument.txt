@@ -49,4 +49,6 @@ File:TemporalOverlapBasedDiscoverer
 File: DalTest
 : ibatorConfig.xml, url and user name of mysql
 : jdbc.properties in DAL, user name and url and password
+#rID = 7, 2_2_v1, works resaonably when greenland is selected
+#rID = 1, 2_2_new
 

@@ -44,7 +44,7 @@ public class TemporalDurationBasedDiscoverer extends AbstractPatternDiscoverer {
         double[] neighbors = new double[numKey];
         for (int i = 0; i < numKey; i++) {
             DiscoveredEvent durationEvent = eventArr.get(i);
-            neighbors[i] += durationEvent.getLocations().size() + durationEvent.getDays().size();
+            neighbors[i] = durationEvent.getLocations().size() + durationEvent.getDays().size();
         }
 
         // make output
@@ -72,7 +72,7 @@ public class TemporalDurationBasedDiscoverer extends AbstractPatternDiscoverer {
             if (event == null) {
                 event = one;
                 eventsWithinSameDuration.put(key, event);
-            }
+            } 
             event.getLocations().add("(" + one.getX() + ", " + one.getY() + "), ");
         }
 

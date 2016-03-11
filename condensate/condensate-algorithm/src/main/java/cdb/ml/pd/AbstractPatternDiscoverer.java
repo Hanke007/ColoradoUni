@@ -51,8 +51,7 @@ public abstract class AbstractPatternDiscoverer {
     protected void preprocessing(String sql, Map<String, Integer> freqInDay,
                                  List<DiscoveredEvent> insularEventArr) {
         try {
-            List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);//can be optimized out
-
+            List<RegionAnomalyInfoVO> dbSet = DBUtil.excuteSQLWithReturnList(sql);//sorted by locations
             int arrNum = dbSet.size();
             DiscoveredEvent curVO = new DiscoveredEvent();
             convert2DiscoveredEvent(curVO, dbSet.get(0));
@@ -67,13 +66,12 @@ public abstract class AbstractPatternDiscoverer {
                 double diffAfter = (date.getTime() - curVO.getDataEnd().getTime())
                                    / (24.0 * 60 * 60 * 1000);
 
-                if (curVO.getX() == x && curVO.getY() == y && diffAfter <= 1.0d) {
+                if (curVO.getX() == x && curVO.getY() == y && diffAfter <= 1.0d) {//same object, connect the adjacent time-stamp
                     curVO.setDataEnd(date);
                     curVO.getDays().add(date);
                 } else {
                     // add to array
                     insularEventArr.add(curVO);
-
                     // update current iterator
                     curVO = new DiscoveredEvent();
                     convert2DiscoveredEvent(curVO, one);
