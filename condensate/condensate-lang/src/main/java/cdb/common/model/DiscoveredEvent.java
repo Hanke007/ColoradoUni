@@ -27,6 +27,8 @@ public class DiscoveredEvent {
     private List<Date>  days;
     /** the locations contained in this event*/
     private Set<String> locations;
+    /** the accumulated score*/
+    private double score;
 
     /**
      * construction
@@ -154,4 +156,23 @@ public class DiscoveredEvent {
                + DateUtil.format(dateBegin, DateUtil.SHORT_FORMAT) + ", "
                + DateUtil.format(dataEnd, DateUtil.SHORT_FORMAT) + "]";
     }
+    
+    /**
+     * Getter method for property <tt>score</tt>.
+     * 
+     * @return property value of score
+     */
+    public double getScore() {
+        return this.score;
+    }
+
+    /**
+     * Setter method for property <tt>score</tt>.
+     * 
+     * @param incremental score value to be added to property score 
+     */
+    public void setScore(double score) {
+        this.score += score;
+    }
+    
 }
