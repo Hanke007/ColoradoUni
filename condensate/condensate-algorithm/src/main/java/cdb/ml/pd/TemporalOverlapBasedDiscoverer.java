@@ -102,9 +102,10 @@ public class TemporalOverlapBasedDiscoverer extends TemporalDurationBasedDiscove
             DiscoveredEvent one = eventArr.get(i);
             double timeSpan = (one.getDataEnd().getTime() - one.getDateBegin().getTime())
                               / (24 * 60 * 60 * 1000);
-            neighbors[i] = one.getLocations().size() + timeSpan;//wrong? one location appears across multiple days
+            //neighbors[i] = one.getLocations().size() + timeSpan;//wrong? one location appears across multiple days
             
-           // neighbors[i] = one.getScore();//accumulated score
+            neighbors[i] = one.getScore();//accumulated score
+            
         }
 
         // make output

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.lang.log4j.LoggerDefineConstant;
 import cdb.common.model.Cluster;
+import cdb.common.model.MultiVarNormal;
 import cdb.common.model.Samples;
 import cdb.common.model.UJMPDenseMatrix;
 import cdb.common.model.UJMPDenseVector;
@@ -63,6 +64,10 @@ public class ExpectationMaximumUtil {
         LoggerUtil.debug(logger, "1. Locally search optimal solution.");
         Cluster[] resultSet = new Cluster[K];
         MultiVarNormal[] models = new MultiVarNormal[K];
+        
+        for (int k = 0; k < K; k++) {
+            models[k] = new MultiVarNormal(varNum);
+        }
 
         int round = 0;
         while (round < maxIteration) {
@@ -108,6 +113,7 @@ public class ExpectationMaximumUtil {
         int[] numInGroups = new int[K];
         UJMPDenseVector[] mus = new UJMPDenseVector[K];
         UJMPDenseMatrix[] sigmaMatrices = new UJMPDenseMatrix[K];
+        
         for (int k = 0; k < K; k++) {
             mus[k] = new UJMPDenseVector(varNum);
             sigmaMatrices[k] = new UJMPDenseMatrix(varNum, varNum);
@@ -160,90 +166,5 @@ public class ExpectationMaximumUtil {
         LoggerUtil.debug(logger, "Log[Pr]: " + Math.log(sumLikilyHood));
     }
 
-    /**
-     * the data structure of multivariate normal distribution
-     * 
-     * @author chench
-     * @version $Id: ExpectationMaximumUtil.java, v 0.1 Feb 17, 2016 7:52:10 PM chench Exp $
-     */
-    protected class MultiVarNormal {
-        private int             dimnVar;
-        private UJMPDenseVector mu;
-        private UJMPDenseMatrix sigmaMatrix;
 
-        public MultiVarNormal(int dimnVar) {
-            this.dimnVar = dimnVar;
-        }
-
-        /**
-         * Compute the density of the sample
-         * 
-         * @param sample    the given sample
-         * @return  the density
-         */
-        public double density(UJMPDenseVector sample) {//pdf function
-            double density = Math.pow(2 * Math.PI, dimnVar) * sigmaMatrix.getMatrix().det();
-            density = 1.0 / Math.sqrt(density);//expected value
-
-            UJMPDenseVector unbiasedVec = sample.minus(mu);
-            density *= Math
-                .exp(-0.5 * sigmaMatrix.inverse().times(unbiasedVec).innerProduct(unbiasedVec));//sigmaMatric covariance matrix, calculate pdf
-            return density;
-        }
-
-        /**
-         * Getter method for property <tt>dimnVar</tt>.
-         * 
-         * @return property value of dimnVar
-         */
-        public int getDimnVar() {
-            return dimnVar;
-        }
-
-        /**
-         * Setter method for property <tt>dimnVar</tt>.
-         * 
-         * @param dimnVar value to be assigned to property dimnVar
-         */
-        public void setDimnVar(int dimnVar) {
-            this.dimnVar = dimnVar;
-        }
-
-        /**
-         * Getter method for property <tt>mu</tt>.
-         * 
-         * @return property value of mu
-         */
-        public UJMPDenseVector getMu() {
-            return mu;
-        }
-
-        /**
-         * Setter method for property <tt>mu</tt>.
-         * 
-         * @param mu value to be assigned to property mu
-         */
-        public void setMu(UJMPDenseVector mu) {
-            this.mu = mu;
-        }
-
-        /**
-         * Getter method for property <tt>sigmaMatrix</tt>.
-         * 
-         * @return property value of sigmaMatrix
-         */
-        public UJMPDenseMatrix getSigmaMatrix() {
-            return sigmaMatrix;
-        }
-
-        /**
-         * Setter method for property <tt>sigmaMatrix</tt>.
-         * 
-         * @param sigmaMatrix value to be assigned to property sigmaMatrix
-         */
-        public void setSigmaMatrix(UJMPDenseMatrix sigmaMatrix) {
-            this.sigmaMatrix = sigmaMatrix;
-        }
-
-    }
 }

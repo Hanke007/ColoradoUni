@@ -25,6 +25,7 @@ import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
 import cdb.common.model.Samples;
+import cdb.ml.clustering.ExpectationMaximumUtil;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 
 /**
@@ -220,35 +221,34 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
 		// for mid results analysis
 		final int len = dataSample.length()[0];// number of samples
-		final int resDim = 1 + 1 + 1 + 1; // + dataSample.length()[1];//date(0)
+		final int resDim = 1 + 1 + 1 + 1 + 1; // + dataSample.length()[1];//date(0)
 											// + cluster label(1) + merge
-											// label(2) + outlier label(3) +
-											// sample dimension
+											// label(2) + after boundary optimization (3)+ outlier label(4)
 		Samples midresult = new Samples(len, resDim);
 		final String midresultDir = "C:/Dataset/SSMI/midresults/";
 		/*
 		 * mid result analysis: step 0: initialize with sample value of dim and
 		 * grab datestr
 		 */
-		final int dateID = 0, outlierID = 3;
+		final int dateID = 0, clusterLabelID = 1, clusterMergeID = 2, clusterBoundaryOptID = 3, outlierID = 4;
 		int k = 0;
 		for (String dt : regnDateStr) {
-			midresult.setValue(k, dateID, Integer.parseInt(dt));// convert date
-																// string to
-																// int: 19980908
+			midresult.setValue(k, dateID, Integer.parseInt(dt));
 			k++;
 		}
 
-		// clustering
-		Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
-				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+		// clustering with k-means
+//		Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
+//				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+		
+		// clustering with EM
+		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, 20);
 
 		/*
 		 * mid result analysis: step 1: grab samples cluster label, use
 		 * [1:number of clusters]
 		 */
 		k = 0;// from 0 to number of clusters
-		final int clusterLabelID = 1;
 		for (Cluster rcluster : roughClusters) {
 			for (int idx : rcluster.getList()) {
 				midresult.setValue(idx, clusterLabelID, k);
@@ -256,26 +256,36 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			k++;// update cluster index
 		}
 
-		// merge step
+		// merge step - for EM, need update method
 		Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
-				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);// regnDateStr,
-																		// for
-																		// loop:
-																		// new
-																		// cluster
-
+				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+		
 		/*
 		 * mid result analysis: step 2: grab samples merge label, [1:number of
 		 * clusters]
 		 */
 		k = 0;// from 0 to number of clusters
-		final int clusterMergeID = 2;
 		for (Cluster ncluster : newClusters) {
 			for (int idx : ncluster.getList()) {
 				midresult.setValue(idx, clusterMergeID, k);
 			}
 			k++;// update cluster index
 		}
+		
+//		Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, roughClusters,
+//				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+		
+		/*
+		 * mid result analysis: step 2: grab samples merge label, [1:number of
+		 * clusters]
+		 */
+//		k = 0;// from 0 to number of clusters
+//		for (Cluster optcluster : optClusters) {
+//			for (int idx : optcluster.getList()) {
+//				midresult.setValue(idx, clusterBoundaryOptID, k);
+//			}
+//			k++;// update cluster index
+//		}
 
 		// identification
 		int clusterNum = newClusters.length;

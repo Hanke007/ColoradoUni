@@ -73,7 +73,7 @@ public class TemporalDurationBasedDiscoverer extends AbstractPatternDiscoverer {
                 event = one;
                 eventsWithinSameDuration.put(key, event);
             } 
-            event.getLocations().add("(" + one.getX() + ", " + one.getY() + "), ");
+            event.getLocations().add("(" + one.getX() + ", " + one.getY() + ")");
         }
 
         List<DiscoveredEvent> eventArr = new ArrayList<DiscoveredEvent>(

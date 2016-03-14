@@ -1,24 +1,18 @@
 package cdb.exp.qc.analysis;
 
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DateUtil;
-import cdb.common.lang.ExceptionUtil;
 import cdb.common.lang.LoggerUtil;
-import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.DiscoveredEvent;
-import cdb.dal.util.DBUtil;
 import cdb.ml.pd.AbstractPatternDiscoverer;
 import cdb.ml.pd.SpatialBasedDiscoverer;
 import cdb.ml.pd.TemporalDurationBasedDiscoverer;
 import cdb.ml.pd.TemporalOverlapBasedDiscoverer;
+
+import com.google.gson.Gson;
 
 /**
  * 
@@ -75,9 +69,19 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
             case "GROUP_BY_EVENT": {
                 pDiscoverer = new TemporalOverlapBasedDiscoverer(sql, rankNum);
                 List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
-
+                int k = 0;
                 for (DiscoveredEvent event : resultEventArr) {
-                    String duration = "During ["
+                	k++;
+                	event.setRank(k);
+                	//record events to json file for post analysis
+//                	Gson gson = new Gson();
+//                	String json = gson.toJson(event);
+//                	System.out.println(json);
+//                	System.out.println(",");
+                	
+                	//write to log
+                    String duration = "Rank[" + event.getRank() +"]: " 
+                    				  + "During ["
                                       + DateUtil.format(event.getDateBegin(), DateUtil.SHORT_FORMAT)
                                       + ", "
                                       + DateUtil.format(event.getDataEnd(), DateUtil.SHORT_FORMAT)
