@@ -233,17 +233,16 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		// remove unused feature columns to ensure positive definite cov-matrix
 		int[] feaId = {0,1,3,5,6,7,8,9};//non-zero features
 		for (int i = 0; i < len; i++){
-			double[] temp = {0,0,0,0,0,0,0,0};
+			Point tempP = new Point(8);
 			for (int j = 0; j < 8; j++) {
-				temp[j] = dataSample.getPoint(i).getValue(feaId[j]);
+				tempP.setValue(j, dataSample.getPoint(i).getValue(feaId[j]));
 			}
-			dataSample.getPoint(i).setData(temp);
+			dataSample.setPoint(i,tempP);
 		}
 		dataSample.setDimension(8);
 		
 		// set feature length
 		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, 20);
-
 		/*
 		 * mid result analysis: step 1: grab samples cluster label, use
 		 * [1:number of clusters]
