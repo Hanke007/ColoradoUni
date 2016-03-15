@@ -242,7 +242,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		dataSample.setDimension(8);
 		
 		// set feature length
-		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, 20);
+		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
 		/*
 		 * mid result analysis: step 1: grab samples cluster label, use
 		 * [1:number of clusters]

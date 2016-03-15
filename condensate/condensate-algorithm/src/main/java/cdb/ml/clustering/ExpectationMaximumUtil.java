@@ -71,11 +71,16 @@ public class ExpectationMaximumUtil {
 
         int round = 0;
         while (round < maxIteration) {
+        	// 
+        	System.out.println("Iteration: " + round);
+        	
             //E-step: 
             eStep(samples, assigmnt, K, sampleNum, varNum, models);
 
             //M-step:
             mStep(samples, assigmnt, K, sampleNum, varNum, models, resultSet);
+            
+            round++;
         }
         return resultSet;
     }
@@ -122,7 +127,7 @@ public class ExpectationMaximumUtil {
         for (int i = 0; i < sampleNum; i++) {
             int gIndx = assigmnt[i];
             numInGroups[gIndx]++;
-            mus[gIndx].plusW(samples[i]);
+            mus[gIndx].plusW(samples[i]);//add vector
         }
         for (int k = 0; k < K; k++) {
             mus[k].scale(1.0 / numInGroups[k]);
@@ -152,12 +157,17 @@ public class ExpectationMaximumUtil {
             int pivot = -1;
             double max = -1.0 * Double.MAX_VALUE;
             for (int k = 0; k < K; k++) {
+            	
+            	try{
                 double density = models[k].density(samples[i]);
-
                 if (density >= max) {
                     pivot = k;
                     max = density;
                 }
+                
+            	} catch(Exception e) {
+            		System.out.println(models[k].getSigmaMatrix().toString());
+            	}
             }
             sumLikilyHood += max;
             assigmnt[i] = pivot;
