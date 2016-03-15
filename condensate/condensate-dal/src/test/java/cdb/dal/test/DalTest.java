@@ -50,7 +50,7 @@ public class DalTest {
                 model.setY(bean.getY());
                 model.setDate(DateUtil.parse(bean.getDateStr(), DateUtil.SHORT_FORMAT));
                 model.setDesc(bean.getdPoint().toString());
-                model.setRid(1);
+                model.setRid(2);
                 records.add(model);
             }
 

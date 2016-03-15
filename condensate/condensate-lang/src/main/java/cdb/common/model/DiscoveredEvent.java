@@ -29,6 +29,8 @@ public class DiscoveredEvent {
     private Set<String> locations;
     /** the accumulated score*/
     private double score;
+    /** ranking **/
+    private int rank;
 
     /**
      * construction
@@ -173,6 +175,24 @@ public class DiscoveredEvent {
      */
     public void setScore(double score) {
         this.score += score;
+    }
+    
+    /**
+     * Getter method for property <tt>rank</tt>.
+     * 
+     * @return property value of rank
+     */
+    public double getRank() {
+        return this.rank;
+    }
+
+    /**
+     * Setter method for property <tt>rank</tt>.
+     * 
+     * @param incremental rank value to be added to property rank 
+     */
+    public void setRank(double rank) {
+        this.rank += rank;
     }
     
 }
