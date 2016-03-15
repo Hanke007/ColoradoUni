@@ -110,6 +110,15 @@ public class Samples implements Iterable<Point> {
 
         return newPoint;
     }
+    
+    /**
+     * Set a new dimension.
+     * 
+     * @param new dimension.
+     */
+    public void setDimension(int dataDimnsn) {
+        this.dataDimnsn = dataDimnsn;
+    }
 
     /*========================================
      * Properties

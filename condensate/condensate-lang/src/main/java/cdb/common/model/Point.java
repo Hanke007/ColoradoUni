@@ -65,6 +65,22 @@ public class Point implements Iterable<Double> {
 	 * ========================================
 	 */
 	/**
+	 * @return Return feature data array
+	 */
+	public double[] getData() {
+		return this.data;
+	}
+	
+	/**
+	 * @return 
+	 * @return Return feature data array
+	 */
+	public void setData(double[] data) {
+		this.data = data;
+		this.dataDimnsn = data.length;
+	}
+	
+	/**
 	 * Get the value given the specified position
 	 * 
 	 * @param i

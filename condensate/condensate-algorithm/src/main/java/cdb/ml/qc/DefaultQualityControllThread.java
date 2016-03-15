@@ -123,19 +123,10 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		List<RegionAnomalyInfoVO> resultArr = new ArrayList<RegionAnomalyInfoVO>();
 		try {
 			// load features for every sample (region observations)
-			Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);// read
-																		// each
-																		// file
-																		// for
-																		// each
-																		// region
+			Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
 			if (regnList.isEmpty()) {
 				return new ArrayList<RegionAnomalyInfoVO>();
-			} else if (regnList.size() < maxClusterNum * 50) {// !!!drop this
-																// region, to
-																// ensure the
-																// number for
-																// clustering
+			} else if (regnList.size() < maxClusterNum * 50) {
 				LoggerUtil.warn(logger,
 						"Lack of data : " + regnList.size() + "\t" + fileName.substring(fileName.lastIndexOf('/')));
 				return new ArrayList<RegionAnomalyInfoVO>();
@@ -154,10 +145,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			int cRIndx = pivot.getcIndx();
 			Samples dataSample = new Samples(regnList.size(), pDimen);
 			List<String> regnDateStr = new ArrayList<String>();
-			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, // z-score,
-																						// parse
-																						// from
-																						// regnList->dataSample
+			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, 
 					filterCategory);// regnDateStr, date attribute, one to one
 			if (needSaveData) {// normalized data save
 				persistFeatureStep(fileName, dataSample, regnDateStr);
@@ -242,6 +230,18 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 //				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 		
 		// clustering with EM
+		// remove unused feature columns to ensure positive definite cov-matrix
+		int[] feaId = {0,1,3,5,6,7,8,9};//non-zero features
+		for (int i = 0; i < len; i++){
+			double[] temp = {0,0,0,0,0,0,0,0};
+			for (int j = 0; j < 8; j++) {
+				temp[j] = dataSample.getPoint(i).getValue(feaId[j]);
+			}
+			dataSample.getPoint(i).setData(temp);
+		}
+		dataSample.setDimension(8);
+		
+		// set feature length
 		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, 20);
 
 		/*
