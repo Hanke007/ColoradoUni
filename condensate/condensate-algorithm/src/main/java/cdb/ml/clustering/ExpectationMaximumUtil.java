@@ -160,7 +160,7 @@ public class ExpectationMaximumUtil {
             	
             	try{
                 double density = models[k].density(samples[i]);
-                if (density >= max) {
+                if (density >= max) {//assign the sample to the cluster where it has maximum pdf
                     pivot = k;
                     max = density;
                 }

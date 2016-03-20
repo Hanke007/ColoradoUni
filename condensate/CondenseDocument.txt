@@ -52,4 +52,7 @@ File: DalTest
 #rID = 7, 2_2_v1, works resaonably when greenland is selected
 #rID = 1, 2_2, alpha = 2.0, kmeans, k = 20
 #rId = 2, 2_2, alpha = 1.0, kmeans, k = 20
+#rId = 3, 2_2, EM, 1 iteration, with alpha = 1 merge
+
+
 

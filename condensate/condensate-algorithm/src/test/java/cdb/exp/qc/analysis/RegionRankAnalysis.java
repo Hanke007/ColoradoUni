@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import cdb.common.lang.ConfigureUtil;
 import cdb.common.lang.DateUtil;
+import cdb.common.lang.FileUtil;
 import cdb.common.lang.LoggerUtil;
 import cdb.common.model.DiscoveredEvent;
 import cdb.ml.pd.AbstractPatternDiscoverer;
@@ -67,6 +68,7 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 break;
             }
             case "GROUP_BY_EVENT": {
+            	String midrfile = "C:/Dataset/SSMI/events/all_em_alpha1";
                 pDiscoverer = new TemporalOverlapBasedDiscoverer(sql, rankNum);
                 List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
                 int k = 0;
@@ -74,10 +76,10 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 	k++;
                 	event.setRank(k);
                 	//record events to json file for post analysis
-//                	Gson gson = new Gson();
-//                	String json = gson.toJson(event);
-//                	System.out.println(json);
-//                	System.out.println(",");
+                	Gson gson = new Gson();
+                	String json = gson.toJson(event);
+                	FileUtil.writeAsAppendWithDirCheck(midrfile,json);
+                	FileUtil.writeAsAppendWithDirCheck(midrfile,",");
                 	
                 	//write to log
                     String duration = "Rank[" + event.getRank() +"]: " 

@@ -243,12 +243,28 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		
 		// set feature length
 		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
+		List<Integer> validClusterId = new ArrayList<Integer>();
+		int m = 0, n = 0;
+		for (Cluster rcluster : roughClusters) {
+			if (rcluster.getList().size() > 0) {
+				validClusterId.add(m, n);
+				m++;
+			}
+			n++;//update cluster id
+		}
+		
+		int validLength = validClusterId.size();//how many valid clusters generated from EM
+		Cluster[] emClusters = new Cluster[validLength];
+        for (int i = 0; i < validLength; i++) {
+            emClusters[i] = roughClusters[validClusterId.get(i)];
+        }
+		
 		/*
 		 * mid result analysis: step 1: grab samples cluster label, use
 		 * [1:number of clusters]
 		 */
 		k = 0;// from 0 to number of clusters
-		for (Cluster rcluster : roughClusters) {
+		for (Cluster rcluster : emClusters) {
 			for (int idx : rcluster.getList()) {
 				midresult.setValue(idx, clusterLabelID, k);
 			}
@@ -256,8 +272,8 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		}
 
 		// merge step - for EM, need update method
-		Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
-				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+		Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, emClusters,
+				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, 5);//maxIter
 		
 		/*
 		 * mid result analysis: step 2: grab samples merge label, [1:number of
@@ -271,8 +287,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			k++;// update cluster index
 		}
 		
-//		Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, roughClusters,
-//				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+		//Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, newClusters);
 		
 		/*
 		 * mid result analysis: step 2: grab samples merge label, [1:number of
@@ -293,8 +308,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			sizeTable[i] = newClusters[i].getList().size();
 		}
 		LoggerUtil.info(logger,
-				fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters: " + Arrays.toString(sizeTable));// check
-																														// log
+				fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters: " + Arrays.toString(sizeTable));
 
 		// total number * 1%, 10%, total number: total observations
 		int curNum = 0;
