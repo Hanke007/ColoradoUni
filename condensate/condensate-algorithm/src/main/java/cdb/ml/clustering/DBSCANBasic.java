@@ -22,7 +22,9 @@ public class DBSCANBasic {
 		/* Noise */
 		NOISE,
 		/* In Cluster */
-		IN_CLUSTER
+		IN_CLUSTER,
+		/*VISITED*/
+		VISITED
 	}
 
 	/**
@@ -43,29 +45,29 @@ public class DBSCANBasic {
 	 *            type of distance
 	 * @return
 	 */
-	public static List<Cluster> cluster(final Samples points, final double eps, final int minPts,
+	public static Cluster[] cluster(final Samples points, final double eps, final int minPts,
 			final int type) {
 
 		final int pointCount = points.length()[0];
-
-		List<Cluster> resultSet = new ArrayList<Cluster>();
+		int j = 0;//number of clusters
+		Cluster[] resultSet = new Cluster[1];
 		PointStatus[] visited = new PointStatus[pointCount];// 1-visited 2-noise
 
 		for (int i = 0; i < pointCount; i++) {
 			if (visited[i] != null) {
 				continue;
 			}
-
+			visited[i] = PointStatus.VISITED;// make sure visited is updated
 			// query neighborhood
 			List<Integer> neighbors = new ArrayList<Integer>();// index of neighbors wrt points
 			neighbors = neighborQuery(points, i, eps, pointCount, type);
 
-			if (neighbors.size() >= minPts) {
-				final Cluster cluster = new Cluster();
-				resultSet.add(expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited));// expand
-																													// cluster
+			if (neighbors.size() < minPts) {
+				visited[i] = PointStatus.NOISE;																								// cluster
 			} else {// mark as noise
-				visited[i] = PointStatus.NOISE;
+				final Cluster cluster = new Cluster();
+				resultSet[j]= expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited);// expand
+				j++;	
 			}
 		}
 
@@ -90,15 +92,15 @@ public class DBSCANBasic {
 			Cluster cluster, final double eps, final int minPts, final int type, PointStatus[] visited) {
 		// add P to cluster C
 		cluster.add(pid);
-		visited[pid] = PointStatus.IN_CLUSTER;// make sure visited is updated
-												// globally
+
 		// for each point, expand neighbors
 		for (int i = 0; i < neighbors.size(); i++) {
 			Integer current = neighbors.get(i);
 			PointStatus pStatus = visited[current];// check neighbor point
 													// status
 			// only check non-visited points
-			if (pStatus == null) {
+			if (pStatus != PointStatus.VISITED) {
+				visited[current] = PointStatus.IN_CLUSTER;
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
 				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
 				if (currentNeighbors.size() >= minPts) {

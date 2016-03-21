@@ -40,15 +40,15 @@ public class testDBSCAN {
 		initSample(points, br, testSize, testDim, true,xlim, ylim);
 		
 		//clustering with basic DBSCAN
-		List<Cluster> clusters = DBSCANBasic.cluster(points, eps1, minPts, type);
+		Cluster[] clusters = DBSCANBasic.cluster(points, eps1, minPts, type);
 		
 		//clustering with Kut ST-DBSCAN
 		//List<Cluster> clusters = STDBSCANKut.cluster(points, eps1, eps2, minPts, delta, type);
 		
 		//print out results
-		for (int i = 0; i < clusters.size(); i++) {    
+		for (int i = 0; i < clusters.length; i++) {    
 			System.out.println("Cluster " + i + " :");
-			System.out.println(Arrays.toString(clusters.get(i).getList().toArray()));
+			System.out.println(Arrays.toString(clusters[i].getList().toArray()));
 		}
 		
 	}

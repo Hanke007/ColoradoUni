@@ -38,6 +38,7 @@ public class dbscanParameterTest extends AbstractDetecting {
 			// load features for every sample (region observations)
 			//String fileName = "C:/Dataset/SSMI/ClassificationDataset/n19v_2_2_ORG/159_81";
 			String fileName = "/Users/mira67/Documents/0_105";//101_125,0_105
+
 			Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
 			// making clustering samples
 			int pDimen = 12;
@@ -66,7 +67,8 @@ public class dbscanParameterTest extends AbstractDetecting {
 			stopWatch = new StopWatch();
             stopWatch.start();
             
-			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type);
+
+			Cluster[] clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type);
 
 			stopWatch.stop();
 			LoggerUtil.info(logger,
