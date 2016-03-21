@@ -20,9 +20,9 @@ public class testDBSCAN {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
-		final double eps1 = 10;
+		final double eps1 = 4;
 		final double eps2 = 10;
-		final int minPts = 20;
+		final int minPts = 6;
 		final double delta = eps2;
 		final int type = DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE;
 		final int testSize = 16*16;
