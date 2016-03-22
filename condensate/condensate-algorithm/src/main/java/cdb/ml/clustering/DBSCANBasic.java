@@ -45,12 +45,11 @@ public class DBSCANBasic {
 	 *            type of distance
 	 * @return
 	 */
-	public static Cluster[] cluster(final Samples points, final double eps, final int minPts,
+	public static List<Cluster> cluster(final Samples points, final double eps, final int minPts,
 			final int type) {
 
 		final int pointCount = points.length()[0];
-		int j = 0;//number of clusters
-		Cluster[] resultSet = new Cluster[1];
+		List<Cluster> resultSet = new ArrayList<Cluster>();
 		PointStatus[] visited = new PointStatus[pointCount];// 1-visited 2-noise
 
 		for (int i = 0; i < pointCount; i++) {
@@ -66,8 +65,7 @@ public class DBSCANBasic {
 				visited[i] = PointStatus.NOISE;																								// cluster
 			} else {// mark as noise
 				final Cluster cluster = new Cluster();
-				resultSet[j]= expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited);// expand
-				j++;	
+				resultSet.add(expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited));// expand	
 			}
 		}
 

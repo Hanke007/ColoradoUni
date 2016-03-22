@@ -243,7 +243,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		dataSample.setDimension(8);
 		
 		// set feature length, clustering with EM
-		Cluster[] newClusters = DBSCANBasic.cluster(dataSample, 17, 6,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 17, 6,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 		//Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
 //		List<Integer> validClusterId = new ArrayList<Integer>();
 //		int m = 0, n = 0;
@@ -304,10 +304,10 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 //		}
 
 		// identification
-		int clusterNum = newClusters.length;
+		int clusterNum = newClusters.size();
 		double[] sizeTable = new double[clusterNum];
 		for (int i = 0; i < clusterNum; i++) {
-			sizeTable[i] = newClusters[i].getList().size();
+			sizeTable[i] = newClusters.get(i).getList().size();
 		}
 		LoggerUtil.info(logger,
 				fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters: " + Arrays.toString(sizeTable));
@@ -315,10 +315,10 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		// total number * 1%, 10%, total number: total observations
 		int curNum = 0;
 		int totalNum = regnDateStr.size();
-		int newClusterNum = newClusters.length;
+		int newClusterNum = newClusters.size();
 		List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
 		for (int i = 0; i < newClusterNum; i++) {
-			Cluster cluster = newClusters[findMinimum(sizeTable)];
+			Cluster cluster = newClusters.get(findMinimum(sizeTable));
 
 			curNum += cluster.getList().size();
 			if (curNum > totalNum * potentialMaliciousRatio) {
