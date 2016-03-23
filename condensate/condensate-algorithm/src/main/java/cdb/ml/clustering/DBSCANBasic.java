@@ -56,7 +56,6 @@ public class DBSCANBasic {
 			if (visited[i] != null) {
 				continue;
 			}
-			visited[i] = PointStatus.VISITED;// make sure visited is updated
 			// query neighborhood
 			List<Integer> neighbors = new ArrayList<Integer>();// index of neighbors wrt points
 			neighbors = neighborQuery(points, i, eps, pointCount, type);
@@ -64,7 +63,7 @@ public class DBSCANBasic {
 			if (neighbors.size() < minPts) {
 				visited[i] = PointStatus.NOISE;																								// cluster
 			} else {// mark as noise
-				final Cluster cluster = new Cluster();
+				Cluster cluster = new Cluster();
 				resultSet.add(expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited));// expand	
 			}
 		}
@@ -90,15 +89,13 @@ public class DBSCANBasic {
 			Cluster cluster, final double eps, final int minPts, final int type, PointStatus[] visited) {
 		// add P to cluster C
 		cluster.add(pid);
-
+		visited[pid] = PointStatus.IN_CLUSTER;
 		// for each point, expand neighbors
 		for (int i = 0; i < neighbors.size(); i++) {
 			Integer current = neighbors.get(i);
-			PointStatus pStatus = visited[current];// check neighbor point
-													// status
+			PointStatus pStatus = visited[current];
 			// only check non-visited points
-			if (pStatus != PointStatus.VISITED) {
-				visited[current] = PointStatus.IN_CLUSTER;
+			if (pStatus == null) {
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
 				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
 				if (currentNeighbors.size() >= minPts) {
