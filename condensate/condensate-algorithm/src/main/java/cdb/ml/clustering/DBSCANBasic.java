@@ -99,7 +99,7 @@ public class DBSCANBasic {
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
 				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
 				if (currentNeighbors.size() >= minPts) {
-					neighbors = joinList(currentNeighbors,neighbors);//update neighbors
+					neighbors = joinList(neighbors,currentNeighbors);//update neighbors
 				}
 			}
 
@@ -108,7 +108,6 @@ public class DBSCANBasic {
 				cluster.add(current);
 			}
 		}
-
 		return cluster;
 	}
 
@@ -142,13 +141,13 @@ public class DBSCANBasic {
      * Join two lists
      */
     private static List<Integer> joinList(final List<Integer> one, final List<Integer> two) {
-    	int onesize = one.size();
-        for (int i = 0; i < onesize; i++) {
-            if (!two.contains(one.get(i))) {
-                two.add(one.get(i));
+    	int twosize = two.size();
+        for (int i = 0; i < twosize; i++) {
+            if (!one.contains(two.get(i))) {
+                one.add(two.get(i));
             }
         }
-        return two;
+        return one;
     }
 
 }// end of DBSCANBasic
