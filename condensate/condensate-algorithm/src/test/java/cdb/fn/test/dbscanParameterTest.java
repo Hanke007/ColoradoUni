@@ -53,26 +53,18 @@ public class dbscanParameterTest extends AbstractDetecting {
 			
 			LoggerUtil.info(logger, "DBSCAN Test: Working");
 			//reduce dimension
-//			final int len = dataSample.length()[0];            
-//			int[] feaId = {0,1};//,5,6,7,8,9};//non-zero features
-//			for (int i = 0; i < len; i++){
-//				Point tempP = new Point(2);
-//				for (int j = 0; j < 2; j++) {
-//					tempP.setValue(j, dataSample.getPoint(i).getValue(feaId[j]));
-//				}
-//				dataSample.setPoint(i,tempP);
-//			}
-//			dataSample.setDimension(2);
-
-			stopWatch = new StopWatch();
-            stopWatch.start();
-            
+			final int len = dataSample.length()[0];            
+			int[] feaId = {0,1,3,5,6,7,8,9};//non-zero features
+			for (int i = 0; i < len; i++){
+				Point tempP = new Point(8);
+				for (int j = 0; j < 8; j++) {
+					tempP.setValue(j, dataSample.getPoint(i).getValue(feaId[j]));
+				}
+				dataSample.setPoint(i,tempP);
+			}
+			dataSample.setDimension(8);
 
 			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type);
-
-			stopWatch.stop();
-			LoggerUtil.info(logger,
-	                "DBSCAN Test - OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0 + "s");
 			
 		} catch (ParseException e) {
 			ExceptionUtil.caught(e, "Date format parsing error.");

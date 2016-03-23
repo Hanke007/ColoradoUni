@@ -1,9 +1,14 @@
 package cdb.ml.clustering;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.springframework.util.StopWatch;
 
 import cdb.common.lang.DistanceUtil;
+import cdb.common.lang.LoggerUtil;
 import cdb.common.model.Cluster;
 import cdb.common.model.Point;
 import cdb.common.model.Samples;
@@ -90,6 +95,8 @@ public class DBSCANBasic {
 		// add P to cluster C
 		cluster.add(pid);
 		visited[pid] = PointStatus.IN_CLUSTER;
+
+		
 		// for each point, expand neighbors
 		for (int i = 0; i < neighbors.size(); i++) {
 			Integer current = neighbors.get(i);
@@ -97,9 +104,14 @@ public class DBSCANBasic {
 			// only check non-visited points
 			if (pStatus == null) {
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
+				
 				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
+				
 				if (currentNeighbors.size() >= minPts) {
-					neighbors = joinList(neighbors,currentNeighbors);//update neighbors
+					Set<Integer> newSet = new HashSet<Integer>(neighbors);
+					newSet.addAll(currentNeighbors);
+					neighbors = new ArrayList<Integer>(newSet);
+					//neighbors = joinList(neighbors,currentNeighbors);//update neighbors
 				}
 			}
 
