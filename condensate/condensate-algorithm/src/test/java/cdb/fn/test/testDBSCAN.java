@@ -40,7 +40,7 @@ public class testDBSCAN {
 		initSample(points, br, testSize, testDim, true,xlim, ylim);
 		
 		//clustering with basic DBSCAN
-		List<Cluster> clusters = DBSCANBasic.cluster(points, eps1, minPts, type);
+		List<Cluster> clusters = DBSCANBasic.cluster(points, eps1, minPts, type, 0.1);
 		
 		//clustering with Kut ST-DBSCAN
 		//List<Cluster> clusters = STDBSCANKut.cluster(points, eps1, eps2, minPts, delta, type);

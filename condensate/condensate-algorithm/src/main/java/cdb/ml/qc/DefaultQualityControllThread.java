@@ -243,7 +243,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		dataSample.setDimension(8);
 		
 		// set feature length, clustering with EM
-		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 17, 6,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
+		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 17, 6,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, 0.1);
 		//Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
 //		List<Integer> validClusterId = new ArrayList<Integer>();
 //		int m = 0, n = 0;

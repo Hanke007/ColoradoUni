@@ -2,6 +2,7 @@ package cdb.ml.clustering;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,12 +54,15 @@ public class DBSCANBasic {
 	 *            type of distance
 	 * @return
 	 */
-	public static List<Cluster> cluster(final Samples points, final double eps, final int minPts,
-			final int type) {
+	public static List<Cluster> cluster(final Samples points, double eps, final int minPts,
+			final int type, final double outlierPercent) {
 
 		final int pointCount = points.length()[0];
 		List<Cluster> resultSet = new ArrayList<Cluster>();
 		PointStatus[] visited = new PointStatus[pointCount];// 1-visited 2-noise
+		
+		//auto-select parameters
+		eps = parameterSelection(points, minPts, pointCount, type, outlierPercent);
 
 		for (int i = 0; i < pointCount; i++) {
 			if (visited[i] != null) {
@@ -94,7 +98,7 @@ public class DBSCANBasic {
 	 * 
 	 */
 	protected static Cluster expandCluster(final int pid, Samples points, final int pointCount, List<Integer> neighbors,
-			Cluster cluster, final double eps, final int minPts, final int type, PointStatus[] visited) {
+			Cluster cluster, double eps, final int minPts, final int type, PointStatus[] visited) {
 		// add P to cluster C
 		cluster.add(pid);
 		visited[pid] = PointStatus.IN_CLUSTER;
@@ -153,16 +157,45 @@ public class DBSCANBasic {
 	}
 	
 	/**
-     * Join two lists
+     * Parameter Selection
+     * k = 4, minPts?
+     * How to select parameters for high dimension dataset?
      */
-    private static List<Integer> joinList(final List<Integer> one, final List<Integer> two) {
-    	int twosize = two.size();
-        for (int i = 0; i < twosize; i++) {
-            if (!one.contains(two.get(i))) {
-                one.add(two.get(i));
-            }
-        }
-        return one;
-    }
+	protected static double parameterSelection(Samples points, final double minPts, final int pointCount, final int type, final double outlierPercent) {
+		
+		List<Double> distSorted = new ArrayList<Double>();
+		
+		double eps = 0;
+		for (int i = 0; i < pointCount; i++) {
+			Point current = points.getPointRef(i);
+			List<Double> distances = new ArrayList<Double>();
+			
+			
+			
+			for (int j = 0; j < pointCount; j++) {
+				Point neighbor = points.getPointRef(j);//get actual point features vector
+				// Neighbor-P Distance
+				double distance = DistanceUtil.distance(current, neighbor, type);
+				distances.add(distance);
+			}
+			
+			StopWatch stopWatch = null;
+			stopWatch = new StopWatch();
+	        stopWatch.start();
+			
+			//get the distance at minPts
+			Collections.sort(distances);
+			distSorted.add(distances.get((int) (minPts)));
+			
+			stopWatch.stop();
+			System.out.println("DIST TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
+		}
+		
+		//get eps: sort and cut at percentage of outliers
+		Collections.sort(distSorted, Collections.reverseOrder());
+		eps = distSorted.get((int) Math.round(pointCount*outlierPercent));
+		
+		return eps;
+	}
 
 }// end of DBSCANBasic

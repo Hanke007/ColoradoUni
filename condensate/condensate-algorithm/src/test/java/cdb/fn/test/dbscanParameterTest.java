@@ -47,11 +47,14 @@ public class dbscanParameterTest extends AbstractDetecting {
 			
 			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");
 
-			final double eps = 17;
-			final int minPts = 6;
+			double eps = 0;
+			final int minPts = 5;
 			StopWatch stopWatch = null;
 			
 			LoggerUtil.info(logger, "DBSCAN Test: Working");
+			stopWatch = new StopWatch();
+            stopWatch.start();
+			
 			//reduce dimension
 			final int len = dataSample.length()[0];            
 			int[] feaId = {0,1,3,5,6,7,8,9};//non-zero features
@@ -64,7 +67,11 @@ public class dbscanParameterTest extends AbstractDetecting {
 			}
 			dataSample.setDimension(8);
 
-			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type);
+			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type, 0.1);
+			
+			stopWatch.stop();
+			
+			System.out.println("eps: " + eps + " OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
 			
 		} catch (ParseException e) {
 			ExceptionUtil.caught(e, "Date format parsing error.");
