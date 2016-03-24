@@ -69,9 +69,9 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
             stopWatch.start();
             ExecutorService exec = Executors.newCachedThreadPool();
             exec.execute(new DefaultQualityControllThread(configFileName));
-           // exec.execute(new DefaultQualityControllThread(configFileName));
-          //  exec.execute(new DefaultQualityControllThread(configFileName));
-          //  exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
+            exec.execute(new DefaultQualityControllThread(configFileName));
             exec.shutdown();
             exec.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
             stopWatch.stop();

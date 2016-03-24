@@ -170,8 +170,6 @@ public class DBSCANBasic {
 			Point current = points.getPointRef(i);
 			List<Double> distances = new ArrayList<Double>();
 			
-			
-			
 			for (int j = 0; j < pointCount; j++) {
 				Point neighbor = points.getPointRef(j);//get actual point features vector
 				// Neighbor-P Distance
@@ -179,16 +177,9 @@ public class DBSCANBasic {
 				distances.add(distance);
 			}
 			
-			StopWatch stopWatch = null;
-			stopWatch = new StopWatch();
-	        stopWatch.start();
-			
 			//get the distance at minPts
 			Collections.sort(distances);
 			distSorted.add(distances.get((int) (minPts)));
-			
-			stopWatch.stop();
-			System.out.println("DIST TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
 		}
 		
 		//get eps: sort and cut at percentage of outliers

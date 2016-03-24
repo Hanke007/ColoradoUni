@@ -46,7 +46,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		synchronized (ANOMALY_MUTEX) {
 			raInfoBuffer.addAll(raArr);
 
-			if (raInfoBuffer.size() >= 10) {//1000*1000
+			if (raInfoBuffer.size() >= 1000) {//1000*1000
 				StringBuilder strBuffer = new StringBuilder();
 				for (RegionAnomalyInfoVO one : raInfoBuffer) {
 					strBuffer.append(one.toString()).append('\n');
@@ -243,7 +243,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		dataSample.setDimension(8);
 		
 		// set feature length, clustering with EM
-		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 17, 6,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, 0.1);
+		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 1, 5,DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, 0.1);
 		//Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
 //		List<Integer> validClusterId = new ArrayList<Integer>();
 //		int m = 0, n = 0;
@@ -341,8 +341,6 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 				 * 1-outlier, 0-normal
 				 */
 				midresult.setValue(dIndx, outlierID, 1);
-				LoggerUtil.debug(logger,"Outlier: "+rRIndx+','+cRIndx+':'+dIndx);// check
-				
 			}
 		}
 
