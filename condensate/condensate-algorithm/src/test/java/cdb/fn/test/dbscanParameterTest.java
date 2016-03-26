@@ -36,8 +36,8 @@ public class dbscanParameterTest extends AbstractDetecting {
 		
 		try {
 			// load features for every sample (region observations)
-			//String fileName = "C:/Dataset/SSMI/ClassificationDataset/n19v_2_2_ORG/159_81";
-			String fileName = "/Users/mira67/Documents/101_125";//101_125,0_105
+			String fileName = "C:/Dataset/SSMI/ClassificationDataset/n19v_2_2_ORG/159_81";
+			//String fileName = "/Users/mira67/Documents/101_125";//101_125,0_105
 
 			Queue<RegionInfoVO> regnList = readRegionInfoStep(fileName);
 			// making clustering samples
@@ -48,7 +48,7 @@ public class dbscanParameterTest extends AbstractDetecting {
 			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");
 
 			double eps = 0;
-			final int minPts = 5;
+			final int minPts = 6;
 			StopWatch stopWatch = null;
 			
 			LoggerUtil.info(logger, "DBSCAN Test: Working");
@@ -70,6 +70,10 @@ public class dbscanParameterTest extends AbstractDetecting {
 			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type, 0.1);
 			
 			stopWatch.stop();
+			
+			for (int i=0; i<clusters.get(1).getList().size(); i++){
+				System.out.println(clusters.get(1).getList().get(i)); 
+			}
 			
 			System.out.println("eps: " + eps + " OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
 			

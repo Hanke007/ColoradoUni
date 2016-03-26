@@ -20,7 +20,7 @@ public class testDBSCAN {
 
 	public static void main(String[] args) throws FileNotFoundException {
 		// TODO Auto-generated method stub
-		final double eps1 = 4;
+		final double eps1 = 6;
 		final double eps2 = 10;
 		final int minPts = 6;
 		final double delta = eps2;

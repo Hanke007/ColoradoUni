@@ -46,7 +46,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		synchronized (ANOMALY_MUTEX) {
 			raInfoBuffer.addAll(raArr);
 
-			if (raInfoBuffer.size() >= 1000) {//1000*1000
+			if (raInfoBuffer.size() >= 10) {//1000*1000
 				StringBuilder strBuffer = new StringBuilder();
 				for (RegionAnomalyInfoVO one : raInfoBuffer) {
 					strBuffer.append(one.toString()).append('\n');
