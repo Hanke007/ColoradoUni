@@ -48,7 +48,7 @@ public class dbscanParameterTest extends AbstractDetecting {
 			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, "MONTHLY");
 
 			double eps = 0;
-			final int minPts = 6;
+			final int minPts = 4;
 			StopWatch stopWatch = null;
 			
 			LoggerUtil.info(logger, "DBSCAN Test: Working");
@@ -70,10 +70,6 @@ public class dbscanParameterTest extends AbstractDetecting {
 			List<Cluster> clusters = DBSCANBasic.cluster(dataSample, eps, minPts, type, 0.1);
 			
 			stopWatch.stop();
-			
-			for (int i=0; i<clusters.get(1).getList().size(); i++){
-				System.out.println(clusters.get(1).getList().get(i)); 
-			}
 			
 			System.out.println("eps: " + eps + " OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
 			

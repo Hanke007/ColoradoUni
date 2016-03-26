@@ -16,6 +16,7 @@ import cdb.common.lang.LoggerUtil;
 import cdb.common.model.Cluster;
 import cdb.common.model.Point;
 import cdb.common.model.Samples;
+import cdb.exp.qc.AbstractDetecting;
 
 /**
  * class for basic DBSCAN algorithm.
@@ -25,7 +26,7 @@ import cdb.common.model.Samples;
  * @version Feb.15 2016
  */
 
-public class DBSCANBasic {
+public class DBSCANBasic extends AbstractDetecting {
 
 	private enum PointStatus {
 		/* Noise */
@@ -63,9 +64,9 @@ public class DBSCANBasic {
 		PointStatus[] ptcluster = new PointStatus[pointCount];
 		
 		//auto-select parameters
-		eps = 6;//parameterSelection(points, minPts, pointCount, type, outlierPercent);
+		eps = parameterSelection(points, minPts, pointCount, type, outlierPercent);
 		
-		System.out.println("actual eps: " + eps);
+		LoggerUtil.info(logger,"eps: " + eps);
 
 		for (int i = 0; i < pointCount; i++) {
 			if (visited[i] != null) {
@@ -85,11 +86,14 @@ public class DBSCANBasic {
 		}
 		
 		//get out of all noise as a cluster
+		Cluster noiseCluster = new Cluster();
 		for (int i = 0; i < pointCount; i++) {
 			if (ptcluster[i] == PointStatus.NOISE) {
+				noiseCluster.add(i);
 				System.out.println(i);
 			}
 		}
+		resultSet.add(noiseCluster);
 
 		return resultSet;
 	}

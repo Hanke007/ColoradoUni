@@ -146,7 +146,7 @@ public final class QualityControllHelper {
 				rFeatures.add(QualityControllHelper.make12Features(regnInfoVO));//
 				regnDateStr.add(regnInfoVO.getDateStr());
 			}
-			//normalization(rFeatures);
+			normalization(rFeatures);
 
 			// fill in Samples
 			for (Point feature : rFeatures) {
