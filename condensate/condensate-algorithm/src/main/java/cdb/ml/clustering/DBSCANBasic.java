@@ -59,24 +59,35 @@ public class DBSCANBasic {
 
 		final int pointCount = points.length()[0];
 		List<Cluster> resultSet = new ArrayList<Cluster>();
-		PointStatus[] visited = new PointStatus[pointCount];// 1-visited 2-noise
+		PointStatus[] visited = new PointStatus[pointCount];
+		PointStatus[] ptcluster = new PointStatus[pointCount];
 		
 		//auto-select parameters
-		eps = parameterSelection(points, minPts, pointCount, type, outlierPercent);
+		eps = 6;//parameterSelection(points, minPts, pointCount, type, outlierPercent);
+		
+		System.out.println("actual eps: " + eps);
 
 		for (int i = 0; i < pointCount; i++) {
 			if (visited[i] != null) {
 				continue;
 			}
+			visited[i] = PointStatus.VISITED;
 			// query neighborhood
 			List<Integer> neighbors = new ArrayList<Integer>();// index of neighbors wrt points
 			neighbors = neighborQuery(points, i, eps, pointCount, type);
 
 			if (neighbors.size() < minPts) {
-				visited[i] = PointStatus.NOISE;																								// cluster
+				ptcluster[i] = PointStatus.NOISE;
 			} else {// mark as noise
 				Cluster cluster = new Cluster();
-				resultSet.add(expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited));// expand	
+				resultSet.add(expandCluster(i, points, pointCount, neighbors, cluster, eps, minPts, type, visited, ptcluster));// expand	
+			}
+		}
+		
+		//get out of all noise as a cluster
+		for (int i = 0; i < pointCount; i++) {
+			if (ptcluster[i] == PointStatus.NOISE) {
+				System.out.println(i);
 			}
 		}
 
@@ -98,32 +109,31 @@ public class DBSCANBasic {
 	 * 
 	 */
 	protected static Cluster expandCluster(final int pid, Samples points, final int pointCount, List<Integer> neighbors,
-			Cluster cluster, double eps, final int minPts, final int type, PointStatus[] visited) {
+			Cluster cluster, double eps, final int minPts, final int type, PointStatus[] visited, PointStatus[] ptcluster) {
 		// add P to cluster C
 		cluster.add(pid);
-		visited[pid] = PointStatus.IN_CLUSTER;
+		ptcluster[pid] = PointStatus.IN_CLUSTER;
 
 		//Collections.sort(neighbors);
 		// for each point, expand neighbors
 		for (int i = 0; i < neighbors.size(); i++) {
 			Integer current = neighbors.get(i);
-			PointStatus pStatus = visited[current];
+			PointStatus pVisited = visited[current];
 			// only check non-visited points
-			if (pStatus == null) {
+			if (pVisited != PointStatus.VISITED) {
+				visited[current] = PointStatus.VISITED;
 				List<Integer> currentNeighbors = new ArrayList<Integer>();
-				
 				currentNeighbors = neighborQuery(points, current, eps, pointCount, type);
 				
 				if (currentNeighbors.size() >= minPts) {
 					Set<Integer> newSet = new LinkedHashSet<Integer>(neighbors);
 					newSet.addAll(currentNeighbors);
 					neighbors = new ArrayList<Integer>(newSet);
-					//neighbors = joinList(neighbors,currentNeighbors);//update neighbors
 				}
 			}
 
-			if (pStatus != PointStatus.IN_CLUSTER) {
-				visited[current] = PointStatus.IN_CLUSTER;
+			if (ptcluster[current] != PointStatus.IN_CLUSTER) {
+				ptcluster[current] = PointStatus.IN_CLUSTER;
 				cluster.add(current);
 			}
 		}
