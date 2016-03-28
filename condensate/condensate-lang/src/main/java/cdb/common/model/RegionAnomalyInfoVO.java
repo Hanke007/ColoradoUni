@@ -21,7 +21,9 @@ public class RegionAnomalyInfoVO {
     private String dateStr;
     /** the data computed*/
     private Point  dPoint;
-
+    
+    private static RegionAnomalyInfoVO regnAnamlVO = new RegionAnomalyInfoVO();
+    private static String[] elems;
     /**
      * Getter method for property <tt>dateStr</tt>.
      * 
@@ -148,9 +150,7 @@ public class RegionAnomalyInfoVO {
         if (StringUtil.isBlank(line)) {
             return null;
         }
-
-        String[] elems = line.split("\\,");
-        RegionAnomalyInfoVO regnAnamlVO = new RegionAnomalyInfoVO();
+        elems = line.split("\\,");
         regnAnamlVO.setX(Integer.valueOf(elems[0].trim()));
         regnAnamlVO.setY(Integer.valueOf(elems[1].trim()));
         regnAnamlVO.setWidth(Integer.valueOf(elems[2].trim()));

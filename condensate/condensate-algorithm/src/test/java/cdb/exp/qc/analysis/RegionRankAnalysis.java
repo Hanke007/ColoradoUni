@@ -68,7 +68,7 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 break;
             }
             case "GROUP_BY_EVENT": {
-            	String midrfile = "C:/Dataset/SSMI/events/gl_dbscan_autoeps_k5";
+            	String midrfile = "C:/Dataset/SSMI/events/gl_dbscan_autoeps_k5_noise";
                 pDiscoverer = new TemporalOverlapBasedDiscoverer(sql, rankNum);
                 List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
                 int k = 0;

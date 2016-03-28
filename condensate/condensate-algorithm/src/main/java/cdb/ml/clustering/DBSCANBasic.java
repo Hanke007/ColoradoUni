@@ -90,7 +90,6 @@ public class DBSCANBasic extends AbstractDetecting {
 		for (int i = 0; i < pointCount; i++) {
 			if (ptcluster[i] == PointStatus.NOISE) {
 				noiseCluster.add(i);
-				System.out.println(i);
 			}
 		}
 		resultSet.add(noiseCluster);

@@ -27,108 +27,124 @@ import cdb.dal.model.MaskDescBean;
  */
 public class DalTest {
 
-    /**
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        loadAnomalyResult();
-        //        loadMaskResult();
-    }
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		loadAnomalyResult();
+		// loadMaskResult();
+	}
 
-    public static void loadAnomalyResult() {
-        ClassPathXmlApplicationContext ctx = null;
-        try {
-            List<AnomalyInfoBean> records = new ArrayList<AnomalyInfoBean>();
-            String[] lines = FileUtil
-                .readLines("C:/Dataset/SSMI/Anomaly/REG_n19v_2_2");
-            for (String line : lines) {
-                RegionAnomalyInfoVO bean = RegionAnomalyInfoVO.parseOf(line);
+	public static void loadAnomalyResult() {
+		ClassPathXmlApplicationContext ctx = null;
+		try {
+			String[] lines = FileUtil.readLines("C:/Dataset/SSMI/Anomaly/REG_n19v_2_2");
 
-                AnomalyInfoBean model = new AnomalyInfoBean();
-                model.setX(bean.getX());
-                model.setY(bean.getY());
-                model.setDate(DateUtil.parse(bean.getDateStr(), DateUtil.SHORT_FORMAT));
-                model.setDesc(bean.getdPoint().toString());
-                model.setRid(4);
-                records.add(model);
-            }
+			int fileLen = lines.length;
+			int numSplits = 100;
+			int linesPerSplit = fileLen / numSplits;
+			int remainingLines = fileLen % numSplits;
+			int k = 0;
+			
+			List<AnomalyInfoBean> records = new ArrayList<AnomalyInfoBean>();
+			RegionAnomalyInfoVO bean;
 
-            ctx = new ClassPathXmlApplicationContext("springContext.xml");
-            AnomalyInfoDAOImpl dao = (AnomalyInfoDAOImpl) ctx.getBean("anomalyinfoDAOImpl");
+			for (int i = 0; i < linesPerSplit; i++) {
+				AnomalyInfoBean model = new AnomalyInfoBean();
+				records.add(model);
+			}
 
-            int sNum = records.size();
-            for (int sBegin = 0; sBegin < sNum; sBegin += 10000) {
-                int sIndx = sBegin;
-                int eIndx = (sIndx + 10000);
-                eIndx = (eIndx > sNum) ? sNum : eIndx;
-                dao.insertSelectiveArr(records.subList(sIndx, eIndx));
-            }
+			for (int nsplit = 1; nsplit <= numSplits; nsplit++) {
+				k = 0;
+				for (int i = linesPerSplit*(nsplit-1); i < linesPerSplit*nsplit; i++) {
+					bean = RegionAnomalyInfoVO.parseOf(lines[i]);
+					records.get(k).setX(bean.getX());
+					records.get(k).setY(bean.getY());
+					records.get(k).setDate(DateUtil.parse(bean.getDateStr(), DateUtil.SHORT_FORMAT));
+					records.get(k).setDesc(bean.getdPoint().toString());
+					records.get(k).setRid(5);
+					k++;//update index of records
+				}
 
-        } catch (Exception e) {
-            ExceptionUtil.caught(e, "It goes wrong.");
-        } finally {
-            if (ctx != null) {
-                ctx.close();
-            }
-        }
-    }
+				ctx = new ClassPathXmlApplicationContext("springContext.xml");
+				AnomalyInfoDAOImpl dao = (AnomalyInfoDAOImpl) ctx.getBean("anomalyinfoDAOImpl");
 
-    public static void loadMaskResult(int mId) {
-        final String SELECT_ALL = "SELECT ROW, COL, LON, LAT FROM LOCATIONS";
-        List<Point> locs = new ArrayList<Point>();
-        try {
-            // achieve data
-            JdbcConnectionPool connPoolH2 = JdbcConnectionPool.create(
-                "jdbc:h2:tcp://localhost/~/ssmi37v19902014a2N;SCHEMA=ssmi37v19902014a2N;AUTO_SERVER=true;MULTI_THREADED=1",
-                "", "");
-            Connection conn = connPoolH2.getConnection();
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(SELECT_ALL);
+				int sNum = records.size();
+				int sIndx = 0;
+				int eIndx = 0;
+				for (int sBegin = 0; sBegin < sNum; sBegin += 10000) {
+					sIndx = sBegin;
+					eIndx = (sIndx + 10000);
+					eIndx = (eIndx > sNum) ? sNum : eIndx;
+					dao.insertSelectiveArr(records.subList(sIndx, eIndx));
+				}
+				System.out.print(nsplit);
+			} // splits
 
-            while (rs.next()) {
-                //ID, LON, LAT
-                Point point = new Point(rs.getInt(1), rs.getInt(2), rs.getDouble(3),
-                    rs.getDouble(4));
-                locs.add(point);
-            }
-            conn.close();
-            connPoolH2.dispose();
+		} catch (Exception e) {
+			ExceptionUtil.caught(e, "It goes wrong.");
+		} finally {
+			if (ctx != null) {
+				ctx.close();
+			}
+		}
+	}
 
-            // write data
+	public static void loadMaskResult(int mId) {
+		final String SELECT_ALL = "SELECT ROW, COL, LON, LAT FROM LOCATIONS";
+		List<Point> locs = new ArrayList<Point>();
+		try {
+			// achieve data
+			JdbcConnectionPool connPoolH2 = JdbcConnectionPool.create(
+					"jdbc:h2:tcp://localhost/~/ssmi37v19902014a2N;SCHEMA=ssmi37v19902014a2N;AUTO_SERVER=true;MULTI_THREADED=1",
+					"", "");
+			Connection conn = connPoolH2.getConnection();
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery(SELECT_ALL);
 
-        } catch (SQLException e) {
-            ExceptionUtil.caught(e, "");
-        }
+			while (rs.next()) {
+				// ID, LON, LAT
+				Point point = new Point(rs.getInt(1), rs.getInt(2), rs.getDouble(3), rs.getDouble(4));
+				locs.add(point);
+			}
+			conn.close();
+			connPoolH2.dispose();
 
-        ClassPathXmlApplicationContext ctx = null;
-        try {
-            List<MaskDescBean> records = new ArrayList<MaskDescBean>();
+			// write data
 
-            for (Point point : locs) {
-                MaskDescBean model = new MaskDescBean();
-                model.setX(Double.valueOf(point.getValue(0)).intValue());
-                model.setY(Double.valueOf(point.getValue(1)).intValue());
-                model.setLon(point.getValue(2));
-                model.setLat(point.getValue(3));
-                model.setCategory(mId);
+		} catch (SQLException e) {
+			ExceptionUtil.caught(e, "");
+		}
 
-                records.add(model);
-            }
+		ClassPathXmlApplicationContext ctx = null;
+		try {
+			List<MaskDescBean> records = new ArrayList<MaskDescBean>();
 
-            ctx = new ClassPathXmlApplicationContext("springContext.xml");
-            MaskDescDAO dao = (MaskDescDAO) ctx.getBean("maskDescDAOImpl");
-            dao.insertSelectiveArr(records.subList(0, records.size() / 2));
-            dao.insertSelectiveArr(records.subList(records.size() / 2, records.size()));
+			for (Point point : locs) {
+				MaskDescBean model = new MaskDescBean();
+				model.setX(Double.valueOf(point.getValue(0)).intValue());
+				model.setY(Double.valueOf(point.getValue(1)).intValue());
+				model.setLon(point.getValue(2));
+				model.setLat(point.getValue(3));
+				model.setCategory(mId);
 
-        } catch (Exception e) {
-            ExceptionUtil.caught(e, "It goes wrong.");
-        } finally {
-            if (ctx != null) {
-                ctx.close();
-            }
-        }
+				records.add(model);
+			}
 
-    }
+			ctx = new ClassPathXmlApplicationContext("springContext.xml");
+			MaskDescDAO dao = (MaskDescDAO) ctx.getBean("maskDescDAOImpl");
+			dao.insertSelectiveArr(records.subList(0, records.size() / 2));
+			dao.insertSelectiveArr(records.subList(records.size() / 2, records.size()));
+
+		} catch (Exception e) {
+			ExceptionUtil.caught(e, "It goes wrong.");
+		} finally {
+			if (ctx != null) {
+				ctx.close();
+			}
+		}
+
+	}
 
 }
