@@ -68,7 +68,7 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 break;
             }
             case "GROUP_BY_EVENT": {
-            	String midrfile = "C:/Dataset/SSMI/events/gl_dbscan_autoeps_k5_noise";
+            	String midrfile = "C:/Dataset/SSMI/events/gl_3m_join";
                 pDiscoverer = new TemporalOverlapBasedDiscoverer(sql, rankNum);
                 List<DiscoveredEvent> resultEventArr = pDiscoverer.discoverPattern();
                 int k = 0;
@@ -82,17 +82,17 @@ public class RegionRankAnalysis extends AbstractQcAnalysis {
                 	FileUtil.writeAsAppendWithDirCheck(midrfile,",");
                 	
                 	//write to log
-                    String duration = "Rank[" + event.getRank() +"]: " 
-                    				  + "During ["
-                                      + DateUtil.format(event.getDateBegin(), DateUtil.SHORT_FORMAT)
-                                      + ", "
-                                      + DateUtil.format(event.getDataEnd(), DateUtil.SHORT_FORMAT)
-                                      + "]: ";
-                    StringBuilder ranCon = new StringBuilder(duration);
-                    for (String locKey : event.getLocations()) {
-                        ranCon.append(locKey);
-                    }
-                    LoggerUtil.info(logger, ranCon.toString());
+//                    String duration = "Rank[" + event.getRank() +"]: " 
+//                    				  + "During ["
+//                                      + DateUtil.format(event.getDateBegin(), DateUtil.SHORT_FORMAT)
+//                                      + ", "
+//                                      + DateUtil.format(event.getDataEnd(), DateUtil.SHORT_FORMAT)
+//                                      + "]: ";
+//                    StringBuilder ranCon = new StringBuilder(duration);
+//                    for (String locKey : event.getLocations()) {
+//                        ranCon.append(locKey);
+//                    }
+//                    LoggerUtil.info(logger, ranCon.toString());
                 }
             }
             default:
