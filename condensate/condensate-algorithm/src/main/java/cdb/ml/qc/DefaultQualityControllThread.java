@@ -25,8 +25,6 @@ import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
 import cdb.common.model.Samples;
-import cdb.ml.clustering.DBSCANBasic;
-import cdb.ml.clustering.ExpectationMaximumUtil;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 
 /**
@@ -46,7 +44,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		synchronized (ANOMALY_MUTEX) {
 			raInfoBuffer.addAll(raArr);
 
-			if (raInfoBuffer.size() >= 10) {// 1000*1000
+			if (raInfoBuffer.size() >= 100) {//1000*1000
 				StringBuilder strBuffer = new StringBuilder();
 				for (RegionAnomalyInfoVO one : raInfoBuffer) {
 					strBuffer.append(one.toString()).append('\n');
@@ -146,12 +144,8 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			int cRIndx = pivot.getcIndx();
 			Samples dataSample = new Samples(regnList.size(), pDimen);
 			List<String> regnDateStr = new ArrayList<String>();
-			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, filterCategory);// regnDateStr,
-																										// date
-																										// attribute,
-																										// one
-																										// to
-																										// one
+			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr,
+					filterCategory);// regnDateStr, date attribute, one to one
 			if (needSaveData) {// normalized data save
 				persistFeatureStep(fileName, dataSample, regnDateStr);
 			}
@@ -214,189 +208,118 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
 		// for mid results analysis
 		final int len = dataSample.length()[0];// number of samples
-//		final int resDim = 1 + 1 + 1 + 1 + 1; // +
-												// dataSample.length()[1];//date(0)
-												// + cluster label(1) + merge
-												// label(2) + after boundary
-												// optimization (3)+ outlier
-												// label(4)
-//		Samples midresult = new Samples(len, resDim);
-//		final String midresultDir = "C:/Dataset/SSMI/midresults/";
-//		/*
-//		 * mid result analysis: step 0: initialize with sample value of dim and
-//		 * grab datestr
-//		 */
-//		final int dateID = 0, clusterLabelID = 1, clusterMergeID = 2, clusterBoundaryOptID = 3, outlierID = 4;
-//		int k = 0;
-//		for (String dt : regnDateStr) {
-//			midresult.setValue(k, dateID, Integer.parseInt(dt));
-//			k++;
-//		}
-
-		// clustering with k-means
-		// Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample,
-		// maxClusterNum, 20,
-		// DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
-
-		// clustering with EM
-		// remove unused feature columns to ensure positive definite cov-matrix
-		int[] feaId = { 0, 1, 3, 5, 6, 7, 8, 9 };// non-zero features
-		for (int i = 0; i < len; i++) {
-			Point tempP = new Point(8);
-			for (int j = 0; j < 8; j++) {
-				tempP.setValue(j, dataSample.getPoint(i).getValue(feaId[j]));
-			}
-			dataSample.setPoint(i, tempP);
-		}
-		dataSample.setDimension(8);
-
-		// set feature length, clustering with EM
-		List<Cluster> newClusters = DBSCANBasic.cluster(dataSample, 1, 4, DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, 0.1);
-
-		// record noise to anomaly file
-		// result presentation - write to files
-		int totalNum = regnDateStr.size();
-		int newClusterNum = newClusters.size();
-		List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
-		for (int dIndx : newClusters.get(newClusterNum-1).getList()) {
-			RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
-			raVO.setDateStr(regnDateStr.get(dIndx));
-			raVO.setHeight(regionHeight);
-			raVO.setWidth(regionWeight);
-			raVO.setX(rRIndx * regionHeight);
-			raVO.setY(cRIndx * regionWeight);
-			raVO.setdPoint(dataSample.getPointRef(dIndx));
-			raArr.add(raVO);
-
-			/*
-			 * mid result analysis: step 3: grab samples outlier label:
-			 * 1-outlier, 0-normal
-			 */
-			// midresult.setValue(dIndx, outlierID, 1);
+		final int resDim = 1 + 1 + 1 + 1; // + dataSample.length()[1];//date(0)
+											// + cluster label(1) + merge
+											// label(2) + outlier label(3) +
+											// sample dimension
+		Samples midresult = new Samples(len, resDim);
+		final String midresultDir = "C:/Dataset/SSMI/midresults/";
+		/*
+		 * mid result analysis: step 0: initialize with sample value of dim and
+		 * grab datestr
+		 */
+		final int dateID = 0, outlierID = 3;
+		int k = 0;
+		for (String dt : regnDateStr) {
+			midresult.setValue(k, dateID, Integer.parseInt(dt));// convert date
+																// string to
+																// int: 19980908
+			k++;
 		}
 
-		// Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample,
-		// maxClusterNum, maxIter);
-		// List<Integer> validClusterId = new ArrayList<Integer>();
-		// int m = 0, n = 0;
-		// for (Cluster rcluster : roughClusters) {
-		// if (rcluster.getList().size() > 0) {
-		// validClusterId.add(m, n);
-		// m++;
-		// }
-		// n++;//update cluster id
-		// }
-		//
-		// int validLength = validClusterId.size();//how many valid clusters
-		// generated from EM
-		// Cluster[] emClusters = new Cluster[validLength];
-		// for (int i = 0; i < validLength; i++) {
-		// emClusters[i] = roughClusters[validClusterId.get(i)];
-		// }
+		// clustering
+		Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
+				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 
 		/*
 		 * mid result analysis: step 1: grab samples cluster label, use
 		 * [1:number of clusters]
 		 */
-		// k = 0;// from 0 to number of clusters
-		// for (Cluster rcluster : newClusters) {
-		// for (int idx : rcluster.getList()) {
-		// midresult.setValue(idx, clusterLabelID, k);
-		// }
-		// k++;// update cluster index
-		// }
+		k = 0;// from 0 to number of clusters
+		final int clusterLabelID = 1;
+		for (Cluster rcluster : roughClusters) {
+			for (int idx : rcluster.getList()) {
+				midresult.setValue(idx, clusterLabelID, k);
+			}
+			k++;// update cluster index
+		}
 
-		// merge step - for EM, need update method
-		// Cluster[] newClusters =
-		// ClusterHelper.mergeAdjacentCluster(dataSample, emClusters,
-		// DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, 5);//maxIter
-
-		/*
-		 * mid result analysis: step 2: grab samples merge label, [1:number of
-		 * clusters]
-		 */
-		// k = 0;// from 0 to number of clusters
-		// for (Cluster ncluster : newClusters) {
-		// for (int idx : ncluster.getList()) {
-		// midresult.setValue(idx, clusterMergeID, k);
-		// }
-		// k++;// update cluster index
-		// }
-
-		// Cluster[] optClusters =
-		// ClusterHelper.boundaryOptimizeCluster(dataSample, newClusters);
+		// merge step
+		Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
+				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
 
 		/*
 		 * mid result analysis: step 2: grab samples merge label, [1:number of
 		 * clusters]
 		 */
-		// k = 0;// from 0 to number of clusters
-		// for (Cluster optcluster : optClusters) {
-		// for (int idx : optcluster.getList()) {
-		// midresult.setValue(idx, clusterBoundaryOptID, k);
-		// }
-		// k++;// update cluster index
-		// }
+		k = 0;// from 0 to number of clusters
+		final int clusterMergeID = 2;
+		for (Cluster ncluster : newClusters) {
+			for (int idx : ncluster.getList()) {
+				midresult.setValue(idx, clusterMergeID, k);
+			}
+			k++;// update cluster index
+		}
 
 		// identification
-		// int clusterNum = newClusters.size();
-		// double[] sizeTable = new double[clusterNum];
-		// for (int i = 0; i < clusterNum; i++) {
-		// sizeTable[i] = newClusters.get(i).getList().size();
-		// }
-		// LoggerUtil.info(logger,
-		// fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters:
-		// " + Arrays.toString(sizeTable));
+		int clusterNum = newClusters.length;
+		double[] sizeTable = new double[clusterNum];
+		for (int i = 0; i < clusterNum; i++) {
+			sizeTable[i] = newClusters[i].getList().size();
+		}
+		LoggerUtil.info(logger,
+				fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters: " + Arrays.toString(sizeTable));
 
 		// total number * 1%, 10%, total number: total observations
-		// int curNum = 0;
-		// int totalNum = regnDateStr.size();
-		// int newClusterNum = newClusters.size();
-		// List<RegionAnomalyInfoVO> raArr = new
-		// ArrayList<RegionAnomalyInfoVO>();
-		// for (int i = 0; i < newClusterNum; i++) {
-		// Cluster cluster = newClusters.get(findMinimum(sizeTable));
-		//
-		// curNum += cluster.getList().size();
-		// if (curNum > totalNum * potentialMaliciousRatio) {
-		// break;
-		// }
-		//
-		// // result presentation - write to files
-		// for (int dIndx : cluster.getList()) {
-		// RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
-		// raVO.setDateStr(regnDateStr.get(dIndx));
-		// raVO.setHeight(regionHeight);
-		// raVO.setWidth(regionWeight);
-		// raVO.setX(rRIndx * regionHeight);
-		// raVO.setY(cRIndx * regionWeight);
-		// raVO.setdPoint(dataSample.getPointRef(dIndx));
-		// raArr.add(raVO);
-		//
-		// /*
-		// * mid result analysis: step 3: grab samples outlier label:
-		// * 1-outlier, 0-normal
-		// */
-		// //midresult.setValue(dIndx, outlierID, 1);
-		// }
-		// }
+		int curNum = 0;
+		int totalNum = regnDateStr.size();
+		int newClusterNum = newClusters.length;
+		List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
+		for (int i = 0; i < newClusterNum; i++) {
+			Cluster cluster = newClusters[findMinimum(sizeTable)];
+
+			curNum += cluster.getList().size();
+			if (curNum > totalNum * potentialMaliciousRatio) {
+				break;
+			}
+
+			// result presentation - write to files
+			for (int dIndx : cluster.getList()) {
+				RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
+				raVO.setDateStr(regnDateStr.get(dIndx));
+				raVO.setHeight(regionHeight);
+				raVO.setWidth(regionWeight);
+				raVO.setX(rRIndx * regionHeight);
+				raVO.setY(cRIndx * regionWeight);
+				raVO.setdPoint(dataSample.getPointRef(dIndx));
+				raArr.add(raVO);
+
+				/*
+				 * mid result analysis: step 3: grab samples outlier label:
+				 * 1-outlier, 0-normal
+				 */
+				midresult.setValue(dIndx, outlierID, 1);
+				LoggerUtil.debug(logger,"Outlier: "+rRIndx+','+cRIndx+':'+dIndx);// check
+				
+			}
+		}
 
 		/* record midresult to file, one onject one file */
 
 		// writeAsAppendWithDirCheck(String file, String context)
-		// String midrfile = midresultDir + rRIndx + '_' + cRIndx;
-		// StringBuilder midout = new StringBuilder();
-		// for (int i = 0; i < len; i++) {
-		// midout.setLength(0);//reset stringbuilder
-		// for (int j = 0; j < resDim; j++){
-		// if (j>0){
-		// midout.append(",");
-		// }
-		// midout.append(midresult.getValue(i, j));
-		// }
-		// midout.append("\n");
-		// FileUtil.writeAsAppendWithDirCheck(midrfile, midout.toString());
-		// }
+		String midrfile = midresultDir + rRIndx + '_' + cRIndx;
+		StringBuilder midout = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			midout.setLength(0);//reset stringbuilder
+			for (int j = 0; j < resDim; j++){
+				if (j>0){
+					midout.append(",");
+				}
+				midout.append(midresult.getValue(i, j));
+			}
+			midout.append("\n");
+			FileUtil.writeAsAppendWithDirCheck(midrfile, midout.toString());
+		}
 		return raArr;
 	}
 

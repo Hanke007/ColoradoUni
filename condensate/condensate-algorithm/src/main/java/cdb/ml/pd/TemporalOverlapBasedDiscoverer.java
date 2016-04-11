@@ -116,6 +116,6 @@ public class TemporalOverlapBasedDiscoverer extends TemporalDurationBasedDiscove
             resultEventArr.add(eventArr.get(indx));
         }
         return resultEventArr;
-    }
+    }  
 
 }
