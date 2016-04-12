@@ -287,7 +287,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			k++;// update cluster index
 		}
 		
-		//Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, newClusters);
+		Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, newClusters);
 		
 		/*
 		 * mid result analysis: step 2: grab samples merge label, [1:number of
