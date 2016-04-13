@@ -56,13 +56,13 @@ public class StepTwoRegionLevelDetecting extends AbstractDetecting {
         //----------------------------
         //  business logics
         //----------------------------
-        LoggerUtil.info(logger, "1. check and read region value-object.");
+        //LoggerUtil.info(logger, "1. check and read region value-object.");
         checkAndReadRegionInfoVO(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//if individual file exists, skip, if not, create one file for one object
-        LoggerUtil.info(logger, "2. make multiple thread tasks.");
+        //LoggerUtil.info(logger, "2. make multiple thread tasks.");
         configureMultiThreadJobs(rootDir, regnInfoDir, freqId, regionHeight, regionWeight);//bing fa shu ju chuli
 
         // detect anomaly
-        LoggerUtil.info(logger, "3. detect potential errors.");
+        //LoggerUtil.info(logger, "3. detect potential errors.");
         StopWatch stopWatch = null;
         try {
             stopWatch = new StopWatch();

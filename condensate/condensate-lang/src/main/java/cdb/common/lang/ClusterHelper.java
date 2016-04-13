@@ -119,6 +119,43 @@ public final class ClusterHelper {
 
 		return newClusters;
 	}
+	
+	/* s(i) = b(i) - a(i) / max{a(i), b(i)} */
+	public static ArrayList<Double> calculateSilhouette(Cluster[] clusters, final int type, Samples points) {
+		int clen = clusters.length;
+		ArrayList<Double> silhouettes = new ArrayList<Double>(clen);
+		for (int i = 0; i <  clen; i++) {
+			silhouettes.add(i, (double) 0);
+		}
+		double a = 0;
+		double minb = Double.MAX_VALUE;
+		int k = 0;
+		for (Cluster nc : clusters) {
+			for (int idx : nc.getList()) {
+				a = DistanceUtil.distance(points.getPointRef(idx), nc.centroid(points), type);
+				for (Cluster cl : clusters) {
+					if( !cl.getList().contains(idx) ) {
+						double b = DistanceUtil.distance(points.getPointRef(idx), cl.centroid(points), type);
+						if (b < minb) {
+							minb = b;
+						}
+					}
+				}//to get b(i)
+				//calculate
+				double silh = 0;
+				if (a < minb){
+					silh = 1 - a/minb;
+				} else if (a == minb) {
+					silh = 0;
+				} else {
+					silh = minb/a - 1;
+				}
+				silhouettes.set(k, silh + silhouettes.get(k));
+			}
+			k++;//increase cluster index
+		}
+		return silhouettes;
+	}
 
 	/* Boundary optimization */
 	public static Cluster[] boundaryOptimizeCluster(Samples points, Cluster[] clusters) {

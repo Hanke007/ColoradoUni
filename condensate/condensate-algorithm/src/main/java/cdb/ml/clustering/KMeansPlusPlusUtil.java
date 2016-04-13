@@ -51,12 +51,12 @@ public class KMeansPlusPlusUtil {
         }
 
         //Create the initial clusters
-        LoggerUtil.debug(logger, "0. Create the initial clusters.");
+        //LoggerUtil.debug(logger, "0. Create the initial clusters.");
         Point[] centroids = new Point[K];
         chooseInitialCenters(points, centroids, K, type);
 
         //Converge to a minimun
-        LoggerUtil.debug(logger, "1. Locally search optimal solution.");
+        //LoggerUtil.debug(logger, "1. Locally search optimal solution.");
         Cluster[] resultSet = new Cluster[K];
         int[] assigmnt = new int[pointCount];
         double oldErr = Double.MAX_VALUE;
@@ -86,7 +86,7 @@ public class KMeansPlusPlusUtil {
                         pivot = k;
                     }
                 }
-                curErr += min;
+                curErr += min;//add to sum the 
 
                 if (pivot == -1) {
                     throw new RuntimeException("pivot equals -1. a:\n" + a);
@@ -108,27 +108,27 @@ public class KMeansPlusPlusUtil {
             //if no change, then exist
             round++;
             if (changes == 0) {
-                LoggerUtil.debug(logger, round + "\tNo Changes");
+                //LoggerUtil.debug(logger, round + "\tNo Changes");
                 break;
             } else if (curErr > oldErr) {
-                LoggerUtil.debug(logger, round + "\t" + curErr + ">" + oldErr);
+                //LoggerUtil.debug(logger, round + "\t" + curErr + ">" + oldErr);
                 break;
             } else {
                 oldErr = curErr;
-                resultSet = newSet;
-                LoggerUtil.debug(logger, round + "\t" + curErr);
+                resultSet = newSet;//apply the optimal in those trials
+                //LoggerUtil.debug(logger, round + "\t" + curErr);
             }
 
         }
         //mean point in a cluster, write to log
-        int cenIndex = 1;
-        StringBuilder centdInfo = new StringBuilder();
-        for (Point centroid : centroids) {
-            centdInfo.append('\n').append(cenIndex).append(": ").append(centroid).append("\tSize: ")
-                .append(resultSet[cenIndex - 1].getList().size());
-            cenIndex++;
-        }
-        LoggerUtil.debug(logger, centdInfo.toString());
+//        int cenIndex = 1;
+//        StringBuilder centdInfo = new StringBuilder();
+//        for (Point centroid : centroids) {
+//            centdInfo.append('\n').append(cenIndex).append(": ").append(centroid).append("\tSize: ")
+//                .append(resultSet[cenIndex - 1].getList().size());
+//            cenIndex++;
+//        }
+//        LoggerUtil.debug(logger, centdInfo.toString());
 
         return resultSet;
     }

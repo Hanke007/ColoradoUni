@@ -13,6 +13,7 @@ import java.util.Queue;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
+import org.springframework.util.StopWatch;
 
 import cdb.common.lang.ClusterHelper;
 import cdb.common.lang.DistanceUtil;
@@ -25,7 +26,6 @@ import cdb.common.model.Point;
 import cdb.common.model.RegionAnomalyInfoVO;
 import cdb.common.model.RegionInfoVO;
 import cdb.common.model.Samples;
-import cdb.ml.clustering.ExpectationMaximumUtil;
 import cdb.ml.clustering.KMeansPlusPlusUtil;
 
 /**
@@ -45,7 +45,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 		synchronized (ANOMALY_MUTEX) {
 			raInfoBuffer.addAll(raArr);
 
-			if (raInfoBuffer.size() >= 10) {//1000*1000
+			if (raInfoBuffer.size() >= 100) {// 1000*1000
 				StringBuilder strBuffer = new StringBuilder();
 				for (RegionAnomalyInfoVO one : raInfoBuffer) {
 					strBuffer.append(one.toString()).append('\n');
@@ -127,8 +127,8 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			if (regnList.isEmpty()) {
 				return new ArrayList<RegionAnomalyInfoVO>();
 			} else if (regnList.size() < maxClusterNum * 50) {
-				LoggerUtil.warn(logger,
-						"Lack of data : " + regnList.size() + "\t" + fileName.substring(fileName.lastIndexOf('/')));
+//				LoggerUtil.warn(logger,
+//						"Lack of data : " + regnList.size() + "\t" + fileName.substring(fileName.lastIndexOf('/')));
 				return new ArrayList<RegionAnomalyInfoVO>();
 			}
 
@@ -145,7 +145,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 			int cRIndx = pivot.getcIndx();
 			Samples dataSample = new Samples(regnList.size(), pDimen);
 			List<String> regnDateStr = new ArrayList<String>();
-			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr, 
+			QualityControllHelper.normalizeFeatures(dataSample, regnList, regnDateStr,
 					filterCategory);// regnDateStr, date attribute, one to one
 			if (needSaveData) {// normalized data save
 				persistFeatureStep(fileName, dataSample, regnDateStr);
@@ -209,157 +209,168 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
 		// for mid results analysis
 		final int len = dataSample.length()[0];// number of samples
-		final int resDim = 1 + 1 + 1 + 1 + 1; // + dataSample.length()[1];//date(0)
+		final int resDim = 1 + 1 + 1 + 1; // + dataSample.length()[1];//date(0)
 											// + cluster label(1) + merge
-											// label(2) + after boundary optimization (3)+ outlier label(4)
+											// label(2) + outlier label(3) +
+											// sample dimension
 		Samples midresult = new Samples(len, resDim);
 		final String midresultDir = "C:/Dataset/SSMI/midresults/";
+		final String silhDir = "C:/Dataset/SSMI/silhouettes/";
+		List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
 		/*
 		 * mid result analysis: step 0: initialize with sample value of dim and
 		 * grab datestr
 		 */
-		final int dateID = 0, clusterLabelID = 1, clusterMergeID = 2, clusterBoundaryOptID = 3, outlierID = 4;
+		final int dateID = 0, clusterLabelID = 1, clusterMergeID = 2, outlierID = 3;
 		int k = 0;
 		for (String dt : regnDateStr) {
 			midresult.setValue(k, dateID, Integer.parseInt(dt));
 			k++;
 		}
 
-		// clustering with k-means
-//		Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
-//				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
-		
-		// clustering with EM
 		// remove unused feature columns to ensure positive definite cov-matrix
-		int[] feaId = {0,1,3,5,6,7,8,9};//non-zero features
-		for (int i = 0; i < len; i++){
+		int[] feaId = { 0, 1, 3, 5, 6, 7, 8, 9 };// non-zero features
+		for (int i = 0; i < len; i++) {
 			Point tempP = new Point(8);
 			for (int j = 0; j < 8; j++) {
 				tempP.setValue(j, dataSample.getPoint(i).getValue(feaId[j]));
 			}
-			dataSample.setPoint(i,tempP);
+			dataSample.setPoint(i, tempP);
 		}
 		dataSample.setDimension(8);
-		
-		// set feature length
-		Cluster[] roughClusters = ExpectationMaximumUtil.cluster(dataSample, maxClusterNum, maxIter);
-		List<Integer> validClusterId = new ArrayList<Integer>();
-		int m = 0, n = 0;
-		for (Cluster rcluster : roughClusters) {
-			if (rcluster.getList().size() > 0) {
-				validClusterId.add(m, n);
-				m++;
-			}
-			n++;//update cluster id
-		}
-		
-		int validLength = validClusterId.size();//how many valid clusters generated from EM
-		Cluster[] emClusters = new Cluster[validLength];
-        for (int i = 0; i < validLength; i++) {
-            emClusters[i] = roughClusters[validClusterId.get(i)];
-        }
-		
-		/*
-		 * mid result analysis: step 1: grab samples cluster label, use
-		 * [1:number of clusters]
-		 */
-		k = 0;// from 0 to number of clusters
-		for (Cluster rcluster : emClusters) {
-			for (int idx : rcluster.getList()) {
-				midresult.setValue(idx, clusterLabelID, k);
-			}
-			k++;// update cluster index
-		}
 
-		// merge step - for EM, need update method
-		Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, emClusters,
-				DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, 5);//maxIter
-		
-		/*
-		 * mid result analysis: step 2: grab samples merge label, [1:number of
-		 * clusters]
-		 */
-		k = 0;// from 0 to number of clusters
-		for (Cluster ncluster : newClusters) {
-			for (int idx : ncluster.getList()) {
-				midresult.setValue(idx, clusterMergeID, k);
-			}
-			k++;// update cluster index
-		}
-		
-		Cluster[] optClusters = ClusterHelper.boundaryOptimizeCluster(dataSample, newClusters);
-		
-		/*
-		 * mid result analysis: step 2: grab samples merge label, [1:number of
-		 * clusters]
-		 */
-//		k = 0;// from 0 to number of clusters
-//		for (Cluster optcluster : optClusters) {
-//			for (int idx : optcluster.getList()) {
-//				midresult.setValue(idx, clusterBoundaryOptID, k);
-//			}
-//			k++;// update cluster index
-//		}
+//		StopWatch stopWatch = null;
+//        stopWatch = new StopWatch();
+//        stopWatch.start();
+		for (int mk = 10; mk < 50; mk = mk + 5) {//
 
-		// identification
-		int clusterNum = newClusters.length;
-		double[] sizeTable = new double[clusterNum];
-		for (int i = 0; i < clusterNum; i++) {
-			sizeTable[i] = newClusters[i].getList().size();
-		}
-		LoggerUtil.info(logger,
-				fileName.substring(fileName.lastIndexOf('/')) + " resulting clusters: " + Arrays.toString(sizeTable));
+			for (int alpha = 1; alpha < 4; alpha = alpha + 1) {// test merge
+																// alpha
 
-		// total number * 1%, 10%, total number: total observations
-		int curNum = 0;
-		int totalNum = regnDateStr.size();
-		int newClusterNum = newClusters.length;
-		List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
-		for (int i = 0; i < newClusterNum; i++) {
-			Cluster cluster = newClusters[findMinimum(sizeTable)];
+				maxClusterNum = mk;// maximal number of clusters
 
-			curNum += cluster.getList().size();
-			if (curNum > totalNum * potentialMaliciousRatio) {
-				break;
-			}
-
-			// result presentation - write to files
-			for (int dIndx : cluster.getList()) {
-				RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
-				raVO.setDateStr(regnDateStr.get(dIndx));
-				raVO.setHeight(regionHeight);
-				raVO.setWidth(regionWeight);
-				raVO.setX(rRIndx * regionHeight);
-				raVO.setY(cRIndx * regionWeight);
-				raVO.setdPoint(dataSample.getPointRef(dIndx));
-				raArr.add(raVO);
+				// clustering
+				Cluster[] roughClusters = KMeansPlusPlusUtil.cluster(dataSample, maxClusterNum, 20,
+						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE);
 
 				/*
-				 * mid result analysis: step 3: grab samples outlier label:
-				 * 1-outlier, 0-normal
+				 * mid result analysis: step 1: grab samples cluster label, use
+				 * [1:number of clusters]
 				 */
-				midresult.setValue(dIndx, outlierID, 1);
-				LoggerUtil.debug(logger,"Outlier: "+rRIndx+','+cRIndx+':'+dIndx);// check
-				
-			}
-		}
 
-		/* record midresult to file, one onject one file */
-
-		// writeAsAppendWithDirCheck(String file, String context)
-		String midrfile = midresultDir + rRIndx + '_' + cRIndx;
-		StringBuilder midout = new StringBuilder();
-		for (int i = 0; i < len; i++) {
-			midout.setLength(0);//reset stringbuilder
-			for (int j = 0; j < resDim; j++){
-				if (j>0){
-					midout.append(",");
+				k = 0;// from 0 to number of clusters
+				for (Cluster rcluster : roughClusters) {
+					for (int idx : rcluster.getList()) {
+						midresult.setValue(idx, clusterLabelID, k);
+					}
+					k++;// update cluster index
 				}
-				midout.append(midresult.getValue(i, j));
-			}
-			midout.append("\n");
-			FileUtil.writeAsAppendWithDirCheck(midrfile, midout.toString());
-		}
+
+				// merge step
+				Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
+						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+
+				/* Calculate the Silhouette Coefficient */
+				ArrayList<Double> silhouettes = new ArrayList<Double>();
+				
+//				StopWatch stopWatch1 = null;
+//		        stopWatch1 = new StopWatch();
+//				stopWatch1.start();
+				silhouettes = ClusterHelper.calculateSilhouette(newClusters, DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE,
+						dataSample);
+//				stopWatch1.stop();
+//				LoggerUtil.info(logger,
+//		                "Silh TIME SPENDED: " + stopWatch1.getTotalTimeMillis() / 1000.0);
+
+				/*
+				 * mid result analysis: step 2: grab samples merge label,
+				 * [1:number of clusters]
+				 */
+				k = 0;// from 0 to number of clusters
+				for (Cluster ncluster : newClusters) {
+					for (int idx : ncluster.getList()) {
+						midresult.setValue(idx, clusterMergeID, k);
+					}
+					k++;// update cluster index
+				}
+
+				// identification
+				int clusterNum = newClusters.length;
+				double[] sizeTable = new double[clusterNum];
+				for (int i = 0; i < clusterNum; i++) {
+					sizeTable[i] = newClusters[i].getList().size();
+				}
+				// LoggerUtil.info(logger,
+				// fileName.substring(fileName.lastIndexOf('/')) + " resulting
+				// clusters: " + Arrays.toString(sizeTable));// check
+				// // log
+
+				// total number * 1%, 10%, total number: total observations
+				int curNum = 0;
+				int totalNum = regnDateStr.size();
+				int newClusterNum = newClusters.length;
+
+				for (int i = 0; i < newClusterNum; i++) {
+					Cluster cluster = newClusters[findMinimum(sizeTable)];
+
+					curNum += cluster.getList().size();
+					if (curNum > totalNum * potentialMaliciousRatio) {
+						break;
+					}
+
+					// result presentation - write to files
+					for (int dIndx : cluster.getList()) {
+						// RegionAnomalyInfoVO raVO = new RegionAnomalyInfoVO();
+						// raVO.setDateStr(regnDateStr.get(dIndx));
+						// raVO.setHeight(regionHeight);
+						// raVO.setWidth(regionWeight);
+						// raVO.setX(rRIndx * regionHeight);
+						// raVO.setY(cRIndx * regionWeight);
+						// raVO.setdPoint(dataSample.getPointRef(dIndx));
+						// raArr.add(raVO);
+
+						/*
+						 * mid result analysis: step 3: grab samples outlier
+						 * label: 1-outlier, 0-normal
+						 */
+						midresult.setValue(dIndx, outlierID, 1);
+						// LoggerUtil.debug(logger, "Outlier: " + rRIndx + ',' +
+						// cRIndx + ':' + dIndx);// check
+					}
+				}
+
+				/* record midresult to file, one onject one file */
+
+				// writeAsAppendWithDirCheck(String file, String context)
+				// write silh results
+				String silhCoefile = silhDir + rRIndx + '_' + cRIndx + '_' + "kmax" + mk + '_' + alpha;
+				StringBuilder silhcoefs = new StringBuilder();
+				for (int i = 0; i < silhouettes.size(); i++) {
+					silhcoefs.append(silhouettes.get(i));
+					if (i < silhouettes.size() - 1) {
+						silhcoefs.append(',');
+					}
+				}
+				FileUtil.writeAsAppendWithDirCheck(silhCoefile, silhcoefs.toString());
+
+				String midrfile = midresultDir + rRIndx + '_' + cRIndx + '_' + "kmax" + mk + '_' + alpha;
+				StringBuilder midout = new StringBuilder();
+				for (int i = 0; i < len; i++) {
+					midout.setLength(0);// reset stringbuilder
+					for (int j = 0; j < resDim; j++) {
+						if (j > 0) {
+							midout.append(",");
+						}
+						midout.append(midresult.getValue(i, j));
+					}
+					midout.append("\n");
+					FileUtil.writeAsAppendWithDirCheck(midrfile, midout.toString());
+				}
+			} // end of alpha test
+		} // end of maxK iteration
+//		stopWatch.stop();
+//		LoggerUtil.info(logger,
+//                "OVERALL TIME SPENDED: " + stopWatch.getTotalTimeMillis() / 1000.0);
 		return raArr;
 	}
 
