@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Antarctica</title>
+	<link rel="icon" type="image/png" href="images/antarctica.png">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="js/jquery-ui-slider-pips.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui-slider-pips.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+
+	<script src="proj4js-2.3.3/proj4.js"></script>
+	<link rel="stylesheet" href="openlayers-3.8.2/ol.css"/>
+	<link rel="stylesheet" href="css/example.css"/>
+	<script src="openlayers-3.8.2/ol.js"></script>
+
+	<!-- Place these declarations last so they overwrite previous -->
+	<link rel="stylesheet" href="css/core.css"/>
+	<script src="js/antarctic-epsg3031.js"></script>
+	
+	<!-- css style -->
+	<style></style>
+	
+</head>
+<body>
+<div class="background"></div>
+<div id="wrapper">
+
+	<div id="logo">
+		<img src="images/logoNSIDC.png" alt="logo" style="width:100px;height:100px;">
+		<img src="images/logoCU.png" alt="logo" style="width:100px;height:100px;">
+	</div>
+
+	<div id="top">
+		
+		<div id="mapContainer">
+			<div id="map"></div>
+		</div>
+		
+		<div id="sidebar">
+							
+			<div class="row">
+				<div class="mutual">
+					<p>Frequency: 
+					<span id="darkText">
+					19<input id="chk19" name="chk19" type="checkbox" value="19" class="checkbox" checked>
+					22<input id="chk22" name="chk22" type="checkbox" value="22" class="checkbox">
+					37<input id="chk37" name="chk37" type="checkbox" value="37" class="checkbox">
+					85<input id="chk85" name="chk85" type="checkbox" value="85" class="checkbox">
+					91<input id="chk91" name="chk91" type="checkbox" value="91" class="checkbox">
+					</span>
+					</p>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="mutual">
+					<p>Polarization: 
+					<span id="darkText">
+					vertical<input id="chkVertical" name="chkVertical" type="checkbox" value="vertical" class="checkbox" checked>
+					horizontal<input id="chkHorizontal" name="chkHorizontal" type="checkbox" value="horizontal" class="checkbox">
+					</span>
+					</p>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="mutual">
+					<p>Timeline Zoom: 
+					<span id="darkText">
+					days<input id="chkDay" name="chkDay" type="checkbox" value="day" class="checkbox" checked>
+					months<input id="chkMonth" name="chkMonth" type="checkbox" value="month" class="checkbox">
+					</span>
+					</p>
+				</div>
+			</div>
+
+			<div class="row"><p>Rectangle Selection for Sub-Region</p></div>
+			<div class="row">
+				<p id="tempOutput"></p>
+				<button onclick="buttonDrawRectangle();">draw rectangle</button>
+				<button onclick="source.clear();">clear rectangle</button>
+			</div>
+			
+			<div class="row"><p>Yearly Pattern</p><p id="patternText"></p></div>
+			<div class="row">
+				<div class="slide sliderPattern"></div>
+			</div>
+			
+			<div class="row"><p>Range of Years</p><p id="yearsText"></p></div>
+			<div class="row">
+				<div class="slide sliderYears"></div>
+			</div>
+
+			<div class="row"><p>Query Threshold - Lower to Upper [Kelvin]</p><p id="thresholdText"></p></div>
+			<div class="row">
+				<div class="slide sliderThreshold"></div>
+			</div>
+
+			<div class="row">
+				<button class="btn thr" onclick="sendRequest(anomalyRequest, 0);">anomalies</button>
+				<button class="btn thr" onclick="sendRequest(anomalyRequest, 1);">aggregate</button>
+			</div>
+			
+			<div class="row"><p>Baseline Image Opacity</p><p id="layerOpacityText"></p></div>
+			<div class="row">
+				<div class="slide sliderLayerOpacity"></div>
+			</div>
+			
+			<div class="row"><p>Climatology Opacity</p><p id="markerOpacityText"></p></div>
+			<div class="row">
+				<div class="slide sliderMarkerOpacity"></div>
+			</div>
+<!--		
+			<div class="row"><p>Heatmap Opacity</p><p id="heatmapOpacityText"></p></div>
+			<div class="row">
+				<div class="slide sliderHeatmapOpacity"></div>
+			</div>
+-->
+
+			<div class="row"><p>Results Opacity</p><p id="markerOpacityText"></p></div>
+			<div class="row">
+				<div class="slide sliderAnomalyOpacity"></div>
+			</div>
+			
+			<div class="row">
+				<button class="btn thr" onclick="redVectorSource.clear();blueVectorSource.clear();vectorSource.clear();">clear results</button>
+			</div>
+
+
+<!-- add back soon
+			<div class="row outputResultsBack">
+				<div id="outputResults"></div>
+			</div>
+-->
+		
+		</div>
+	</div><!-- end top -->
+	
+	<!--
+	<div id="bottom">
+		<div id="timelineBox">
+			<div>
+				<div class="row"><p id="timelineText"></p></div>
+				<div class="row">
+					<div class="slide sliderTimeline"></div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+	end bottom -->
+	
+</div><!-- end wrapper -->
+
+<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+<script src="js/core.js"></script>
+	
+<script type="text/javascript">
+	updateResults(anomalyRequest);
+</script>
+<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+
+</body>
+</html>

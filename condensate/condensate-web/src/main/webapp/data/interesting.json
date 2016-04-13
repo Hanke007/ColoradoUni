@@ -1,0 +1,12 @@
+{
+	"type": "FeatureCollection", "features": [
+		{"geometry": {"type": "Point", "coordinates": [-42.24, -39.23]},"type": "Feature", "properties": {"name": "Top Left", "osm_id": 1501900666}},
+		{"geometry": {"type": "Point", "coordinates": [-135, -41.45]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-317.76, -39.23]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-225, -41.45]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [-317.76, -39.23]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}, 
+		{"geometry": {"type": "Point", "coordinates": [90, -54.66]},"type": "Feature", "properties": {"name": "right side", "osm_id": 1501900666}},
+		{"geometry": {"type": "Point", "coordinates": [90, -54.66]},"type": "Feature", "properties": {"name": "right side", "osm_id": 1501900666}},
+		{"geometry": {"type": "Point", "coordinates": [0, -51.32]},"type": "Feature", "properties": {"name": "Mount Bennett", "osm_id": 1501900666}}		
+	]
+}

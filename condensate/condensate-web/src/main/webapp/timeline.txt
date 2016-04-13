@@ -1,0 +1,31 @@
+[1] Timeline: 100 days
+
+    2016-01-26 - today, UI sprint
+        Fixing CSS/HTML layout, buttons/slider function, color selection, fixing rectangle workflow, date entry, timeline navigation, map alignment, ability to change base map, map plotting style/symbols, and transparency options
+        Learning Spring Java implementation and working on database integration
+        Working on fixing workflow and fixing efficiency in pushing updates to compute engine
+    2016-02-03 - UI Review
+        Wednesday meeting - UI review with Glenn, set new goals
+        Adding new control features and placeholders for unfinished portions of the UI to the implementation
+            histograms with additional metrics
+            notifications and updates
+            errors
+        Review what data sets will be accommodated, SSMI, AVHRR
+    2016-03-01 - Midpoint design review
+        In nearest meeting with Glenn go over all desired functionality and FINALIZE list of outcomes needed by May! [ no additional functionality will be expected ]
+        Maintain list of debugging tasks and continue to fix bugs
+        Show a working integration between climatology and map overlays - verify accuracy
+        Workflow showing simultaneous data sets and comparisons either side-by-side or overlaid
+        Address any database changes in Java code base
+        Update any portions of the Spring workflow as needed
+        Potentially re sample data to allow for speed vs accuracy optimization - high-resolution data vs low-resolution data
+    2016-03-15 - halfway point [50 days]
+        Begin quantifying performance metrics for speed and data reduction when parsing data - plot how quickly database responds to varying queries
+        Potentially accommodate integration of extra data sets into workflow
+        Potentially useful feature addition: adding HighCharts plotting would be very helpful! - User clicks on point in map --> corresponding time series data is plotted for nearest lat/lon
+    2016-04-01 - Midpoint design review
+        Finalize work on eliminating any persistent bugs
+        Chronicle a user case flow - following the investigation of a unique example
+        Update documentation - Potentially add a sister webpage that explains the system architecture and what is needed to integrate further data sets...
+    2016-05-06 - last day
+        Beta Distribution

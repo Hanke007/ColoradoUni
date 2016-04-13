@@ -1,96 +1,90 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Highcharts Example</title>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Highcharts Example</title>
 
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-		<script src="https://code.highcharts.com/stock/highstock.js"></script>
-		<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
-		<script src="js/value-in-legend.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+	<script src="js/value-in-legend.js"></script>
 
-		<script type="text/javascript">
+	<script type="text/javascript">
+	
 	$(function () {
-    var seriesOptions = [],
-        seriesCounter = 0,
-        //names = ['MSFT', 'AAPL', 'GOOG'];
-		names = ['s19v', 's19h', 's22v', 's37v', 's37h', 's85v', 's85h', 's91v', 's91h'];
-		colors = Highcharts.getOptions().colors;
+		var seriesOptions = [],
+			seriesCounter = 0,
+			names = ['s19v', 's19h', 's22v', 's37v', 's37h', 's85v', 's85h', 's91v', 's91h', 'mcMurdoGround', 'sunspots'];
+			colors = Highcharts.getOptions().colors;
 
-    /**
-     * Create the chart when all data is loaded
-     * @returns {undefined}
-     */
-    function createChart() {
+		function createChart() {
+			$('#container').highcharts('StockChart', {
+				title: {
+					text: 'Daily Brightness Values for McMurdo Station [lat: -77.85, lon: 166.66], Number of Sunspots, and Ground Temp',
+					x: -20 //center
+				},
+				subtitle: {
+					text: 'Values derived from the 19/22/37 GHz [row 227, col 171], and [row 451, col 341] of the 87/91 GHz data',
+					x: -20
+				},
+				rangeSelector: {
+					selected: 4
+				},
+				yAxis: {
+					labels: {
+						formatter: function () {
+							return (this.value > 0 ? ' + ' : '') + this.value + ' K';
+						}
+					},
+					plotLines: [{
+						value: 0,
+						width: 1,
+						color: '#808080'
+					}]
+				},
+				legend: {
+					enabled: true,
+					floating: true,
+					align: 'left',
+					verticalAlign: 'top',
+					y: 35,
+					labelFormat: '<span style="color:{color}">{name}</span>: <b>{point.y:.2f} K<br/>',
+					borderWidth: 0
+				},
+				tooltip: {
+					pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change} K)<br/>',
+					valueDecimals: 2
+				},
+				series: seriesOptions
+			});
+		}
 
-        $('#container').highcharts('StockChart', {
-			title: {
-				text: 'Daily Brightness Values for McMurdo Station [lat: -77.85, lon: 166.66]',
-				x: -20 //center
-			},
-			subtitle: {
-				text: 'Values derived from the 19/22/37 GHz [row 227, col 171], and [row 451, col 341] of the 87/91 GHz data',
-				x: -20
-			},
-			
-            rangeSelector: {
-                selected: 4
-            },
+		$.each(names, function (i, name){
 
-            yAxis: {
-                labels: {
-                    formatter: function () {
-                        return (this.value > 0 ? ' + ' : '') + this.value + ' K';
-                    }
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-			
-			legend: {
-                enabled: true,
-                floating: true,
-                align: 'left',
-                verticalAlign: 'top',
-                y: 35,
-                labelFormat: '<span style="color:{color}">{name}</span>: <b>{point.y:.2f} K<br/>',
-                borderWidth: 0
-            },
-			
-            tooltip: {
-                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change} K)<br/>',
-                valueDecimals: 2
-            },
+			$.getJSON('data/' + name + '.json', function( data ){
 
-            series: seriesOptions
-        });
-    }
+				seriesOptions[i] = {
+					name: name,
+					data: data
+				};
 
-    $.each(names, function (i, name) {
+				// As we're loading the data asynchronously, we don't know what order it will arrive. So
+				// we keep a counter and create the chart when all the data is loaded.
+				seriesCounter++;
 
-        $.getJSON('data/' + name + '.json',    function (data) {
-
-            seriesOptions[i] = {
-                name: name,
-                data: data
-            };
-
-            // As we're loading the data asynchronously, we don't know what order it will arrive. So
-            // we keep a counter and create the chart when all the data is loaded.
-            seriesCounter++;
-
-            if (seriesCounter === names.length) {
-                createChart();
-            }
-        });
-    });
-});
+				if (seriesCounter === names.length) {
+					createChart();
+				}
+			});
+		});
+	});
 	</script>
-	</head>
-	<body>
-			<center><div id="container" style="height: 95vh; width: 95vw"></div></center>
+</head>
+<body>
+
+	<center><div id="container" style="height: 95vh; width: 95vw"></div></center>
+	<br>
+	<center><div id="container2" style="height: 95vh; width: 95vw"></div></center>
+
 	</body>
 </html>

@@ -20,60 +20,97 @@ body {
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.5);
 }
-#top {
+#content {
 	clear: left;
 	width: 100vw;
-	height: 90vh;
-}
-#bottom {
-	clear: left;
-	width: 90vw;
-	height: 18vh;
-}
-#mapContainer {
-	float: left;
-	width: 75vw;
-	height: 100%;
+	height: 100vh;
 	background-color: #aaa;
 }
-#map { height: 100%; }
-#sidebar {
-	float: left;
-	width: 24vw;
+#map{
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	margin: 0; padding: 0;
 	height: 100%;
-	background-color: #999;
 }
-#timelineBox {
-	width: 99vw;
-	height: 10vh;
-	background-color: rgba(255,255,255,0.4);
-	text-align: center;
-	background-color: #bbb;
-}
+/*
 #logo {
 	position: absolute;
-	float: left;
-	top: 10px;
 	z-index: 2;
+	top: 10px;
+	left: 10px;
 }
 #logo img {
-	margin-left: 7px;
-	margin-right: 0px;
+	margin: 10px 0px 0px 10px;
+}
+*/
+#sidebar {
+	position: absolute;
+	z-index: 3;
+	top: 20px;
+	left: 20px;
+	width: 300px;
+	bottom: 20px;
+	background-color: rgba(0,0,0,0.5);
+	font-size: 1.2em;
+}
+/*
+#smallMap{
+	position: absolute;
+	z-index: 3;
+	top: 660px;
+	left: 20px;
+	width: 220px;
+	height: 100px;
+}
+*/
+#timelineBox {
+	position: absolute;
+	z-index: 3;
+	bottom: 20px;
+	left: 20px;
+	right: 20px;
+	height: 60px;
+	background-color: rgba(0,0,0,0.5);
+}
+.timelineBoxInternal {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
 }
 .ol-zoom { /* controls the position of the zoom button */
 	position: absolute;
 	left: auto;
 	right: 20px;
-	top: 50px;
+	top: 20px;
+}
+headsUp {
+	position: absolute;
+	left: auto;
+	right: 60px;
+	top: 20px;
+
 }
 p {
 	color: #fff;
-	font-size: 0.8em;
-	text-align: center;
+	font-size: 0.7em;
+	/*text-align: center;
+	line-height: 80%;*/
 }
-#darkText {
-	color: #999;
+/* output for coordinates */
+.bottomRight {
+	z-index: 5;
+	position: absolute;
+	bottom: 90px;
+	right: 20px;
+	background-color: rgba(0,0,0,0.5);
+	color: #fff;
+	text-align: right;
+	font-size: 2em;
+	padding: 10px;
 }
+
 .outputResultsBack {
 	background-color: "#00FF00";
 	float: right;
@@ -82,14 +119,13 @@ p {
 	overflow: scroll;
 	font-size: 0.7em;
 }
-.row {
-	width: 92%;
-	position: relative;
+#row {
+	color: #fff;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+.row input{
 	float: left;
-	display: inline-block;
-	text-align: center;
-	padding: 0;
-	margin-left: 5%;
 }
 .slide {
 	margin: 0 2% 0 2%;
@@ -104,11 +140,28 @@ p {
 	font-size: 0.8em;
 	letter-spacing: 2px;
 }
-.btn:active {
-	font-size: 0.9em;
-	letter-spacing: 2.2px;
-}
 .sm { width: 19%; }
 .thr { width: 32%; }
 .md { width: 48%; }
 .lg { width: 98%; }
+.text {
+	font-family: "Montserrat", "sans-serif";
+	color: #fff;
+	font-weight: 500;
+	line-height: 82.5px;
+	text-transform: uppercase;
+}
+
+/* for the scrollbar on the side */
+div.scroll {
+	background-color: rgba(0,0,0,0.5);
+	width: 70px;
+	/*height: 95%;*/
+	overflow: hidden;
+}
+.container .content1 { background-color: rgba(6,4,2,0.5); }
+.container .header { background-color: rgba(1,7,2,0.5); padding: 10px; cursor: pointer; font-weight: bold; }
+.container .content1 { display: none; padding: 0px; }
+label { display: block; rgba(0,0,0,0.5): Window; margin: 0; padding: 0; width: 100%; }
+.container { color: #fff; }
+/* end */

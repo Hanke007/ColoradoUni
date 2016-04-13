@@ -1,0 +1,360 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+	
+    <script src="https://code.jquery.com/ui/1.11.1/jquery-ui.js"></script>
+    <script src="js/jquery-ui-slider-pips.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui-slider-pips.css">
+	<link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+
+	
+	<!-- css style -->
+	<style>
+	#tile {
+		border: 1px solid black;
+		outline-color: blue;
+		margin: 10px;
+	}
+	.sliderYears { margin: 20px; }
+	
+	/* Center the loader */
+#loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#searchImage {
+  display: none;
+  text-align: center;
+}
+#loader {
+	display: none;
+}
+	</style>
+	
+</head>
+<body>
+<div id="wrapper">
+<center>
+
+<div id="tile">
+	<p>Timer</p>
+	<div id="currentTime"></div>
+	<button onclick="searchDatabase();">Search Database</button>
+	<div id="loader"></div>
+	<div id="searchImage"></div>
+</div>
+
+<div id="tile">
+	<img SRC="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAFA3PEY8MlBGQUZaVVBfeMiCeG5uePWvuZHI////////////////////////////////////////////////////2wBDAVVaWnhpeOuCguv/////////////////////////////////////////////////////////////////////////wAARCAJ4ApgDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//EACQQAQEBAAEEAgMBAQEBAAAAAAABEQISITFxMlFBUpFhIgNC/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AOPH4z00zx+M9NAAAAAAAAQAVAAAUQAAAAAAAVFBBQEUAAAAAAAFiLAFQBQAAAFRQQVABQEFQBMUBFAAABFQEAAAAwwUEABAABUAABUUBAAAAEUARUAABOPxnpU4/GelBQAAABAFAAABUAAABFAQFAAAUAAAAAAAAAAACBAUAFEAVUAFRQBFAAAABAAAAAAQUBBTAQxQEFQEFQEUAEVAAAXUAAFAAAABBUBBQGePxnpU4/GemgAQFEAVAAFAAQFAAVFARUABQTBQEUxQQUBBQEAAAAAAIEBQAAAAAURQAAFRQAAQVAAARQAAAAABAVKgAAAAAACC4AySKAoACoAAgKACCgM8fjPSpx+M9NAgAAAIKABgAAAACgAAAiooARQAAFABFQEFQAVAFQ0ATQFVldBVZ1dBUUBFAAAAAFEAVBQAAEUBBUAAARQEAAAAAARagKigJTFQAEBRAAABUAUQA4/Hj6VOHw4+lBBcMBBQAAEFAQAAABUUAFBAAIqKAqFoKJ1LKAigILWdBU01nQaGdNBQ0AFQCKgDUVNTqBoZ00GoM6ugozqygoACgACggACKAgAAAIoAgqAIoCCgIqAAIAAABQENAFQBQAXh8OPpU4fDj6UAAAAAABFQBFQAABRAWWNbGMJ2BqoACooBVicgY5eTSgNcatrDf4BLU0qUEoAAAC6gDWjKygoAAAAGgAAAAumoA1vYnJkBre7UuxiNeIChAAAAAAABFQAAEFAQABFQBFAQABFARGsARQAABeHw4+lZ4/Dj6aAAAAAAABAEVAUQBUUAAAVFAIIB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" ALT="06jun" WIDTH=664  HEIGHT=632>
+	<img SRC="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAJ4ApgDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAEC/8QAGRABAQEBAQEAAAAAAAAAAAAAAAERMSFx/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AMxUUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUAUAAAAAAAAAAABFARQAAARUAAAAAAAAAAAAAAAAAAAAAAARUAAABQAAAAAQFAAAAAAAAABFAAAAAAAAAAAAAAAAAAAFEAUAAAAAAAAAAAAAAAEFAQUBBQEFQAAAAAAAAAAAAAAAAAAEFARUigAACKAIoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKIoAAAAAAAAAAIoAAAAAAgKgAAAAAAAAAigAAAAAAAAAACRUigAAAAAAAAAAAAAAAAAAAAAAKACKgAAAAAAAAAACoAqKAigAAAAAAAAAAAAAAAAAigIAAAAAAAAAAAAAAAAAAAAAAE5AAAAAAAAAAAAAAAAAAAAABUAUTVARQEFQAAAEBQAAAAAFQBRAFEAUQBQAAAAAAAAAAAAARQBBUAAAAAAAAAAAAAQAFRQAAJyBOQAAAAAAAAAAAAAAAVAAAAAAVAQAFBQQEAAAAAABRAFAAAAAAAAAAAAAAVFAAAAAAAAAAAABBQEAAAAAAAAABBQEUAAAJwJwAAAAAAAAAAAAAAAAAAAAARUAUAAAEVAAAAAAAAAFQBRAAABUAURQBAFEUAAFEAURQAAAAAAAAAAEVAAAAAAAAAAAAAAAJyBOAAAAAAAAAAAAAAAAAAAAIAKAAAAAAAgoAioACggoCAAAAAAAAAAigAAAACiKAAArKgoigAAAAAAAAigCCoAAAAAAAAAABOQJyKCCgIAAAAAAAAAAAAAAioACgAAAAAAAAAAAAAAAAIoCAAAAAAAAAAAAAAKgCooCKgCqgCiAKIoAAAAAgCiAAAAAAAAAAAE5FScigCWkAAAAAAAAAAAAABAAUAAAUBAAUAEFAQAEFAAAAAAAAAQVAAABQEFQAAAAAAAAAAFEUBUAURQAAAAEVAAAAAAAAAAAAAJyfFScigysAAAAAAAAAAAAAEBQAAAAUAAAAAAAEFQAAAAAABFARQAAAABFxQGRQEFAQUBAAAAAAAAFRQAAUAAAAAEFAQAAFBAAAAAAJyKk5FARQBFQAAAAAFBBQEAAAAAAABQAAAAABFARQEAAEAUFBBQEBQEVQZUUEABFAEAAFARFARRAVBQQVAFRQAAUQBQAAQFEUBFAQAAAAAAACcipORQAQBUUBFQAABUUAAERagCooAACgAAAAACAKgCiAAAIqKAKAAACgAAAACKAigCAAAAgqACgIACCgIAAqAKAAAAAACgCKAACAAAAAAS+GsgNanUUFVAFEUEUAAQFABmi0BFAAAFAAEUAABAAFQAAEABVRQDABQAAAAAFRQQUBBUBBQAAEAAAARQEFAQAEAAVAFAAVAFAARQBFAQAFQAAAQRQFAAABUAVFAQUBAUEFQAAAAAAAAFRUAAAVAAABFAIoAAoAAAAAAKgoAAAAIKgAAAAAAIKAgACAAioAAAqKAACiKAAAACCoAAAACRSAAAAACooAAAAAACKAgAAAAAAAAAAAAAIooIRGgAAFAAAAAAUAAAAAAAABBUAAAAABAAAAARK0yAAAACgAKigAAAAigAAAACTgTkAFQBQAAAQUBFQBQAAAQEBRAFAAAARQEABQAAUEUAFQBTAAVFBBQAAAAAAAAAAAABFQAABFAQVAEAFSgCAAqACiKAACgAAAAAAAAAk5AnIAAAoAAACKgKAAAAgAVBAVUUAABFABFAAAAAVFBUUBAAFAAFAAAAAAAAAAAAARUAAAAARQEFQBGmQEVAAAAAFRQAAURQAAAAAAAAScCcAAAUAAAAAARQEVAEVAAAAAAAFAAAAAAABUUFEAAUEUAAAUABFQFAAAAAAAARUAAAAAABBQEqKAiNAMigIACgAAAKigAAAAAAAAk4E4AqAAACgAAAAACACKAgAAAAAKIAoAAAAAAAKIAoAKIoAAAAAAKAAAAAAAAACCoAAAAAACAAIqAAAgqAKgCiKAAAqKAIAKgAABOQJyAKgAAAAAAAoAIAAioAAAAAKAigAAAAAAAAAqAKAAACiAKmlQGlZjQIACgAAAAACoAACCgIAAACAAIoCCoAhQAABUUBQBFAEFQAAAACcCcAAAAAAAAAAABUARUAAABQAABFAAAAAAAUAAAAAAAFABMGgRQBBUAUAAAAAUAEAAABBUAAABAAAEaQERQEAAVAFVFBAAAAAAUQAnAnAAAAAAAAABUABQEABBUAABUUBAAURQAAAAUAAAAUBBQEBAaEigoAAAAAAAAACooCKgAACKgAACKAgACKAgICggAKAoAIAAAAAAAE5AnIAAAAAAAAAAAoAIKgCAAACgAAgKIoAAAKACgigAoAIqAIqAKiA0rKgoAAAAAAACooCKgAACKAgAAAIqAKgAiKAIqAKACooCAACggqAAATgTgAAAAAAAAAAAqKCAgAAAAKIoCKAioAoACooKIoAKAAAgAAAgqAiwAXRFgKAAAACgIoCKAIAAioACAAACABVZAVAAAFEUBUAUEBRAAAAACcCcAAAAAAAAAAAAAAAQAAAAAFABBUBQAAAUAFVkBRNUBUAVAABAAAEVAaCKAAAAAqAKgAAgAAIAACAAAqAAioAACxUiggAAAAAAAAAECAAAAAAAAAAAAAAACKgAAAAAAKgACgIoAAAogArKgprIDQyaDQmqAAAigCkUEUAAAAAAQAABAAAARUABAVAAAAVFAUARUUAABAAAAAAEUAAAAAAAAAAAAAABFAQAAAAABQAAAAAEAAAAAAABUAABRAFEUGhFBRAFAARUAAAQAAAQABUAAQFRUAAAUUAAEUQFQAAAAAAARUigAAAAAAAAAAAAqAAACCgIKgKCAoAAACKAigAACCgIoAgAAAAAALgKqKAAAAAAAACAAAACAKgAAAgAAoCiKAAAIoIAAAAAAACKAAAAAAAAAAAAAAAAAAACKgAAKAAAAAAioAqAKIAoIAAAAAAA0y0AACiAAAKIAAAItQAAAAEABUFBFFBBQAABAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAACKgAKCKAAAIACoAAAAAAAAAAAAAC6gDQyA0iKCiaaCiAKioAIAogC6gAqACqgCgAAAIAAAAAAICgAAAAAQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgqAAAAAAAAAAoIKAgoCCgIKAAAAAigAgAKigAAKAAACAAAAAAAAAAIoAAAAIqRQAAAAAAAAAAAAAAAAAAAAAAAAEUAEAUQBQAAAQVAAAAAFQBQAAAAAFQAAAAAQUEUUEUAAQAAAAAAAAAAAAAAEUAAAAASKigAAAAAAAAAAAAAAAAAAAAAAAACKAAAigIAACggoCKKCCoCCgIqAKAAAAAAAAioAqLAUQBUAAAAAAAAAAAAAAAEFQFEAUAAQAVFAEUAAAAAAAAAAAAAAAAAAAFARQEAAAAAAAAAAVAFEAUQAAARQEFAAAAARUUFTFAQAAAAAAAAAAAAAAAAAAABFAQVAAAAAAAAAAAUAAAAAAAAAAAAAAAAAFEUEAAAAAAAAAAAAAAAAAAABRAFEAVAAAAAAAAAAAAAAAAAAAAAAAAAARUAVAAAAUBAAAAAAFRQAAAAAAAAAAAAAAAAAAVFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBQQFAAAAAAQAUQBQAQAAAAAAAFABAAFRQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEUAAAAARUAAAAAAAAAAAAAABRAFEUEFQFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARQEBQBFAAABAUEBQAAAQAFBAURQAAAAEAAAAAAAAUBAAAAAAAAAAAAF0ANNAAABAAAAAA0AF00ANNADTYAGmwANhoAi7AA2GgCAAfugBpoAamgAAAAAAAAAAAAAAAAAAAAAAAaAGgAAAAAAAAAAA//9k=" ALT="06jun" WIDTH=664  HEIGHT=632>	
+</div>
+
+
+
+<!-- day month year -->
+<div id="tile">
+	<form autocomplete="off">
+		<p>Zoom of the Timeline</p>
+		<div class="mx-button">
+			<input type="radio" name="timelineZoom" id="day" checked>
+			<label for="day">day</label>
+		</div>
+		<div class="mx-button">
+			<input type="radio" name="timelineZoom" id="month">
+			<label for="month">month</label>
+		</div>
+		<div class="mx-button">
+			<input type="radio" name="timelineZoom" id="year">
+			<label for="year">year</label>
+		</div>
+		<p id="timelineZoomSelection"></p>
+	</form>
+</div>
+
+<!-- monthly pattern selection -->
+<div id="tile">
+	<form action="">
+		<p>Which months to parse during the length of dates</p>
+		<input type="checkbox" name="monthPattern" value="jan" checked>jan
+		<input type="checkbox" name="monthPattern" value="feb" checked>feb
+		<input type="checkbox" name="monthPattern" value="mar" checked>mar
+		<input type="checkbox" name="monthPattern" value="apr" checked>apr
+		<input type="checkbox" name="monthPattern" value="may" checked>may
+		<input type="checkbox" name="monthPattern" value="jun" checked>jun
+		<input type="checkbox" name="monthPattern" value="jul" checked>jul
+		<input type="checkbox" name="monthPattern" value="aug" checked>aug
+		<input type="checkbox" name="monthPattern" value="sep" checked>sep
+		<input type="checkbox" name="monthPattern" value="oct" checked>oct
+		<input type="checkbox" name="monthPattern" value="nov" checked>nov
+		<input type="checkbox" name="monthPattern" value="dec" checked>dec
+		<p id="monthlyPatternSelection"></p>
+	</form>
+</div>
+
+<div id="tile">
+	<div class="sliderYears"></div>
+	<br>
+	<p id="yearSelection"></p>
+</div>
+
+<div id="tile">
+	<p id="printDays"></p>
+</div>
+</center>
+
+<script type="text/javascript">
+
+	days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+	months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+	timelineZoom = "day";
+	minYear = 1987;
+	startYear = 1990;
+	maxYear = 2014;
+	endYear = 1992;
+	
+	dataSet = "SSMI";
+	frequency = "19";
+	polarization = "h";
+	
+	startDate = startYear + "-01-01";
+	endDate = endYear + "-12-31";
+
+	
+	<!-- intial prints -->
+	document.getElementById("timelineZoomSelection").innerHTML = "current selection is: " + timelineZoom;
+	checkedBoxes = getCheckedBoxes("monthPattern");
+	document.getElementById("monthlyPatternSelection").innerHTML = "current selection is: " + checkedBoxes;
+	document.getElementById("yearSelection").innerHTML = "start: " + minYear + " end: " + maxYear;
+
+	$("input[name='timelineZoom']").change( function(){
+		timelineZoom = this.id;
+		document.getElementById("timelineZoomSelection").innerHTML = "current selection is: " + timelineZoom;
+		console.log("test: " + timelineZoom);
+	});
+
+	// Pass the checkbox name to the function
+	function getCheckedBoxes(chkboxName) {
+		var checkboxes = document.getElementsByName(chkboxName);
+		var checkboxesChecked = [];
+
+		for( var i = 0; i < checkboxes.length; i++ ){
+			if( checkboxes[i].checked ){
+				checkboxesChecked.push(checkboxes[i]["value"]);
+			}
+		}
+		// problem if null
+		return checkboxesChecked.length > 0 ? checkboxesChecked : null;
+	}
+	$("input[name='monthPattern']").change( function(){
+		checkedBoxes = getCheckedBoxes("monthPattern");
+		document.getElementById("monthlyPatternSelection").innerHTML = "current selection is: " + checkedBoxes;
+	});
+
+	
+	function updateResults( ){
+		
+		startYear = Math.min($(".sliderYears").slider("values")[0], $(".sliderYears").slider("values")[1]);
+		endYear = Math.max($(".sliderYears").slider("values")[0], $(".sliderYears").slider("values")[1]);
+		//
+		console.log("start: " + startYear);
+		console.log("start: " + startYear);
+		//startMonth = $(".sliderPattern").slider("values")[0] + 1;
+		//endMonth = $(".sliderPattern").slider("values")[1] + 1;
+		
+		startDate = startYear + "-" + ("00" + "0").slice(-2) + "-01";
+		endDate = endYear + "-" + ("00" + "12").slice(-2) + "-01";
+		
+		// update anomaly request values
+		/*
+		anomalyRequest["dsName"] = dataSet;
+		anomalyRequest["dsFreq"] = "s" + frequency + polarization;
+		anomalyRequest["dsPolar"] = polarization;
+		anomalyRequest["sDate"] = startDate;
+		anomalyRequest["eDate"] = endDate;
+		anomalyRequest["sYear"] = startYear;
+		anomalyRequest["eYear"] = endYear;
+		anomalyRequest["sMonth"] = $(".sliderPattern").slider("values")[0] + 1;
+		anomalyRequest["eMonth"] = $(".sliderPattern").slider("values")[1] + 1;
+		anomalyRequest["locations"] = loctnArray
+		*/
+	}
+
+	// user input of the date
+	$(".sliderYears")
+		.slider({
+			min: minYear,
+			max: maxYear,
+			step: 1,
+			values: [startYear, endYear],
+			slide: function( event, ui ){
+				$( startYear = Math.min(ui.values[0],ui.values[1]) );
+				$( endYear = Math.max(ui.values[0],ui.values[1]) );
+				$( updateDateList() );
+				$("#yearSelection").text( "start: " + Math.min(ui.values[0],ui.values[1]) + " end: " + Math.max(ui.values[0],ui.values[1])
+					+ ", days selected: " + listDays.length );
+			},
+			change: function( event, ui ){
+				$( startYear = Math.min(ui.values[0],ui.values[1]) );
+				$( endYear = Math.max(ui.values[0],ui.values[1]) );
+				$( updateDateList() );
+				$("#yearSelection").text( "start: " + Math.min(ui.values[0],ui.values[1]) + " end: " + Math.max(ui.values[0],ui.values[1])
+					+ ", days selected: " + listDays.length );
+				//$( console.log("start: " + ui.values[0] + " end: " + ui.values[1]) );
+			}
+		})
+		.slider("pips", {
+			rest: "label",
+			step: 1
+		});
+		/*
+		.on("slidechange", function( event, ui ){
+			//$("#yearsText").text( ui.values[0] + " to " + ui.values[1] );
+			$( updateResults( anomalyRequest ) );
+		});
+		*/
+
+	//////////////////////////////////////////
+	Date.prototype.addDays = function(days) {
+		   var dat = new Date(this.valueOf())
+		   dat.setDate(dat.getDate() + days);
+		   return dat;
+	   }
+
+	   function getDates(startDate, stopDate) {
+		  var dateArray = new Array();
+		  var currentDate = startDate;
+		  while (currentDate <= stopDate) {
+			dateArray.push(currentDate)
+			currentDate = currentDate.addDays(1);
+		  }
+		  return dateArray;
+		}
+	// new Date(year, month, day, hours, minutes, seconds, milliseconds)
+	function updateDateList(){
+		dateArray = getDates(new Date(startYear, 1, 1, 12, 0, 0), new Date(endYear, 1, 1, 12, 0, 0));
+		listDays = new Array();
+		for( i = 0; i < dateArray.length; i ++ ){
+			listDays.push(dateArray[i].getYear() + "-" + dateArray[i].getMonth() + "-" + dateArray[i].getDate());
+			if( i%20 == 0 ){
+				listDays.push("<br>");
+			}
+		}
+		document.getElementById("printDays").innerHTML = "current selection is:" + listDays;
+	}
+	updateDateList();
+	
+// bug - if the two pips overlap with one another --> span of zero days! (prevent this behavior)
+
+//////////////////////////////////////////////////////////////////	
+/*
+	arrDates = GetDates(startDate, 10);
+
+	function changeDateRange(num) {
+		var currentDate = new Date(slideDate.getDate());
+		currentDate.setDate;
+		slideDate.setDate(currentDate.getTime() + num);
+		arrDates = GetDates(slideDate, 10); // next 10 days
+		$(".slider").slider({
+			min : 0,
+			max : 9,
+			value : 0
+		}).slider("pips", {
+			rest : "label",
+			labels : arrDates
+		})
+	}
+	// find the next set of days
+	function GetDates(startDate, daysToAdd) {
+		var arrDates = [];
+		for (var i = 1; i <= daysToAdd; i++) {
+			var currentDate = new Date(startDate);
+			currentDate.setDate(startDate.getDate() + i);
+			arrDates.push(currentDate.getDate() + " "
+					+ months[currentDate.getMonth()] + " "
+					+ currentDate.getFullYear());
+		}
+		return arrDates;
+	}
+	
+timeSeconds = (slideDate.getTime()+sliderValue*24*60*60*1000);
+
+slDate = new Date(0);
+slDate.setUTCSeconds( (slideDate.getTime()+(sliderValue+1)*24*60*60*1000) / 1000 );
+aReq = new Date(0);
+aReq.setUTCSeconds(anomalyRequest[1]["date"]/1000);
+
+console.log("slideDate: " + slDate.getDate() + " "+ (slDate.getMonth()+1) + " " + slDate.getFullYear());
+console.log("requestDate: " + aReq.getDate() + " "+ (aReq.getMonth()+1) + " " + aReq.getFullYear());
+*/
+
+
+//////////////////////////////////////////////////////////////////				
+//////////////////////////////////////////////////////////////////				
+/* timer function */
+var searchImage = new Image();
+searchImage.src = "images/penguinSearch.gif";
+function searchDatabase(){
+	//document.getElementById("searchImage").appendChild(searchImage);
+	// sleep random
+	document.getElementById("loader").style.display = "block";
+	myVar = setTimeout(showImage, 2000);
+	document.getElementById("loader").style.display = "none";
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  //document.getElementById("searchImage").style.display = "block";
+  document.getElementById("searchImage").appendChild(searchImage);
+}
+
+function startTimer() {
+    var current = new Date();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('txt').innerHTML =
+    s + ":" + ms;
+    var t = setTimeout(startTime, 500);
+}
+function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+//////////////////////////////////////////////////////////////////					
+	
+</script>
+
+<!-- add google analytics -->
+<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+
+</body>
+</html>
