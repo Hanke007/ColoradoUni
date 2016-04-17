@@ -101,12 +101,19 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 	@Override
 	public void run() {// configuration file zconfigqc.properties
 		Entry<String, List<String>> dEntry = null;
+		int sampleID = 0;
 		while ((dEntry = task()) != null) {
 			String resultFile = dEntry.getKey();// result
 			List<String> fileNames = dEntry.getValue();// source
 			List<RegionAnomalyInfoVO> raArr = new ArrayList<RegionAnomalyInfoVO>();
 			for (String fileName : fileNames) {
-				raArr.addAll(innerDectectoin(fileName));// detect anomaly
+				//sample every 10th objects
+				sampleID++;
+				if (sampleID == 10){
+					sampleID = 0;
+					raArr.addAll(innerDectectoin(fileName));// detect anomaly
+					LoggerUtil.info(logger,fileName);
+				}
 			}
 			save(raArr, resultFile);
 		}
@@ -242,10 +249,11 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 //		StopWatch stopWatch = null;
 //        stopWatch = new StopWatch();
 //        stopWatch.start();
-		for (int mk = 10; mk < 50; mk = mk + 5) {//
+		for (int mk = 10; mk < 160; mk = mk + 10) {//
+			alpha = 1;
 
-			for (int alpha = 1; alpha < 4; alpha = alpha + 1) {// test merge
-																// alpha
+//			for (int alpha = 1; alpha < 4; alpha = alpha + 1) {// test merge
+//																// alpha
 
 				maxClusterNum = mk;// maximal number of clusters
 
@@ -268,7 +276,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 
 				// merge step
 				Cluster[] newClusters = ClusterHelper.mergeAdjacentCluster(dataSample, roughClusters,
-						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, alpha, maxIter);
+						DistanceUtil.SQUARE_EUCLIDEAN_DISTANCE, 1, maxIter);//fixed alpha=1
 
 				/* Calculate the Silhouette Coefficient */
 				ArrayList<Double> silhouettes = new ArrayList<Double>();
@@ -352,6 +360,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 					}
 				}
 				FileUtil.writeAsAppendWithDirCheck(silhCoefile, silhcoefs.toString());
+				//write midfile
 
 				String midrfile = midresultDir + rRIndx + '_' + cRIndx + '_' + "kmax" + mk + '_' + alpha;
 				StringBuilder midout = new StringBuilder();
@@ -366,7 +375,7 @@ public class DefaultQualityControllThread extends AbstractQualityControllThread 
 					midout.append("\n");
 					FileUtil.writeAsAppendWithDirCheck(midrfile, midout.toString());
 				}
-			} // end of alpha test
+			//} // end of alpha test
 		} // end of maxK iteration
 //		stopWatch.stop();
 //		LoggerUtil.info(logger,
