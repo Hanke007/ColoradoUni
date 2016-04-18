@@ -71,9 +71,6 @@ public class ExpectationMaximumUtil {
 
         int round = 0;
         while (round < maxIteration) {
-        	// 
-        	System.out.println("Iteration: " + round);
-        	
             //E-step: 
             eStep(samples, assigmnt, K, sampleNum, varNum, models);
 
@@ -82,6 +79,8 @@ public class ExpectationMaximumUtil {
             
             round++;
         }
+        //after all iterations, make assignment 
+        
         return resultSet;
     }
 

@@ -10,6 +10,8 @@ public class MultiVarNormal {
     private int             dimnVar;
     private UJMPDenseVector mu;
     private UJMPDenseMatrix sigmaMatrix;
+    private double mc; // total responsibility allocated to cluster k
+    private double pic; // fraction of total assigned to cluster k
 
     public MultiVarNormal(int dimnVar) {
         this.dimnVar = dimnVar;
@@ -83,6 +85,42 @@ public class MultiVarNormal {
      */
     public void setSigmaMatrix(UJMPDenseMatrix sigmaMatrix) {
         this.sigmaMatrix = sigmaMatrix;
+    }
+    
+    /**
+     * Getter method for property <tt>mc</tt>.
+     * 
+     * @return property value of mc
+     */
+    public double getMc() {
+        return mc;
+    }
+
+    /**
+     * Setter method for property <tt>mc</tt>.
+     * 
+     * @param mu value to be assigned to property mc
+     */
+    public void setMc(double mc) {
+        this.mc = mc;
+    }
+    
+    /**
+     * Getter method for property <tt>pic</tt>.
+     * 
+     * @return property value of pic
+     */
+    public double getPic() {
+        return pic;
+    }
+
+    /**
+     * Setter method for property <tt>pic</tt>.
+     * 
+     * @param mu value to be assigned to property pic
+     */
+    public void setPic(double pic) {
+        this.pic = pic;
     }
 
 }
