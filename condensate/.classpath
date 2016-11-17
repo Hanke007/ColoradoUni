@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="condensate-algorithm/src/main/java"/>
+	<classpathentry kind="src" path="condensate-algorithm/src/test/java"/>
+	<classpathentry kind="src" path="condensate-dal/src/main/java"/>
+	<classpathentry kind="src" path="condensate-dal/src/test/java"/>
+	<classpathentry kind="src" path="condensate-lang/src/main/java"/>
+	<classpathentry kind="src" path="condensate-web/src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

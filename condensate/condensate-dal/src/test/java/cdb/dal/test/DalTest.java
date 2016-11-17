@@ -39,7 +39,7 @@ public class DalTest {
 	public static void loadAnomalyResult() {
 		ClassPathXmlApplicationContext ctx = null;
 		try {
-			String[] lines = FileUtil.readLines("C:/Dataset/SSMI/Anomaly/REG_n19v_2_2");
+			String[] lines = FileUtil.readLines("C:/Users/AA_LQ/google/IceData/SSMI/Anomaly/REG_n19v_2_2_em_alpha1");
 
 			int fileLen = lines.length;
 			int numSplits = 100;

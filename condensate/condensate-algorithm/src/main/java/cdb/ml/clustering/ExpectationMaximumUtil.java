@@ -165,14 +165,14 @@ public class ExpectationMaximumUtil {
                 }
                 
             	} catch(Exception e) {
-            		System.out.println(models[k].getSigmaMatrix().toString());
+            		//System.out.println(models[k].getSigmaMatrix().toString());
             	}
             }
             sumLikilyHood += max;
             assigmnt[i] = pivot;
             resultSet[pivot].add(i);
         }
-        LoggerUtil.debug(logger, "Log[Pr]: " + Math.log(sumLikilyHood));
+        //LoggerUtil.debug(logger, "Log[Pr]: " + Math.log(sumLikilyHood));
     }
 
 
